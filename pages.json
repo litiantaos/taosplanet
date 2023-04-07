@@ -1,0 +1,172 @@
+{
+	"pages": [{
+		"path": "pages/index/index",
+		"style": {
+			"navigationBarTitleText": "",
+			"navigationStyle": "custom"
+		}
+	}, {
+		"path": "pages/discover/discover",
+		"style": {
+			"navigationBarTitleText": "",
+			"navigationStyle": "custom"
+		}
+	}, {
+		"path": "pages/message/message",
+		"style": {
+			"navigationBarTitleText": "消息"
+		}
+	}, {
+		"path": "pages/user/user",
+		"style": {
+			"navigationBarTitleText": "",
+			"navigationStyle": "custom"
+		}
+	}, {
+		"path": "pages/login/login",
+		"style": {
+			"navigationBarTitleText": "",
+			"navigationStyle": "custom"
+		}
+	}, {
+		"path": "pages/webview/webview",
+		"style": {
+			"navigationBarTitleText": ""
+		}
+	}, {
+		"path": "pages/video/video",
+		"style": {
+			"navigationBarTitleText": "",
+			"backgroundColor": "#000",
+			"navigationStyle": "custom"
+		}
+	}, {
+		"path": "pages/search/search",
+		"style": {
+			"navigationBarTitleText": "搜索"
+		}
+	}],
+	"subPackages": [{
+			"root": "pages-post",
+			"pages": [{
+				"path": "post-detail/post-detail",
+				"style": {
+					"navigationBarTitleText": "动态",
+					"navigationBarBackgroundColor": "#fff"
+				}
+			}, {
+				"path": "post-publish/post-publish",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "post-publish/support-detail/support-detail",
+				"style": {
+					"navigationBarTitleText": "外链支持说明"
+				}
+			}, {
+				"path": "post-edit/post-edit",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "post-share/post-share",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}]
+		},
+		{
+			"root": "pages-user",
+			"pages": [{
+				"path": "user-detail/user-detail",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "user-info/user-info",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "user-info/user-intro/user-intro",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "user-info/user-relationship/user-relationship",
+				"style": {
+					"navigationBarTitleText": ""
+				}
+			}, {
+				"path": "user-resume/user-resume",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "user-college/user-college",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "user-college/college-select/college-select",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "user-likes/user-likes",
+				"style": {
+					"navigationBarTitleText": "我的喜欢"
+				}
+			}]
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "TAOSPLANET",
+		"navigationBarBackgroundColor": "#F5F5F5",
+		"backgroundColor": "#F5F5F5"
+	},
+	"uniIdRouter": {
+		"loginPage": "pages/login/login",
+		"needLogin": [
+			"pages-post/post-publish/post-publish",
+			"pages-user/user-info/user-info",
+			"pages/user/user"
+		],
+		"resToLogin": true
+	},
+	"tabBar": {
+		"color": "#fff",
+		"selectedColor": "#fff",
+		"backgroundColor": "#fff",
+		"borderStyle": "white",
+		"height": "0",
+		"list": [{
+				"text": "",
+				"pagePath": "pages/index/index"
+			},
+			{
+				"text": "",
+				"pagePath": "pages/discover/discover"
+			},
+			{
+				"text": "",
+				"pagePath": "pages/message/message"
+			},
+			{
+				"text": "",
+				"pagePath": "pages/user/user"
+			}
+		]
+	}
+}

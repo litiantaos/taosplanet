@@ -1,0 +1,58 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id",
+		"college_id"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"forceDefaultValue": {
+				"$env": "uid"
+			},
+			"foreignKey": "uni-id-users._id"
+		},
+		"college_id": {
+			"bsonType": "string",
+			"foreignKey": "db-colleges._id"
+		},
+		"college_name": {
+			"bsonType": "string",
+			"title": "学校"
+		},
+		"major": {
+			"bsonType": "string",
+			"title": "专业",
+			"trim": "both"
+		},
+		"start_date": {
+			"bsonType": "int",
+			"title": "起始时间"
+		},
+		"end_date": {
+			"bsonType": "int",
+			"title": "结束时间"
+		},
+		"sort": {
+			"bsonType": "int",
+			"title": "排序"
+		},
+		"date": {
+			"bsonType": "timestamp",
+			"title": "时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"version": "0.0.1"
+}

@@ -1,0 +1,67 @@
+{
+	"bsonType": "object",
+	"required": [
+		"post_id",
+		"user_id",
+		"comment_content",
+		"comment_type"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "存储文档 ID（文章 ID），系统自动生成"
+		},
+		"post_id": {
+			"bsonType": "string",
+			"foreignKey": "db-posts._id"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"forceDefaultValue": {
+				"$env": "uid"
+			},
+			"foreignKey": "uni-id-users._id"
+		},
+		"comment_content": {
+			"bsonType": "string",
+			"title": "评论内容",
+			"trim": "both"
+		},
+		"comment_type": {
+			"bsonType": "int",
+			"description": "0 针对动态的回复  1 针对评论的回复"
+		},
+		"reply_comment_id": {
+			"bsonType": "string",
+			"description": "被回复的评论ID，comment_type为1时有效",
+			"parentKey": "_id"
+		},
+		"reply_user_id": {
+			"bsonType": "string",
+			"description": "被回复的评论用户ID，comment_type为1时有效",
+			"foreignKey": "uni-id-users._id"
+		},
+		"comment_date": {
+			"bsonType": "timestamp",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"comment_ip": {
+			"bsonType": "string",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"like_count": {
+			"bsonType": "int",
+			"description": "评论点赞数"
+		}
+	},
+	"version": "0.0.1"
+}

@@ -1,0 +1,472 @@
+{
+	"bsonType": "object",
+	"permission": {
+		"read": true,
+		"create": "'CREATE_UNI_ID_USERS' in auth.permission",
+		"update": "doc._id == auth.uid || 'UPDATE_UNI_ID_USERS' in auth.permission",
+		"delete": "'DELETE_UNI_ID_USERS' in auth.permission"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"avatar_file": {
+			"bsonType": "file",
+			"title": "头像",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"nickname": {
+			"bsonType": "string",
+			"title": "昵称",
+			"trim": "both",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"intro": {
+			"bsonType": "string",
+			"title": "简介",
+			"trim": "both",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"gender": {
+			"bsonType": "int",
+			"title": "性别",
+			"defaultValue": 0,
+			"enum": [{
+					"text": "未知",
+					"value": 0
+				},
+				{
+					"text": "男",
+					"value": 1
+				},
+				{
+					"text": "女",
+					"value": 2
+				}
+			],
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"birth_date": {
+			"bsonType": "timestamp",
+			"title": "生日",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"hometown": {
+			"bsonType": "object",
+			"description": "家乡",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"region": {
+			"bsonType": "object",
+			"description": "地区",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"city": {
+			"bsonType": "string",
+			"title": "城市",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"city_lng": {
+			"bsonType": "double",
+			"description": "城市中心经度",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"city_lat": {
+			"bsonType": "double",
+			"description": "城市中心纬度",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"district": {
+			"bsonType": "string",
+			"title": "区县",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"district_lng": {
+			"bsonType": "double",
+			"description": "区县中心经度",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"district_lat": {
+			"bsonType": "double",
+			"description": "区县中心纬度",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"status_id": {
+			"bsonType": "int",
+			"description": "状态 0-8",
+			"defaultValue": 0,
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"status_name": {
+			"bsonType": "string",
+			"title": "状态",
+			"defaultValue": "未知",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"emotion_id": {
+			"bsonType": "int",
+			"description": "情感 0-7",
+			"defaultValue": 0,
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"emotion_name": {
+			"bsonType": "string",
+			"title": "情感",
+			"defaultValue": "未知",
+			"permission": {
+				"read": true,
+				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"view_count": {
+			"bsonType": "int",
+			"title": "浏览量",
+			"defaultValue": 0,
+			"permission": {
+				"read": true,
+				"write": false
+			}
+		},
+		"last_login_date": {
+			"bsonType": "timestamp",
+			"description": "最后登录时间",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"last_login_ip": {
+			"bsonType": "string",
+			"description": "最后登录 IP",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"register_date": {
+			"bsonType": "timestamp",
+			"description": "注册时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			},
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"register_ip": {
+			"bsonType": "string",
+			"description": "注册 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			},
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"note": {
+			"bsonType": "string",
+			"title": "备注",
+			"trim": "both",
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"tags": {
+			"bsonType": "array",
+			"title": "标签",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"score": {
+			"bsonType": "int",
+			"title": "积分",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"mobile": {
+			"bsonType": "string",
+			"pattern": "^\\+?[0-9-]{3,20}$",
+			"title": "手机号码",
+			"trim": "both",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"mobile_confirmed": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 未验证 1 已验证",
+			"enum": [{
+					"text": "未验证",
+					"value": 0
+				},
+				{
+					"text": "已验证",
+					"value": 1
+				}
+			],
+			"title": "手机号码验证状态",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"email": {
+			"bsonType": "string",
+			"format": "email",
+			"title": "邮箱",
+			"trim": "both",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"email_confirmed": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 未验证 1 已验证",
+			"enum": [{
+					"text": "未验证",
+					"value": 0
+				},
+				{
+					"text": "已验证",
+					"value": 1
+				}
+			],
+			"title": "邮箱验证状态",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"username": {
+			"bsonType": "string",
+			"description": "用户名不允许重复",
+			"title": "用户名",
+			"trim": "both",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"password": {
+			"bsonType": "password",
+			"title": "密码",
+			"trim": "both"
+		},
+		"password_secret_version": {
+			"bsonType": "int",
+			"title": "passwordSecret",
+			"permission": {
+				"read": false,
+				"write": false
+			}
+		},
+		"token": {
+			"bsonType": "array",
+			"permission": {
+				"read": false,
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"role": {
+			"bsonType": "array",
+			"title": "角色",
+			"enum": {
+				"collection": "uni-id-roles",
+				"field": "role_id as value, role_name as text"
+			},
+			"foreignKey": "uni-id-roles.role_id",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"dcloud_appid": {
+			"bsonType": "array",
+			"description": "允许登录的客户端的appid列表",
+			"foreignKey": "opendb-app-list.appid",
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"wx_openid": {
+			"bsonType": "object",
+			"description": "微信各个平台openid",
+			"properties": {
+				"app": {
+					"bsonType": "string"
+				},
+				"mp": {
+					"bsonType": "string"
+				},
+				"h5": {
+					"bsonType": "string"
+				},
+				"web": {
+					"bsonType": "string"
+				}
+			},
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"wx_unionid": {
+			"bsonType": "string",
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"apple_openid": {
+			"bsonType": "string",
+			"description": "苹果登录openid",
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"third_party": {
+			"bsonType": "object",
+			"description": "三方平台凭证",
+			"permission": {
+				"read": false,
+				"write": false
+			}
+		},
+		"identities": {
+			"bsonType": "array",
+			"description": "三方平台身份信息；一个对象代表一个身份，参数支持：provider 身份源、userInfo 三方用户信息、openid 三方openid、unionid 三方unionid、uid 三方uid",
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			}
+		},
+		"realname_auth": {
+			"bsonType": "object",
+			"description": "实名认证信息",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			},
+			"properties": {
+				"auth_date": {
+					"bsonType": "timestamp",
+					"description": "认证通过时间"
+				},
+				"auth_status": {
+					"bsonType": "int",
+					"description": "0 未认证 1 等待认证 2 认证通过 3 认证失败",
+					"maximum": 3,
+					"minimum": 0
+				},
+				"contact_email": {
+					"bsonType": "string",
+					"description": "联系人邮箱"
+				},
+				"contact_mobile": {
+					"bsonType": "string",
+					"description": "联系人手机号码"
+				},
+				"contact_person": {
+					"bsonType": "string",
+					"description": "联系人姓名"
+				},
+				"id_card_back": {
+					"bsonType": "string",
+					"description": "身份证反面照 URL"
+				},
+				"id_card_front": {
+					"bsonType": "string",
+					"description": "身份证正面照 URL"
+				},
+				"identity": {
+					"bsonType": "string",
+					"description": "身份证号码/营业执照号码"
+				},
+				"in_hand": {
+					"bsonType": "string",
+					"description": "手持身份证照片 URL"
+				},
+				"license": {
+					"bsonType": "string",
+					"description": "营业执照 URL"
+				},
+				"real_name": {
+					"bsonType": "string",
+					"description": "真实姓名/企业名称"
+				},
+				"type": {
+					"bsonType": "int",
+					"description": "用户类型：0 个人用户 1 企业用户",
+					"maximum": 1,
+					"minimum": 0
+				}
+			},
+			"required": [
+				"type",
+				"auth_status"
+			]
+		}
+	},
+	"required": []
+}

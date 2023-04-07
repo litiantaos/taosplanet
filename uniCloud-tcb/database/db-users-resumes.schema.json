@@ -1,0 +1,68 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"forceDefaultValue": {
+				"$env": "uid"
+			},
+			"foreignKey": "uni-id-users._id"
+		},
+		"start_date": {
+			"bsonType": "timestamp",
+			"title": "起始时间"
+		},
+		"end_date": {
+			"bsonType": "timestamp",
+			"title": "结束时间"
+		},
+		"company": {
+			"bsonType": "string",
+			"title": "公司",
+			"trim": "both"
+		},
+		"industry_id": {
+			"bsonType": "string",
+			"title": "行业 ID",
+			"foreignKey": "db-industries._id"
+		},
+		"industry_name": {
+			"bsonType": "string",
+			"title": "行业"
+		},
+		"position": {
+			"bsonType": "string",
+			"title": "职务",
+			"trim": "both"
+		},
+		"duties": {
+			"bsonType": "string",
+			"title": "职责",
+			"trim": "both"
+		},
+		"sort": {
+			"bsonType": "int",
+			"title": "排序"
+		},
+		"date": {
+			"bsonType": "timestamp",
+			"title": "时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"version": "0.0.1"
+}

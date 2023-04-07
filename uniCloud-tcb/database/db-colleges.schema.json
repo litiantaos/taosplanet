@@ -1,0 +1,72 @@
+{
+	"bsonType": "object",
+	"required": [
+		"name"
+	],
+	"permission": {
+		"read": true,
+		"create": false,
+		"update": false,
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "存储文档 ID（文章 ID），系统自动生成"
+		},
+		"sn": {
+			"bsonType": "int",
+			"title": "序号"
+		},
+		"name": {
+			"bsonType": "string",
+			"title": "名称"
+		},
+		"code": {
+			"bsonType": "string",
+			"title": "标识码"
+		},
+		"department": {
+			"bsonType": "string",
+			"title": "主管部门"
+		},
+		"province": {
+			"bsonType": "string",
+			"title": "省"
+		},
+		"city": {
+			"bsonType": "string",
+			"title": "市"
+		},
+		"level": {
+			"bsonType": "string",
+			"title": "层次"
+		},
+		"note": {
+			"bsonType": "string",
+			"title": "备注",
+			"trim": "both"
+		},
+		"sort": {
+			"bsonType": "int",
+			"title": "排序"
+		},
+		"peeli": {
+			"bsonType": "int"
+		},
+		"peeli_date": {
+			"bsonType": "string",
+			"title": "社团成立日期"
+		},
+		"student_count": {
+			"bsonType": "int",
+			"title": "学生数量"
+		},
+		"icon": {
+			"bsonType": "string",
+			"title": "图标",
+			"pattern": "^(http://|https://|/|./|@/)\\S",
+			"trim": "both"
+		}
+	},
+	"version": "0.0.1"
+}

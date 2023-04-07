@@ -1,0 +1,163 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"topic_id": {
+			"bsonType": "string",
+			"title": "话题",
+			"foreignKey": "db-topics._id",
+			"enum": {
+				"collection": "db-topics",
+				"field": "name as text, _id as value"
+			}
+		},
+		"content": {
+			"bsonType": "string",
+			"title": "内容",
+			"trim": "right"
+		},
+		"images": {
+			"bsonType": "array",
+			"title": "图片"
+		},
+		"videos": {
+			"bsonType": "array",
+			"title": "视频"
+		},
+		"location": {
+			"bsonType": "object",
+			"title": "位置"
+		},
+		"location_name": {
+			"bsonType": "string",
+			"title": "位置名称"
+		},
+		"link": {
+			"bsonType": "string",
+			"title": "链接"
+		},
+		"shared_post_id": {
+			"bsonType": "string",
+			"title": "转发动态",
+			"foreignKey": "_id"
+		},
+		"view_count": {
+			"bsonType": "int",
+			"title": "浏览量",
+			"permission": {
+				"write": false
+			}
+		},
+		"like_count": {
+			"bsonType": "int",
+			"title": "喜欢数",
+			"permission": {
+				"write": false
+			}
+		},
+		"comment_count": {
+			"bsonType": "int",
+			"title": "评论数",
+			"permission": {
+				"write": false
+			}
+		},
+		"publish_date": {
+			"bsonType": "timestamp",
+			"title": "发布时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"publish_ip": {
+			"bsonType": "string",
+			"title": "发布 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"is_modified": {
+			"bsonType": "bool",
+			"description": "true is modified, false is unmodified",
+			"defaultValue": false
+		},
+		"last_modify_date": {
+			"bsonType": "timestamp",
+			"title": "最后修改时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"last_modify_ip": {
+			"bsonType": "string",
+			"title": "最后修改 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"status": {
+			"bsonType": "int",
+			"title": "状态",
+			"description": "0 草稿箱 1 已发布",
+			"defaultValue": 0,
+			"enum": [{
+					"value": 0,
+					"text": "草稿箱"
+				},
+				{
+					"value": 1,
+					"text": "已发布"
+				}
+			]
+		},
+		"is_sticky": {
+			"bsonType": "bool",
+			"title": "置顶",
+			"permission": {
+				"write": false
+			}
+		},
+		"sort": {
+			"bsonType": "int",
+			"title": "排序"
+		},
+		"sec_check": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 通过 1 违规 2 错误"
+		},
+		"comment_status": {
+			"bsonType": "int",
+			"title": "评论状态",
+			"description": "0 关闭  1 开放",
+			"enum": [{
+					"value": 0,
+					"text": "关闭"
+				},
+				{
+					"value": 1,
+					"text": "开放"
+				}
+			]
+		}
+	},
+	"version": "0.0.1"
+}
