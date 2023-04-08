@@ -5,10 +5,6 @@ import {
 const db = uniCloud.database();
 const dbCmd = db.command;
 
-const utils = uniCloud.importObject("utils", {
-	customUI: true
-});
-
 export function getTempFileURL(ids) {
 	return new Promise((resolve, reject) => {
 		uniCloud.getTempFileURL({
@@ -24,24 +20,6 @@ export function getTempFileURL(ids) {
 			}
 		})
 	})
-}
-
-export async function handleLike(postId) {
-	// 查询是否点赞
-	let count = await db.collection("db-posts-likes")
-		.where(`post_id == "${postId}" && user_id == $cloudEnv_uid`).count();
-
-	// 增删点赞数据
-	if (count.result.total) {
-		await db.collection("db-posts-likes").where(`post_id == "${postId}" && user_id == $cloudEnv_uid`)
-			.remove();
-		utils.calc("db-posts", "like_count", postId, -1);
-	} else {
-		await db.collection("db-posts-likes").add({
-			post_id: postId,
-		});
-		utils.calc("db-posts", "like_count", postId, 1);
-	}
 }
 
 // 统一查询点赞状态

@@ -92,11 +92,13 @@
 	} from "@/common/utils.js";
 
 	import {
-		getTempFileURL,
-		handleLike
+		getTempFileURL
 	} from "@/common/cloud.js";
 
 	const db = uniCloud.database();
+	const utils = uniCloud.importObject("utils", {
+		customUI: true
+	});
 
 	export default {
 		name: "post",
@@ -169,6 +171,25 @@
 				uni.setStorageSync("post-share", this.post);
 				this.$emit("share");
 			},
+			async handleLike() {
+				let postId = this.postId;
+
+				// 查询是否点赞
+				let count = await db.collection("db-posts-likes")
+					.where(`post_id == "${postId}" && user_id == $cloudEnv_uid`).count();
+
+				// 增删点赞数据
+				if (count.result.total) {
+					await db.collection("db-posts-likes").where(`post_id == "${postId}" && user_id == $cloudEnv_uid`)
+						.remove();
+					utils.calc("db-posts", "like_count", postId, -1);
+				} else {
+					await db.collection("db-posts-likes").add({
+						post_id: postId,
+					});
+					utils.calc("db-posts", "like_count", postId, 1);
+				}
+			},
 			clickLike: throttle(function() {
 				if (!store.hasLogin) {
 					this.$emit("like");
@@ -187,7 +208,7 @@
 					}
 				});
 
-				handleLike(this.postId);
+				this.handleLike();
 			}),
 			previewVideo(item, index) {
 				// console.log(e);

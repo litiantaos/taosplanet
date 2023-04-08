@@ -99,7 +99,7 @@
 					this.hide();
 					setTimeout(() => {
 						this.set(props);
-					}, 150)
+					}, 300);
 				} else {
 					this.set(props);
 				}
@@ -109,7 +109,7 @@
 				this.timer && clearTimeout(this.timer);
 				setTimeout(() => {
 					this.isMount = false;
-				}, 350);
+				}, 300);
 			},
 			onClick() {
 				this.success();

@@ -234,7 +234,7 @@
 					this.hide();
 					setTimeout(() => {
 						this.set(props);
-					}, 150)
+					}, 300);
 				} else {
 					this.set(props);
 				}
@@ -242,10 +242,11 @@
 			hide() {
 				this.isShow = false;
 				this.popupY = 0;
-				this.showLocation = false;
 				setTimeout(() => {
 					this.isMount = false;
-				}, 350);
+				}, 300);
+
+				this.showLocation = false;
 			},
 			touchEnd(e) {
 				let oy = this.old.y,

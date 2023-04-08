@@ -1,9 +1,9 @@
 export function setName(data) {
-	return data.nickname || "Taoker"
+	return data?.nickname || "Taoker";
 }
 
 export function setAvatar(data) {
-	return data?.avatar_file?.url ?? "../../static/images/avatar.svg"
+	return data?.avatar_file?.url ?? "../../static/images/avatar.svg";
 }
 
 export function isValidUrl(str) {
@@ -39,7 +39,7 @@ export const debounce = function(func, wait = 1000, immediate = true) {
 	}
 }
 
-export const throttle = (func, wait = 2000, type = 1) => {
+export const throttle = function(func, wait = 2000, type = 1) {
 	let previous = 0;
 	let timeout;
 	return function() {

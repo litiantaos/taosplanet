@@ -272,7 +272,7 @@
 				this.$refs.popup.show({
 					type: "text",
 					title: "提示",
-					text: "你确定要删除吗？",
+					text: "动态内容、获赞、评论均会被删除，确定要继续吗？",
 					success: () => {
 						this.$refs.toast.show({
 							type: "loading",
@@ -280,9 +280,49 @@
 							duration: "none"
 						})
 
-						db.collection("db-posts").doc(this.postId).remove().then(res => {
+						db.collection("db-posts").doc(this.postId).remove().then(async res => {
 							// console.log(res);
 							utils.calc("db-topics", "post_count", this.post.topic_id[0]._id, -1);
+
+							// 删除云文件
+							if (this.post.images.length) {
+								await uniCloud.callFunction({
+									name: "delete-file",
+									data: {
+										fileList: this.post.images
+									},
+									success: result => {
+										console.log(result);
+									}
+								});
+							} else if (this.post.videos.length) {
+								await uniCloud.callFunction({
+									name: "delete-file",
+									data: {
+										fileList: this.post.videos
+									},
+									success: result => {
+										console.log(result);
+									}
+								});
+							}
+
+							// 删除赞
+							let likesDb = db.collection("db-posts-likes").where(`post_id == "${this.postId}"`);
+							await likesDb.count().then(res => {
+								if (res.result.total != 0) {
+									likesDb.remove();
+								}
+							});
+
+							// 删除评论
+							let commentDb = db.collection("db-posts-comments").where(`post_id == "${this.postId}"`);
+							await commentDb.count().then(res => {
+								if (res.result.total != 0) {
+									commentDb.remove();
+								}
+							});
+
 							this.$refs.toast.show({
 								type: "success",
 								text: "删除成功",
