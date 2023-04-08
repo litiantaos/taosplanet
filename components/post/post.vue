@@ -58,11 +58,11 @@
 			<view class="footer-item">
 				<i class="iconfont icon-like like" :class="{'active': post.isLike, 'animation': isClickLike}"
 					@click.stop="clickLike"></i>
-				<view class="text">{{post.like_count ? post.like_count : ""}}</view>
+				<view class="text">{{post.like_count || ""}}</view>
 			</view>
 			<view class="footer-item">
 				<i class="iconfont icon-message"></i>
-				<view class="text">{{post.comment_count ? post.comment_count : ""}}</view>
+				<view class="text">{{post.comment_count || ""}}</view>
 			</view>
 			<view class="footer-item">
 				<i class="iconfont icon-send-t" @click.stop="clickShare"></i>
@@ -188,6 +188,23 @@
 						post_id: postId,
 					});
 					utils.calc("db-posts", "like_count", postId, 1);
+
+					uniCloud.callFunction({
+						name: "push",
+						data: {
+							user_id: this.post.user_id[0]._id,
+							payload: {
+								type: "like",
+								content: "赞了你的动态",
+								post_id: this.postId,
+								user_id: this.post.user_id[0]._id,
+								from_user_id: store.userInfo._id,
+								from_user_name: store.userInfo.nickname,
+								from_user_avatar: store.userInfo.avatar_file.url,
+								date: Date.now()
+							}
+						}
+					});
 				}
 			},
 			clickLike: throttle(function() {

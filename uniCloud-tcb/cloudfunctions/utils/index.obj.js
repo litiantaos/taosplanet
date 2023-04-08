@@ -16,5 +16,9 @@ module.exports = {
 
 		obj[field] = dbCmd.inc(num);
 		return await db.collection(col).doc(id).update(obj);
+	},
+
+	async addData(col, data) {
+		return await db.collection(col).add(data);
 	}
 }

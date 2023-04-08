@@ -40,11 +40,11 @@ export const debounce = function(func, wait = 1000, immediate = true) {
 }
 
 export const throttle = function(func, wait = 2000, type = 1) {
-	let previous = 0;
-	let timeout;
+	let previous = 0,
+		timer;
 	return function() {
-		let context = this;
-		let args = arguments;
+		let context = this,
+			args = arguments;
 		if (type === 1) {
 			let now = Date.now();
 
@@ -53,9 +53,9 @@ export const throttle = function(func, wait = 2000, type = 1) {
 				previous = now;
 			}
 		} else if (type === 2) {
-			if (!timeout) {
-				timeout = setTimeout(() => {
-					timeout = null;
+			if (!timer) {
+				timer = setTimeout(() => {
+					timer = null;
 					func.apply(context, args);
 				}, wait);
 			}

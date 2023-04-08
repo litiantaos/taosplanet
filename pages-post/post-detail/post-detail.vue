@@ -5,11 +5,10 @@
 
 		<view class="avatar-wrap" v-if="likeUsers.length">
 			<view class="avatar-group">
-				<view v-for="(item, index) in likeUsers" :key="index">
-					<cloud-file :src="setAvatar(item.user_id[0])" width="60rpx" height="60rpx" borderRadius="50%"
-						border="5rpx solid #fff"></cloud-file>
+				<view class="avatar-item" v-for="(item, index) in likeUsers" :key="index">
+					<cloud-file :src="setAvatar(item.user_id[0])" width="100%" height="100%"></cloud-file>
 				</view>
-				<view class="avatar-item">···</view>
+				<view class="avatar-item more">···</view>
 			</view>
 		</view>
 
@@ -31,8 +30,8 @@
 			<load-more v-if="!isLoading && !showDefault" :status="loadMore"></load-more>
 		</view>
 
-		<comment-bar :comment="comment" :isAutoFocus="isAutoFocus" :placeholder="placeholder" @toast="showToast"
-			@blur="onBlur" @input="onInput" @updated="updated">
+		<comment-bar :comment="comment" :isAutoFocus="isAutoFocus" :placeholder="placeholder" :pushData="pushData"
+			@toast="showToast" @blur="onBlur" @input="onInput" @updated="updated">
 		</comment-bar>
 	</view>
 
@@ -81,7 +80,8 @@
 				showDefault: true,
 				isLoading: true,
 				fileUrls: [],
-				loadMore: ""
+				loadMore: "",
+				pushData: {}
 			};
 		},
 		onLoad(e) {
@@ -504,6 +504,14 @@
 				this.updateViewCount();
 				this.getLikeUsers();
 				this.getComments();
+
+				this.pushData = {
+					post_id: this.postId,
+					user_id: this.post.user_id[0]._id,
+					from_user_id: store.userInfo._id,
+					from_user_name: store.userInfo.nickname,
+					from_user_avatar: store.userInfo.avatar_file.url
+				}
 			},
 			paramError(param) {
 				this.$refs.toast.show({
@@ -570,7 +578,7 @@
 					margin-left: -20rpx;
 				}
 
-				&:last-child {
+				&.more {
 					font-size: 20rpx;
 					font-weight: bold;
 					color: #666;

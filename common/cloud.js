@@ -2,8 +2,16 @@ import {
 	store
 } from "@/uni_modules/uni-id-pages/common/store.js";
 
+import {
+	msgsStore
+} from "@/stores/messages.js";
+
 const db = uniCloud.database();
 const dbCmd = db.command;
+
+const utils = uniCloud.importObject("utils", {
+	customUI: true
+});
 
 export function getTempFileURL(ids) {
 	return new Promise((resolve, reject) => {
@@ -108,4 +116,12 @@ export function checkMedia(url) {
 			}
 		});
 	})
+}
+
+export function listenMessages() {
+	uni.onPushMessage(res => {
+		// console.log(res);
+		utils.addData("db-messages", res.data.payload);
+		msgsStore().saveTempMsgs(res);
+	});
 }

@@ -2,6 +2,7 @@
 	<view class="tab-bar">
 		<view class="item" v-for="(item, index) in tabs" :key="index" @click="clickTab(item, index)">
 			<image class="item-icon" :src="selectedIndex == index ? item.selectedIconPath : item.iconPath">
+				<view v-if="index == 2 && msgsLen" class="dot"></view>
 			</image>
 			<view v-if="showText" class="item-text" :class="{'active': selectedIndex == index}">
 				{{item.text}}
@@ -11,6 +12,10 @@
 </template>
 
 <script>
+	import {
+		msgsStore
+	} from "@/stores/messages.js";
+
 	export default {
 		name: "tab-bar",
 		props: {
@@ -54,6 +59,11 @@
 			uni.hideTabBar();
 			this.selectedIndex = this.index;
 		},
+		computed: {
+			msgsLen() {
+				return msgsStore().messages.length;
+			}
+		},
 		methods: {
 			clickTab(item, index) {
 				this.$emit("change", index);
@@ -88,8 +98,21 @@
 			height: 100%;
 
 			.item-icon {
+				position: relative;
 				width: $uni-img-size-sm;
 				height: $uni-img-size-sm;
+
+				.dot {
+					position: absolute;
+					top: -5rpx;
+					right: -5rpx;
+					width: 15rpx;
+					height: 15rpx;
+					border: 2px solid #fff;
+					border-radius: 50%;
+					background: indianred;
+					box-sizing: content-box;
+				}
 			}
 
 			.item-text {

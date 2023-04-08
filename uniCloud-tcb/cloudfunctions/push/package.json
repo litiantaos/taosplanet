@@ -1,0 +1,8 @@
+{
+  "name": "push",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {},
+    "uni-cloud-push": {}
+  }
+}

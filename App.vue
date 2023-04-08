@@ -1,5 +1,8 @@
 <script>
 	import uniIdPagesInit from "@/uni_modules/uni-id-pages/init.js";
+	import {
+		listenMessages
+	} from "@/common/cloud.js";
 
 	export default {
 		globalData: {
@@ -25,6 +28,8 @@
 			});
 
 			await uniIdPagesInit();
+
+			listenMessages();
 		}
 	}
 </script>

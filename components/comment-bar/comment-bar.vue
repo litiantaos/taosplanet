@@ -30,6 +30,10 @@
 			isAutoFocus: {
 				type: Boolean,
 				default: false
+			},
+			pushData: {
+				type: Object,
+				default: {}
 			}
 		},
 		data() {
@@ -62,7 +66,44 @@
 				}
 
 				db.collection("db-posts-comments").add(data).then(res => {
-					console.log(res);
+					// console.log(res);
+
+					if (this.comment.comment_type == 0) {
+						uniCloud.callFunction({
+							name: "push",
+							data: {
+								user_id: this.pushData.user_id,
+								payload: {
+									type: "comment",
+									content: "评论了你的动态",
+									post_id: this.pushData.post_id,
+									user_id: this.pushData.user_id,
+									from_user_id: this.pushData.from_user_id,
+									from_user_name: this.pushData.from_user_name,
+									from_user_avatar: this.pushData.from_user_avatar,
+									date: Date.now()
+								}
+							}
+						});
+					} else if (this.comment.comment_type == 1) {
+						uniCloud.callFunction({
+							name: "push",
+							data: {
+								user_id: data.reply_user_id,
+								payload: {
+									type: "reply",
+									content: "回复了你的评论",
+									post_id: this.pushData.post_id,
+									user_id: data.reply_user_id,
+									from_user_id: this.pushData.from_user_id,
+									from_user_name: this.pushData.from_user_name,
+									from_user_avatar: this.pushData.from_user_avatar,
+									date: Date.now()
+								}
+							}
+						});
+					}
+
 					this.$emit("toast", {
 						type: "success",
 						text: "发送成功",

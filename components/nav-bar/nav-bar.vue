@@ -3,6 +3,7 @@
 		<safe-area type="top"></safe-area>
 		<view class="nav-bar_content" :style="{justifyContent, opacity: innerOpacity}">
 			<i v-if="showBackBtn" class="iconfont icon-arrow-left" :style="{color: backBtnColor}" @click="toBack"></i>
+			<view v-if="showTitle" class="title">{{title}}</view>
 			<slot></slot>
 		</view>
 	</view>
@@ -35,7 +36,15 @@
 			innerOpacity: {
 				type: Number,
 				default: 1
-			}
+			},
+			showTitle: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ""
+			},
 		},
 		data() {
 			return {};
@@ -66,6 +75,10 @@
 
 			.iconfont {
 				font-size: $uni-img-size-sm;
+			}
+
+			.title {
+				font-size: 28rpx;
 			}
 		}
 	}
