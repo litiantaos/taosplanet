@@ -19,7 +19,7 @@
 			data: {
 				handler(data) {
 					if (data) {
-						this.str = data.nickname ?? "Taoker";
+						this.str = data.nickname || "Taoker";
 					}
 				},
 				immediate: true

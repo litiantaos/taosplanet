@@ -51,7 +51,7 @@
 					let str = "";
 
 					if (src && isType("Object", src)) {
-						str = src.avatar_file?.url ?? "/static/images/avatar.svg";
+						str = src.avatar_file?.url || "/static/images/avatar.svg";
 					} else if (isType("String", src)) {
 						str = src;
 					}
