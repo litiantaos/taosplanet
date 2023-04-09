@@ -4,9 +4,9 @@
 			<cloud-file class="nav-avatar" :src="userInfo" width="32px" height="32px" borderRadius="50%"
 				:style="{opacity: navBarAvatarOpacity}"></cloud-file>
 		</nav-bar>
+		<safe-area></safe-area>
 
 		<view class="container">
-			<safe-area></safe-area>
 			<view class="header-wrap">
 				<view class="background-wall" :class="currentUser ? 'curr-user' : 'ncurr-user'">
 					<view class="texture"></view>
@@ -61,7 +61,7 @@
 				</view>
 			</view>
 
-			<view class="footprint">
+			<view class="footprint" @click="toFootprint">
 				<view class="footprint-back"></view>
 				<view class="footprint-front">
 					<view class="footprint-title">足迹</view>
@@ -70,9 +70,9 @@
 			</view>
 		</view>
 
-		<tab :tabs="['动态', '经历']" position="sticky" :top="`${this.statusBarHeight + 44}px`" padding="25rpx"
+		<tab :tabs="['动态', '经历']" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx"
 			:background="tabBackground" @change="tabChange"></tab>
-		<view class="tab-view" :class="currentUser ? 'curr-user' : 'ncurr-user'">
+		<view class="tab-view" :class="tabUser ? 'tab-user' : 'ntab-user'">
 			<view v-if="tabIndex == 0" class="">
 				<view v-for="(item, index) in posts" :key="index">
 					<post :data="item" :postId="item._id"></post>
@@ -203,7 +203,7 @@
 				const query = uni.createSelectorQuery().in(this);
 				query.selectAll(".container").boundingClientRect(data => {
 					// console.log(data);
-					let tabOffsetY = data[0].height + this.statusBarHeight + 80;
+					let tabOffsetY = data[0].height;
 					this.$emit("tabOffsetY", tabOffsetY);
 				}).exec();
 			}, 1000);
@@ -231,6 +231,11 @@
 			}
 		},
 		methods: {
+			toFootprint() {
+				uni.navigateTo({
+					url: "/pages-fun/footprint/footprint"
+				});
+			},
 			updateViewCount() {
 				utils.calc("uni-id-users", "view_count", this.userId, 1).then(res => {
 					// console.log(res);
@@ -285,6 +290,7 @@
 						"_id, avatar_file, nickname, intro, gender, birth_date, hometown, region, emotion_id, emotion_name, status_id, status_name, view_count"
 					).get().then(res => {
 						this.userInfo = res.result.data[0];
+						this.$emit("userInfo", this.userInfo);
 					});
 			},
 			toUserResume(e) {
@@ -330,7 +336,7 @@
 
 	.container {
 		width: 100%;
-		padding: 0 25rpx;
+		padding: 25rpx;
 
 		.header-wrap {
 			width: 100%;
@@ -338,7 +344,7 @@
 			border-radius: 20rpx;
 			overflow: hidden;
 			position: relative;
-			margin: 25rpx 0;
+			margin-bottom: 25rpx;
 
 			.background-wall {
 				width: 100%;
@@ -483,51 +489,52 @@
 				}
 			}
 		}
-	}
 
-	.footprint {
-		width: 100%;
-		height: 80px;
-		border-radius: 20rpx;
-		overflow: hidden;
-		position: relative;
-
-		.footprint-back {
+		.footprint {
+			position: relative;
 			width: 100%;
-			height: 100%;
-			background: #fff;
-			transition: background .15s;
+			height: 80px;
+			border-radius: 20rpx;
+			overflow: hidden;
 
-			&:active {
-				background: #eee;
-			}
-		}
+			.footprint-back {
+				width: 100%;
+				height: 100%;
+				background: #fff;
+				transition: background .15s;
 
-		.footprint-front {
-			position: absolute;
-			bottom: 25rpx;
-			left: 25rpx;
-
-			.footprint-title {
-				font-size: 26rpx;
+				&:active {
+					background: #eee;
+				}
 			}
 
-			.footprint-text {
-				font-size: 22rpx;
-				color: #999;
-				margin-top: 10rpx;
+			.footprint-front {
+				position: absolute;
+				bottom: 25rpx;
+				left: 25rpx;
+
+				.footprint-title {
+					font-size: 26rpx;
+				}
+
+				.footprint-text {
+					font-size: 22rpx;
+					color: #999;
+					margin-top: 10rpx;
+				}
 			}
 		}
 	}
 
 	.tab-view {
+		padding: 25rpx;
 
-		&.curr-user {
-			padding: 25rpx 25rpx calc(env(safe-area-inset-bottom) + 48px + 25rpx) 25rpx;
+		&.tab-user {
+			padding-bottom: calc(env(safe-area-inset-bottom) + 48px);
 		}
 
-		&.ncurr-user {
-			padding: 25rpx 25rpx calc(env(safe-area-inset-bottom) + 25rpx) 25rpx;
+		&.ntab-user {
+			padding-bottom: calc(env(safe-area-inset-bottom));
 		}
 
 		.resume-wrap {

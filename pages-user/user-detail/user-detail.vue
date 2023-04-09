@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<user-detail :userId="userId" :navBarBackground="navBarBackground" :navBarAvatarOpacity="navBarAvatarOpacity"
-			:tabBackground="tabBackground" @tabOffsetY="getTabOffsetY" ref="userDetail"></user-detail>
+			:tabBackground="tabBackground" @tabOffsetY="getTabOffsetY" @userInfo="getUserInfo" ref="userDetail"></user-detail>
 	</view>
 </template>
 
@@ -12,14 +12,19 @@
 				userId: "",
 				navBarBackground: "rgba(255, 255, 255, 0)",
 				navBarAvatarOpacity: 0,
-				tabBackground: "",
+				tabBackground: "rgba(255, 255, 255, 0)",
 				tabOffsetY: 0,
+				userInfo: {}
 			};
 		},
 		onLoad(e) {
 			this.userId = e.id;
 		},
 		methods: {
+			getUserInfo(e) {
+				// console.log(e);
+				this.userInfo = e;
+			},
 			getTabOffsetY(e) {
 				// console.log(e);
 				this.tabOffsetY = e;
@@ -50,6 +55,18 @@
 				} else {
 					this.tabBackground = "rgba(255, 255, 255, 1)";
 				}
+			}
+		},
+		onShareAppMessage() {
+			return {
+				title: this.userInfo.nickname,
+				path: "/pages-user/user-detail/user-detail?id=" + this.userId
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: this.userInfo.nickname,
+				query: "id=" + this.userId + "&from=timeline"
 			}
 		}
 	}

@@ -1,18 +1,12 @@
 <template>
-	<view>
-		<view class="tab" :style="{position, top, padding, background}">
-			<view class="tab-item">
-				<view class="tab-item-title" :class="{'active': index == selectedIndex, 'multi': tabs.length > 1}"
-					v-for="(item, index) in tabs" :key="index" @click="clickTabItem(index)">{{item}}</view>
-			</view>
-
-			<view class="tab-slider"
-				:style="['--offset-x: ' + itemOffsetXList[selectedIndex] + 'px;', 'width: ' + itemWidthList[selectedIndex] + 'px;']">
-			</view>
+	<view class="tab" :style="{position, top, padding, background}">
+		<view class="tab-item">
+			<view class="tab-item-title" :class="{'active': index == selectedIndex}" v-for="(item, index) in tabs"
+				:key="index" @click="clickTabItem(index)">{{item}}</view>
 		</view>
 
-		<view class="container">
-			<slot></slot>
+		<view class="tab-slider"
+			:style="['--offset-x: ' + itemOffsetXList[selectedIndex] + 'px;', 'width: ' + itemWidthList[selectedIndex] + 'px;']">
 		</view>
 	</view>
 </template>
@@ -93,22 +87,19 @@
 			display: flex;
 
 			&-title {
+				margin: 0 25rpx;
 				color: #999;
 				font-size: 30rpx;
 				line-height: 50rpx;
 				flex-shrink: 0;
 				transition: color .3s, font-weight .3s;
 
-				&.multi {
-					margin: 0 25rpx;
+				&:first-child {
+					margin: 0 25rpx 0 0;
+				}
 
-					&:first-child {
-						margin: 0 25rpx 0 0;
-					}
-
-					&:last-child {
-						margin: 0 0 0 25rpx;
-					}
+				&:last-child {
+					margin: 0 0 0 25rpx;
 				}
 
 				&.active {

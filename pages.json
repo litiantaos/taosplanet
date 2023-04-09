@@ -129,6 +129,15 @@
 					"navigationBarTitleText": "我的喜欢"
 				}
 			}]
+		},
+		{
+			"root": "pages-fun",
+			"pages": [{
+				"path": "footprint/footprint",
+				"style": {
+					"navigationBarTitleText": "足迹"
+				}
+			}]
 		}
 	],
 	"globalStyle": {

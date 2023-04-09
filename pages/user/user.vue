@@ -20,7 +20,7 @@
 				userId: "",
 				navBarBackground: "rgba(255, 255, 255, 0)",
 				navBarAvatarOpacity: 0,
-				tabBackground: "",
+				tabBackground: "rgba(255, 255, 255, 0)",
 				tabOffsetY: 0,
 			};
 		},
@@ -60,6 +60,18 @@
 				} else {
 					this.tabBackground = "rgba(255, 255, 255, 1)";
 				}
+			}
+		},
+		onShareAppMessage() {
+			return {
+				title: store.userInfo.nickname,
+				path: "/pages-user/user-detail/user-detail?id=" + store.userInfo._id
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: store.userInfo.nickname,
+				query: "id=" + store.userInfo._id + "&from=timeline"
 			}
 		}
 	}
