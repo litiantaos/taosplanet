@@ -1,10 +1,11 @@
 <template>
 	<view class="user-card" @click="toUserDetail(data._id)">
 		<view class="user">
-			<cloud-file :src="setAvatar(data)" width="80rpx" height="80rpx" borderRadius="50%"
-				border="1px solid #eee"></cloud-file>
+			<cloud-file :src="data" width="80rpx" height="80rpx" borderRadius="50%" border="1px solid #eee"></cloud-file>
 			<view class="user-info">
-				<view class="user-info-name">{{setName(data)}}</view>
+				<view class="user-info-name">
+					<name-init :data="data"></name-init>
+				</view>
 				<view class="user-info-desc">{{data.intro}}</view>
 			</view>
 		</view>
@@ -13,11 +14,6 @@
 </template>
 
 <script>
-	import {
-		setName,
-		setAvatar
-	} from "@/common/utils.js";
-
 	export default {
 		name: "user-card",
 		props: {
@@ -36,8 +32,6 @@
 			};
 		},
 		methods: {
-			setName,
-			setAvatar,
 			toUserDetail(e) {
 				uni.navigateTo({
 					url: "/pages-user/user-detail/user-detail?id=" + e

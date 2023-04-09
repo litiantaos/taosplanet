@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<nav-bar :background="navBarBackground" :showBackBtn="tabUser ? false : true">
-			<cloud-file class="nav-avatar" :src="setAvatar(userInfo)" width="32px" height="32px" borderRadius="50%"
+			<cloud-file class="nav-avatar" :src="userInfo" width="32px" height="32px" borderRadius="50%"
 				:style="{opacity: navBarAvatarOpacity}"></cloud-file>
 		</nav-bar>
 
@@ -14,7 +14,7 @@
 
 				<view class="user-wrap">
 					<view class="avatar-wrap">
-						<cloud-file :src="setAvatar(userInfo)" width="150rpx" height="150rpx" background="rgba(255, 255, 255, .1)"
+						<cloud-file :src="userInfo" width="150rpx" height="150rpx" background="rgba(255, 255, 255, .1)"
 							borderRadius="50%" border="10rpx solid rgba(255, 255, 255, .1)" style="zIndex: 1"
 							@click="toUserInfo"></cloud-file>
 						<view class="visit-wrap">
@@ -24,7 +24,8 @@
 						</view>
 					</view>
 
-					<view class="name">{{setName(userInfo)}}
+					<view class="name">
+						<name-init :data="userInfo"></name-init>
 						<view v-if="userInfo.gender && userInfo.gender != 0" class="gender iconfont"
 							:class="userInfo.gender == 1 ? 'icon-man male' : 'icon-woman female'"></view>
 					</view>
@@ -142,11 +143,6 @@
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	import {
-		setName,
-		setAvatar
-	} from "@/common/utils.js";
-
-	import {
 		checkLikes
 	} from "@/common/cloud.js";
 
@@ -235,8 +231,6 @@
 			}
 		},
 		methods: {
-			setName,
-			setAvatar,
 			updateViewCount() {
 				utils.calc("uni-id-users", "view_count", this.userId, 1).then(res => {
 					// console.log(res);

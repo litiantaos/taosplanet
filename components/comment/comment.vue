@@ -2,11 +2,11 @@
 	<view class="comment">
 		<view class="header">
 			<view class="user-wrap">
-				<cloud-file :src="setAvatar(comment.user_id[0])" width="80rpx" height="80rpx" borderRadius="50%"
+				<cloud-file :src="comment.user_id[0]" width="80rpx" height="80rpx" borderRadius="50%"
 					border="1px solid #eee"></cloud-file>
 				<view class="user-info">
 					<view class="user-info-name">
-						<view class="">{{setName(comment.user_id[0])}}</view>
+						<name-init :data="comment.user_id[0]"></name-init>
 						<view v-if="comment.user_id[0]._id == postUserId" class="id-label">作者</view>
 					</view>
 					<view class="user-info-desc">
@@ -23,16 +23,20 @@
 			<view class="reply" v-for="(reply, index) in replies" :key="index">
 				<view class="reply-user">
 					<view class="reply-user-info">
-						<cloud-file :src="setAvatar(reply.user_id[0])" width="40rpx" height="40rpx" borderRadius="50%"
+						<cloud-file :src="reply.user_id[0]" width="40rpx" height="40rpx" borderRadius="50%"
 							border="1px solid #eee"></cloud-file>
 						<view class="reply-user-name">
-							<view class="">{{setName(reply.user_id[0])}}</view>
+							<view class="">
+								<name-init :data="reply.user_id[0]"></name-init>
+							</view>
 							<view v-if="reply.user_id[0]._id == postUserId" class="id-label">作者</view>
 						</view>
 						<view v-if="reply.comment_type == 2" class="reply-to-user-info">
 							<i class="icon iconfont icon-arrow-right-fill"></i>
 							<view class="reply-user-name">
-								<view class="">{{setName(reply.reply_user_id[0])}}</view>
+								<view class="">
+									<name-init :data="reply.reply_user_id[0]"></name-init>
+								</view>
 								<view v-if="reply.reply_user_id[0]._id == postUserId" class="id-label">作者</view>
 							</view>
 						</view>
@@ -51,11 +55,6 @@
 </template>
 
 <script>
-	import {
-		setName,
-		setAvatar
-	} from "@/common/utils.js";
-
 	const db = uniCloud.database();
 
 	export default {
@@ -85,8 +84,6 @@
 			this.getReplies();
 		},
 		methods: {
-			setName,
-			setAvatar,
 			// 获取回复列表
 			getReplies() {
 				let tempComments = db.collection("db-posts-comments").where(

@@ -2,10 +2,12 @@
 	<view class="post" :class="isCard ? 'card' : 'no-card'" @click="toPostDetail">
 		<view class="header">
 			<view class="header-user" @click.stop="toUserDetail">
-				<cloud-file class="user-avatar" :src="setAvatar(post.user_id[0])" width="80rpx" height="80rpx"
-					borderRadius="50%" border="1px solid #eee"></cloud-file>
+				<cloud-file class="user-avatar" :src="post.user_id[0]" width="80rpx" height="80rpx" borderRadius="50%"
+					border="1px solid #eee"></cloud-file>
 				<view class="user-info">
-					<view class="user-info_name">{{setName(post.user_id[0])}}</view>
+					<view class="user-info_name">
+						<name-init :data="post.user_id[0]"></name-init>
+					</view>
 					<view class="user-info_intro">{{post.user_id[0].intro}}</view>
 				</view>
 			</view>
@@ -38,8 +40,8 @@
 			</view>
 
 			<view v-if="post.shared_post_id" class="shared-post" @click.stop="toPostDetail({isShare: true})">
-				<cloud-file v-if="sharedPost.images || sharedPost.user_id"
-					:src="fileUrls[0] || setAvatar(sharedPost.user_id[0])" width="130rpx" height="130rpx"></cloud-file>
+				<cloud-file v-if="sharedPost.images || sharedPost.user_id" :src="fileUrls[0] || sharedPost.user_id[0]"
+					width="130rpx" height="130rpx"></cloud-file>
 				<view class="shared-post_content">
 					<view class="shared-post_content-text">
 						<text class="text">{{sharedPost.content}}</text>
@@ -86,8 +88,6 @@
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	import {
-		setName,
-		setAvatar,
 		throttle
 	} from "@/common/utils.js";
 
@@ -162,8 +162,6 @@
 			}
 		},
 		methods: {
-			setName,
-			setAvatar,
 			clickMore() {
 				this.$emit("more");
 			},

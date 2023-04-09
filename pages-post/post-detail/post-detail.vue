@@ -6,7 +6,7 @@
 		<view class="avatar-wrap" v-if="likeUsers.length">
 			<view class="avatar-group">
 				<view class="avatar-item" v-for="(item, index) in likeUsers" :key="index">
-					<cloud-file :src="setAvatar(item.user_id[0])" width="100%" height="100%"></cloud-file>
+					<cloud-file :src="item.user_id[0]" width="100%" height="100%"></cloud-file>
 				</view>
 				<view class="avatar-item more">···</view>
 			</view>
@@ -51,11 +51,6 @@
 
 	import pagesJson from "@/pages.json";
 
-	import {
-		setName,
-		setAvatar
-	} from "@/common/utils.js";
-
 	const db = uniCloud.database();
 	const utils = uniCloud.importObject("utils", {
 		customUI: true
@@ -96,8 +91,6 @@
 			this.getPost();
 		},
 		methods: {
-			setName,
-			setAvatar,
 			clickShare() {
 				let actions = [{
 						text: "转发动态",
@@ -392,9 +385,13 @@
 			},
 
 			// 获取评论列表
-			async getComments(e) {
+			async getComments(e = {}) {
+				const {
+					loadMore = false
+				} = e;
+
 				let skip = 0;
-				if (e?.isMore) {
+				if (loadMore) {
 					skip = this.comments.length;
 				}
 
@@ -407,14 +404,14 @@
 
 				let res = await db.collection(tempComments, tempUsers).get();
 
-				if (e?.isMore) {
+				if (loadMore) {
 					if (res.result.data.length == 0) {
-						this.loadMore = "noMore";
+						this.noMore = true;
 					}
 					resData = [...this.comments, ...res.result.data];
 				} else {
 					resData = res.result.data;
-					this.loadMore = "";
+					this.noMore = false;
 				}
 
 				let arr = resData.map(item => {
@@ -528,9 +525,14 @@
 		},
 		onReachBottom() {
 			this.loadMore = "loading";
-			if (this.loadMore == "noMore") return;
+			if (this.noMore) {
+				setTimeout(() => {
+					this.loadMore = "noMore";
+				}, 500);
+				return;
+			};
 			this.getComments({
-				isMore: true
+				loadMore: true
 			});
 		},
 		onShareAppMessage() {

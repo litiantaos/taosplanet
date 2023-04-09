@@ -7,7 +7,7 @@
 			<button class="item-wrap" open-type="chooseAvatar" @chooseavatar="chooseAvatar">
 				<text class="title">头像</text>
 				<view class="value-wrap">
-					<cloud-file :src="setAvatar(userInfo)" width="60rpx" height="60rpx" borderRadius="50%"
+					<cloud-file :src="userInfo" width="60rpx" height="60rpx" borderRadius="50%"
 						border="1px solid #eee"></cloud-file>
 					<i class="iconfont icon-arrow-right"></i>
 				</view>
@@ -16,7 +16,9 @@
 			<view class="item-wrap" @click="setNickname">
 				<text class="title">昵称</text>
 				<view class="value-wrap">
-					<text class="value">{{setName(userInfo)}}</text>
+					<view class="value">
+						<name-init :data="userInfo"></name-init>
+					</view>
 					<i class="iconfont icon-arrow-right"></i>
 				</view>
 			</view>
@@ -123,11 +125,6 @@
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	import {
-		setName,
-		setAvatar
-	} from "@/common/utils.js";
-
-	import {
 		getDistrict
 	} from "@/common/request.js";
 
@@ -231,8 +228,6 @@
 			}
 		},
 		methods: {
-			setName,
-			setAvatar,
 			editLover() {
 				uni.navigateTo({
 					url: "/pages-user/user-info/user-relationship/user-relationship"

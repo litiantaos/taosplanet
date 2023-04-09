@@ -58,6 +58,7 @@
 				floatBtnMove: false,
 				isLoading: true,
 				loadMore: "",
+				noMore: false,
 				showSwiper: false,
 				swipers: [1, 2, 3],
 				navBarInnerOpacity: 1
@@ -144,9 +145,13 @@
 			refreshShow() {
 				this.navBarInnerOpacity = 0;
 			},
-			async getPosts(e) {
+			async getPosts(e = {}) {
+				const {
+					loadMore = false
+				} = e;
+
 				let skip = 0;
-				if (e?.isMore) {
+				if (loadMore) {
 					skip = this.posts.length;
 				}
 
@@ -159,15 +164,15 @@
 
 				let resData = [];
 
-				if (e?.isMore) {
+				if (loadMore) {
 					if (res.result.data.length == 0) {
-						this.loadMore = "noMore";
+						this.noMore = true;
 					}
 					resData = [...this.posts, ...res.result.data];
 				} else {
 					this.posts = [];
 					resData = res.result.data;
-					this.loadMore = "loading";
+					this.noMore = false;
 				}
 
 				if (store.hasLogin) {
@@ -196,9 +201,14 @@
 		},
 		onReachBottom() {
 			this.loadMore = "loading";
-			if (this.loadMore == "noMore") return;
+			if (this.noMore) {
+				setTimeout(() => {
+					this.loadMore = "noMore";
+				}, 500);
+				return;
+			};
 			this.getPosts({
-				isMore: true
+				loadMore: true
 			});
 		},
 		onPageScroll(e) {
@@ -222,7 +232,7 @@
 			return {
 				title: "生命与理想不可辜负！",
 				path: "/pages/index/index",
-				imageUrl: "https://7463-tcb-4d6findpbz78pch-6c1y7a1ffcd4-1316905658.tcb.qcloud.la/common/share_poster_pure.png"
+				imageUrl: "https://7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658.tcb.qcloud.la/common/share_poster_pure.png"
 			}
 		},
 		onShareTimeline() {

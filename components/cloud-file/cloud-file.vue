@@ -29,8 +29,7 @@
 				default: "none"
 			},
 			src: {
-				type: String,
-				default: ""
+				type: [String, Object]
 			},
 			mode: {
 				type: String,
@@ -45,14 +44,26 @@
 		watch: {
 			src: {
 				handler(src) {
-					if (src && src.substring(0, 8) == "cloud://") {
+					let isType = (type, obj) => {
+						return Object.prototype.toString.call(obj) == `[object ${type}]`;
+					}
+
+					let str = "";
+
+					if (src && isType("Object", src)) {
+						str = src.avatar_file?.url ?? "/static/images/avatar.svg";
+					} else if (isType("String", src)) {
+						str = src;
+					}
+
+					if (str && str.substring(0, 8) == "cloud://") {
 						uniCloud.getTempFileURL({
-							fileList: [src]
+							fileList: [str]
 						}).then(res => {
 							this.cSrc = res.fileList[0].tempFileURL;
 						});
 					} else {
-						this.cSrc = src;
+						this.cSrc = str;
 					}
 				},
 				immediate: true

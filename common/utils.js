@@ -1,11 +1,3 @@
-export function setName(data) {
-	return data?.nickname || "Taoker";
-}
-
-export function setAvatar(data) {
-	return data?.avatar_file?.url ?? "../../static/images/avatar.svg";
-}
-
 export function isValidUrl(str) {
 	const pattern = new RegExp(
 		"^(https?:\\/\\/)?" +
