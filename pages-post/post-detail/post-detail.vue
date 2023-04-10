@@ -35,7 +35,7 @@
 		</comment-bar>
 	</view>
 
-	<load-view :isLoading="isLoading"></load-view>
+	<load-view background="#fff" :isLoading="isLoading"></load-view>
 
 	<toast ref="toast"></toast>
 

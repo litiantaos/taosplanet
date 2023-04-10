@@ -25,23 +25,45 @@
 			return {}
 		},
 		mounted() {
-			this.$refs.chart.init(echarts, async chart => {
-				const data = await this.getData();
-				echarts.registerMap('WORLD', data);
-
-				const option = {
-					series: [{
-						type: 'map',
-						map: 'WORLD',
-						data: [],
-						nameMap: {}
-					}]
-				};
-
-				chart.setOption(option);
-			})
+			this.chartInit();
 		},
 		methods: {
+			chartInit() {
+				this.$refs.chart.init(echarts, async chart => {
+					const data = await this.getData();
+					echarts.registerMap("WORLD", data);
+
+					const option = {
+						series: [{
+							type: "map",
+							map: "WORLD",
+							roam: true,
+							coordinateSystem: 'bmap',
+							zoom: 1.1,
+							selectedMode: "multiple",
+							select: {
+								label: {
+									show: false
+								},
+								itemStyle: {
+									// areaColor: "#fff",
+								}
+							},
+							itemStyle: {
+								// areaColor: "#fff",
+								borderWidth: 0
+							},
+							emphasis: {
+								disabled: true
+							},
+							data: [],
+							nameMap: {}
+						}]
+					};
+
+					chart.setOption(option);
+				});
+			},
 			getData() {
 				return new Promise(resolve => {
 					uni.request({
@@ -57,6 +79,12 @@
 		}
 	}
 </script>
+
+<style>
+	page {
+		background: #fff;
+	}
+</style>
 
 <style lang="scss" scoped>
 	.chart {

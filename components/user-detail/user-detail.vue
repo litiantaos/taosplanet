@@ -61,12 +61,8 @@
 				</view>
 			</view>
 
-			<view class="footprint" @click="toFootprint">
-				<view class="footprint-back"></view>
-				<view class="footprint-front">
-					<view class="footprint-title">足迹</view>
-					<view class="footprint-text">12个地区</view>
-				</view>
+			<view class="footprint">
+				<map-card></map-card>
 			</view>
 		</view>
 
@@ -231,11 +227,6 @@
 			}
 		},
 		methods: {
-			toFootprint() {
-				uni.navigateTo({
-					url: "/pages-fun/footprint/footprint"
-				});
-			},
 			updateViewCount() {
 				utils.calc("uni-id-users", "view_count", this.userId, 1).then(res => {
 					// console.log(res);
@@ -486,41 +477,6 @@
 							color: #666;
 						}
 					}
-				}
-			}
-		}
-
-		.footprint {
-			position: relative;
-			width: 100%;
-			height: 80px;
-			border-radius: 20rpx;
-			overflow: hidden;
-
-			.footprint-back {
-				width: 100%;
-				height: 100%;
-				background: #fff;
-				transition: background .15s;
-
-				&:active {
-					background: #eee;
-				}
-			}
-
-			.footprint-front {
-				position: absolute;
-				bottom: 25rpx;
-				left: 25rpx;
-
-				.footprint-title {
-					font-size: 26rpx;
-				}
-
-				.footprint-text {
-					font-size: 22rpx;
-					color: #999;
-					margin-top: 10rpx;
 				}
 			}
 		}

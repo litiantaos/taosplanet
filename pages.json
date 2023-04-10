@@ -137,6 +137,11 @@
 				"style": {
 					"navigationBarTitleText": "足迹"
 				}
+			}, {
+				"path": "party/party",
+				"style": {
+					"navigationBarTitleText": ""
+				}
 			}]
 		}
 	],

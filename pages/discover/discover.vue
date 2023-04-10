@@ -30,7 +30,7 @@
 
 		<view class="container">
 			<scroll-view class="func-wrap" scroll-x>
-				<view class="func-item">
+				<view class="func-item" @click="toParty">
 					<view class="func-item-title">组局吧</view>
 					<view class="func-item-text">组局约会面基</view>
 				</view>
@@ -39,12 +39,8 @@
 					<view class="func-item-text">开放空间围炉畅谈</view>
 				</view>
 				<view class="func-item">
-					<view class="func-item-title">读过的书</view>
-					<view class="func-item-text">8本书</view>
-				</view>
-				<view class="func-item">
-					<view class="func-item-title">喜欢的电影</view>
-					<view class="func-item-text">34部电影</view>
+					<view class="func-item-title">更多</view>
+					<view class="func-item-text">敬请期待...</view>
 				</view>
 			</scroll-view>
 		</view>
@@ -88,6 +84,11 @@
 			this.mapCtx = uni.createMapContext("map", this);
 		},
 		methods: {
+			toParty() {
+				uni.navigateTo({
+					url: "/pages-fun/party/party"
+				});
+			},
 			async getDistrictGroup() {
 				let districtRes = await uniCloud.callFunction({
 					name: "users-location-group",
