@@ -104,7 +104,7 @@
 						id: index + 999,
 						longitude: item.district_lng,
 						latitude: item.district_lat,
-						iconPath: "",
+						iconPath: "/static/images/empty.png",
 						width: 0,
 						height: 0,
 						customCallout: {
@@ -132,7 +132,7 @@
 							id: index,
 							longitude: item.city_lng,
 							latitude: item.city_lat,
-							iconPath: "",
+							iconPath: "/static/images/empty.png",
 							width: 0,
 							height: 0,
 							customCallout: {

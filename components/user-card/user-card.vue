@@ -9,7 +9,8 @@
 				<view class="user-info-desc">{{data.intro}}</view>
 			</view>
 		</view>
-		<view v-if="btnText" class="user-btn" @click.stop="invite">{{btnText}}</view>
+		<view v-if="btnText && !disabled" class="user-btn" @click.stop="handle">{{btnText}}</view>
+		<view v-if="btnText && disabled" class="user-btn" @click.stop="showInfo">{{btnText}}</view>
 	</view>
 </template>
 
@@ -24,6 +25,10 @@
 			btnText: {
 				type: String,
 				default: ""
+			},
+			disabled: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data() {
@@ -32,6 +37,12 @@
 			};
 		},
 		methods: {
+			showInfo() {
+				this.$emit("info");
+			},
+			handle() {
+				this.$emit("handle");
+			},
 			toUserDetail(e) {
 				uni.navigateTo({
 					url: "/pages-user/user-detail/user-detail?id=" + e

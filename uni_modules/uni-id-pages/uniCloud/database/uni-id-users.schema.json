@@ -166,6 +166,10 @@
 				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
+		"lover_id": {
+			"bsonType": "string",
+			"foreignKey": "_id"
+		},
 		"view_count": {
 			"bsonType": "int",
 			"title": "浏览量",

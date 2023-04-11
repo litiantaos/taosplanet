@@ -1,6 +1,6 @@
 <template>
 	<view class="pull-down">
-		<safe-area></safe-area>
+		<safe-area v-if="mode == 'full'"></safe-area>
 		<view class="container" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
 			<slot></slot>
 		</view>
@@ -13,17 +13,24 @@
 	export default {
 		name: "pull-down",
 		props: {
-			pageScrollTop: {
-				type: Number,
-				default: 0
+			mode: {
+				type: String,
+				default: ''
 			}
 		},
 		data() {
 			return {
 				startY: 0,
 				offsetY: 0,
-				threshold: 100
+				threshold: 100,
+				pageScrollTop: 0
 			};
+		},
+		mounted() {
+			uni.$on("onPageScroll", e => {
+				// console.log(e);
+				this.pageScrollTop = e;
+			});
 		},
 		methods: {
 			touchStart(e) {

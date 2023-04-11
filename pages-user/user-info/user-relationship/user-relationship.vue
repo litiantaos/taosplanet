@@ -1,4 +1,7 @@
 <template>
+	<nav-bar></nav-bar>
+	<safe-area></safe-area>
+
 	<view>
 		<view class="input-area" :style="{transform: `translateY(${inputOffset})`}">
 			<input-pro :inputIn="inputIn" @confirm="onConfirm" @focus="onFocus" @blur="onBlur"></input-pro>
@@ -6,13 +9,22 @@
 
 		<view class="container">
 			<view v-for="(item, index) in users" :key="index">
-				<user-card :data="item" btnText="邀请"></user-card>
+				<user-card :data="item" :btnText="item.invited ? '已邀请' : '邀请'" :disabled="item.invited ? true : false"
+					@handle="clickInvite(item, index)" @info="showInfo"></user-card>
 			</view>
 		</view>
 	</view>
+
+	<popup ref="popup"></popup>
+
+	<toast ref="toast"></toast>
 </template>
 
 <script>
+	import {
+		store
+	} from "@/uni_modules/uni-id-pages/common/store.js";
+
 	const db = uniCloud.database();
 
 	export default {
@@ -28,6 +40,42 @@
 			};
 		},
 		methods: {
+			showInfo() {
+				this.$refs.toast.show({
+					type: "info",
+					text: "已邀请过TA了哦~",
+					duration: "2000"
+				});
+			},
+			clickInvite(item, index) {
+				console.log(item);
+				this.$refs.popup.show({
+					type: "text",
+					title: "提示",
+					text: "你确定要邀请 " + item.nickname + " 吗？",
+					success: () => {
+						this.$refs.popup.hide();
+						this.users[index].invited = true;
+
+						uniCloud.callFunction({
+							name: "push",
+							data: {
+								user_id: item._id,
+								payload: {
+									type: "relationship",
+									content: "邀请你与TA关联为恋人",
+									user_id: item._id,
+									excerpt: "愿我如星君如月，夜夜流光相皎洁。",
+									from_user_id: store.userInfo._id,
+									from_user_name: store.userInfo.nickname,
+									from_user_avatar: store.userInfo.avatar_file.url,
+									date: Date.now()
+								}
+							}
+						});
+					}
+				});
+			},
 			search() {
 				let searchField = "nickname";
 

@@ -1,11 +1,12 @@
 <template>
 	<view class="container">
 		<view v-for="(item, index) in posts" :key="index">
-			<post :data="item" :postId="item._id"></post>
+			<post :data="item" :postId="item._id" @share="clickShare"></post>
 		</view>
 	</view>
 
 	<load-view :isLoading="isLoading"></load-view>
+	<share-handler ref="share"></share-handler>
 </template>
 
 <script>
@@ -23,6 +24,9 @@
 			this.getPosts()
 		},
 		methods: {
+			clickShare() {
+				this.$refs.share.handleShare();
+			},
 			async getPosts() {
 				let likes = await db.collection("db-posts-likes").where(`user_id == $cloudEnv_uid`).orderBy("date desc")
 					.get();

@@ -76,6 +76,7 @@
 								payload: {
 									type: "comment",
 									content: "评论了你的动态",
+									excerpt: data.comment_content.substr(0, 15),
 									post_id: this.pushData.post_id,
 									user_id: this.pushData.user_id,
 									from_user_id: this.pushData.from_user_id,
@@ -93,6 +94,7 @@
 								payload: {
 									type: "reply",
 									content: "回复了你的评论",
+									excerpt: data.comment_content.substr(0, 15),
 									post_id: this.pushData.post_id,
 									user_id: data.reply_user_id,
 									from_user_id: this.pushData.from_user_id,

@@ -196,6 +196,7 @@
 								content: "赞了你的动态",
 								post_id: this.postId,
 								user_id: this.post.user_id[0]._id,
+								excerpt: this.post.content.substr(0, 15),
 								from_user_id: store.userInfo._id,
 								from_user_name: store.userInfo.nickname,
 								from_user_avatar: store.userInfo.avatar_file.url,

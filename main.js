@@ -4,15 +4,14 @@ import {
 	createSSRApp
 } from "vue";
 
-import * as Pinia from "pinia";
+import store from "./store";
 
 export function createApp() {
 	const app = createSSRApp(App);
 
-	app.use(Pinia.createPinia());
+	app.use(store);
 
 	return {
-		app,
-		Pinia
+		app
 	};
 }

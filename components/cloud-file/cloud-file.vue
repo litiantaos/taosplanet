@@ -49,11 +49,14 @@
 					}
 
 					let str = "";
+					let defaultSrc = "/static/images/avatar.svg";
 
 					if (src && isType("Object", src)) {
-						str = src.avatar_file?.url || "/static/images/avatar.svg";
-					} else if (isType("String", src)) {
+						str = src.avatar_file?.url || defaultSrc;
+					} else if (src && isType("String", src)) {
 						str = src;
+					} else {
+						str = defaultSrc;
 					}
 
 					if (str && str.substring(0, 8) == "cloud://") {

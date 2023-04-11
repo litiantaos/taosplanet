@@ -7,7 +7,7 @@
 
 		<load-view :isLoading="isLoading"></load-view>
 
-		<pull-down :pageScrollTop="scrollTop" @show="refreshShow" @start="refreshStart" ref="refresh">
+		<pull-down @show="refreshShow" @start="refreshStart" mode="full" ref="refresh">
 			<view class="main">
 				<swiper v-if="showSwiper" class="swiper">
 					<swiper-item v-for="(item, index) in swipers" :key="index">
@@ -23,13 +23,14 @@
 			</view>
 		</pull-down>
 
-		<view class="float-btn iconfont icon-add"
-			:style="{transform: (floatBtnMove ? 'translateY(300%)' : 'translateY(0)')}" @click="toPostPublish"
-			@longpress="toSearch"></view>
+		<view class="float-btn" :style="{transform: (floatBtnMove ? 'translateY(300%)' : 'translateY(0)')}"
+			@click="toPostPublish" @longpress="toSearch">
+			<view class="iconfont icon-add"></view>
+		</view>
 
 		<popup ref="popup"></popup>
 
-		<tooltip ref="tooltip"></tooltip>
+		<share-handler ref="share"></share-handler>
 
 		<tab-bar :index="0" @change="clickTab"></tab-bar>
 	</view>
@@ -98,33 +99,7 @@
 				});
 			},
 			clickShare() {
-				let actions = [{
-						text: "转发动态",
-						icon: "icon-send-t",
-					},
-					{
-						text: "分享到微信",
-						icon: "icon-wechat",
-						color: "#2aae67"
-					}
-				];
-
-				this.$refs.popup.show({
-					size: "small",
-					type: "action",
-					title: "分享",
-					actions: actions,
-					success: index => {
-						if (index == 0) {
-							this.$refs.popup.hide();
-							uni.navigateTo({
-								url: "/pages-post/post-share/post-share"
-							});
-						} else if (index == 1) {
-							this.$refs.tooltip.show();
-						}
-					}
-				});
+				this.$refs.share.handleShare();
 			},
 			clickLike() {
 				this.$refs.popup.show({
@@ -156,7 +131,7 @@
 				}
 
 				let tempPosts = db.collection("db-posts").where(`sec_check != 1`).orderBy("sort desc, last_modify_date desc")
-					.skip(skip).limit(5).getTemp();
+					.skip(skip).limit(20).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname, intro").getTemp();
 				let tempTopics = db.collection("db-topics").field("_id, name").getTemp();
 
@@ -214,6 +189,8 @@
 		onPageScroll(e) {
 			// console.log(e.scrollTop);
 			this.scrollTop = e.scrollTop;
+
+			uni.$emit("onPageScroll", e.scrollTop);
 
 			setTimeout(() => {
 				this.startScrollTop = e.scrollTop;
@@ -288,7 +265,8 @@
 		justify-content: center;
 		align-items: center;
 		font-size: 32rpx;
-		color: #666;
+		font-weight: bold;
+		color: #999;
 		position: fixed;
 		left: calc(50vw - 60rpx);
 		bottom: calc(env(safe-area-inset-bottom) + 58px);

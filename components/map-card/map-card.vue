@@ -13,17 +13,16 @@
 </template>
 
 <script>
-	import {
-		store
-	} from "@/uni_modules/uni-id-pages/common/store.js";
-
 	export default {
 		name: "map-card",
 		data() {
 			return {
-				longitude: store.userInfo.region.longitude,
-				latitude: store.userInfo.region.latitude
+				longitude: 118.782974,
+				latitude: 32.043668
 			};
+		},
+		mounted() {
+			this.getLocation();
 		},
 		methods: {
 			toFootprint() {
@@ -31,6 +30,15 @@
 					url: "/pages-fun/footprint/footprint"
 				});
 			},
+			getLocation() {
+				uni.getLocation({
+					type: "gcj02",
+					success: res => {
+						this.longitude = res.longitude;
+						this.latitude = res.latitude;
+					}
+				});
+			}
 		}
 	}
 </script>

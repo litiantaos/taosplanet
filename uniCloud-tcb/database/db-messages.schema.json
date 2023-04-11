@@ -22,6 +22,10 @@
 		"content": {
 			"bsonType": "string"
 		},
+		"excerpt": {
+			"bsonType": "string",
+			"trim": "both"
+		},
 		"post_id": {
 			"bsonType": "string",
 			"foreignKey": "db-posts._id"

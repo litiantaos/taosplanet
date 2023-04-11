@@ -46,6 +46,11 @@
 		"style": {
 			"navigationBarTitleText": "搜索"
 		}
+	}, {
+		"path": "pages/message/message-system/message-system",
+		"style": {
+			"navigationBarTitleText": "系统消息"
+		}
 	}],
 	"subPackages": [{
 			"root": "pages-post",
@@ -103,7 +108,8 @@
 			}, {
 				"path": "user-info/user-relationship/user-relationship",
 				"style": {
-					"navigationBarTitleText": ""
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
 				}
 			}, {
 				"path": "user-resume/user-resume",

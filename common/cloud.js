@@ -1,10 +1,8 @@
 import {
-	store
+	store as uniIdStore
 } from "@/uni_modules/uni-id-pages/common/store.js";
 
-import {
-	msgsStore
-} from "@/stores/messages.js";
+import store from "@/store/index.js";
 
 const db = uniCloud.database();
 const dbCmd = db.command;
@@ -32,7 +30,7 @@ export function getTempFileURL(ids) {
 
 // 统一查询点赞状态
 export async function checkLikes(data) {
-	if (!store.hasLogin) return;
+	if (!uniIdStore.hasLogin) return;
 
 	let arr = [];
 
@@ -120,8 +118,8 @@ export function checkMedia(url) {
 
 export function listenMessages() {
 	uni.onPushMessage(res => {
-		// console.log(res);
+		// console.log("onPush", res);
 		utils.addData("db-messages", res.data.payload);
-		msgsStore().saveTempMsgs(res);
+		store.commit("saveTempMsgs", res);
 	});
 }

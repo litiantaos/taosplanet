@@ -27,6 +27,8 @@
 				this.height = safeAreaInsets.top;
 			} else if (this.type == "bottom") {
 				this.height = safeAreaInsets.bottom;
+			} else if (this.type == "tabBar") {
+				this.height = safeAreaInsets.bottom + 48;
 			} else {
 				this.height = safeAreaInsets.top + 44;
 			}

@@ -1,10 +1,7 @@
 <template>
 	<view>
-		<user-detail :userId="userId" :navBarBackground="navBarBackground" :navBarAvatarOpacity="navBarAvatarOpacity"
-			:tabBackground="tabBackground" @tabOffsetY="getTabOffsetY" :tabUser="true" ref="userDetail"></user-detail>
+		<user-detail :userId="userId" :tabUser="true" ref="userDetail"></user-detail>
 	</view>
-
-	<popup ref="popup"></popup>
 
 	<tab-bar :index="3"></tab-bar>
 </template>
@@ -17,11 +14,7 @@
 	export default {
 		data() {
 			return {
-				userId: "",
-				navBarBackground: "rgba(255, 255, 255, 0)",
-				navBarAvatarOpacity: 0,
-				tabBackground: "rgba(255, 255, 255, 0)",
-				tabOffsetY: 0,
+				userId: ""
 			};
 		},
 		onLoad() {
@@ -30,11 +23,6 @@
 			}
 		},
 		methods: {
-			getTabOffsetY(e) {
-				// console.log(e);
-				this.tabOffsetY = e;
-			},
-
 			// 编辑后返回时调用
 			getResumes() {
 				this.$refs.userDetail.getResumes();
@@ -43,24 +31,11 @@
 				this.$refs.userDetail.getColleges();
 			}
 		},
+		onReachBottom() {
+			uni.$emit("onReachBottom");
+		},
 		onPageScroll(e) {
-			let scrollTop = e.scrollTop;
-
-			if (scrollTop >= 0) {
-				if (scrollTop <= 100) {
-					this.navBarBackground = "rgba(255, 255, 255, 0)";
-					this.navBarAvatarOpacity = 0;
-				} else {
-					this.navBarBackground = "rgba(255, 255, 255, 1)";
-					this.navBarAvatarOpacity = 1;
-				}
-
-				if (scrollTop <= this.tabOffsetY) {
-					this.tabBackground = "rgba(255, 255, 255, 0)";
-				} else {
-					this.tabBackground = "rgba(255, 255, 255, 1)";
-				}
-			}
+			uni.$emit("onPageScroll", e.scrollTop);
 		},
 		onShareAppMessage() {
 			return {

@@ -20,7 +20,7 @@
 						<view class="visit-wrap">
 							<view class="visit-info">访问量 <text style="font-weight: bold;">{{userInfo.view_count}}</text></view>
 							<view v-if="currentUser" class="func-btn" @click="toUserInfo">编辑信息</view>
-							<view v-else class="func-btn">加微信</view>
+							<!-- <view v-else class="func-btn">加微信</view> -->
 						</view>
 					</view>
 
@@ -68,14 +68,16 @@
 
 		<tab :tabs="['动态', '经历']" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx"
 			:background="tabBackground" @change="tabChange"></tab>
-		<view class="tab-view" :class="tabUser ? 'tab-user' : 'ntab-user'">
-			<view v-if="tabIndex == 0" class="">
+		<view class="tab-view">
+			<view v-if="tabIndex == 0">
 				<view v-for="(item, index) in posts" :key="index">
-					<post :data="item" :postId="item._id"></post>
+					<post :data="item" :postId="item._id" @share="clickShare"></post>
 				</view>
+
+				<load-more :status="loadMore"></load-more>
 			</view>
 
-			<view v-if="tabIndex == 1" class="">
+			<view v-if="tabIndex == 1">
 				<view class="resume-wrap">
 					<view class="resume-title-wrap">
 						<view class="resume-title">工作经历</view>
@@ -130,7 +132,11 @@
 				</view>
 			</view>
 		</view>
+
+		<safe-area :type="tabUser ? 'tabBar' : 'bottom'"></safe-area>
 	</view>
+
+	<share-handler ref="share"></share-handler>
 </template>
 
 <script>
@@ -156,18 +162,6 @@
 				type: String,
 				default: ""
 			},
-			navBarBackground: {
-				type: String,
-				default: "rgba(0, 0, 0, 0)"
-			},
-			navBarAvatarOpacity: {
-				type: Number,
-				default: 0
-			},
-			tabBackground: {
-				type: String,
-				default: "rgba(0, 0, 0, 0)"
-			},
 			tabUser: {
 				type: Boolean,
 				default: false
@@ -176,16 +170,21 @@
 		data() {
 			return {
 				statusBarHeight: 0,
+				navBarBackground: "rgba(0, 0, 0, 0)",
+				navBarAvatarOpacity: 0,
+				tabBackground: "rgba(0, 0, 0, 0)",
 				tabIndex: 0,
 				userInfo: {},
 				currentUser: false,
-				posts: {},
+				posts: [],
 				count: {
 					likeCount: 0,
 					likeMeCount: 0
 				},
 				colleges: [],
 				resumes: [],
+				loadMore: "",
+				noMore: false
 			};
 		},
 		mounted() {
@@ -195,14 +194,7 @@
 
 			this.statusBarHeight = statusBarHeight;
 
-			setTimeout(() => {
-				const query = uni.createSelectorQuery().in(this);
-				query.selectAll(".container").boundingClientRect(data => {
-					// console.log(data);
-					let tabOffsetY = data[0].height;
-					this.$emit("tabOffsetY", tabOffsetY);
-				}).exec();
-			}, 1000);
+			this.setScrollEffect();
 
 			if (this.userId) {
 				let uid = uniCloud.getCurrentUserInfo().uid;
@@ -220,13 +212,68 @@
 			} else {
 				return;
 			}
+
+			this.onReachBottom();
+		},
+		destroyed() {
+			uni.$off();
 		},
 		computed: {
 			hasLogin() {
-				return store.hasLogin
+				return store.hasLogin;
 			}
 		},
 		methods: {
+			onReachBottom() {
+				uni.$on("onReachBottom", () => {
+					if (this.tabIndex == 0) {
+						this.loadMore = "loading";
+						if (this.noMore) {
+							setTimeout(() => {
+								this.loadMore = "noMore";
+							}, 500);
+							return;
+						};
+						this.getPosts({
+							loadMore: true
+						});
+					}
+				});
+			},
+			setScrollEffect() {
+				let tabOffsetY = 0;
+
+				setTimeout(() => {
+					const query = uni.createSelectorQuery().in(this);
+					query.selectAll(".container").boundingClientRect(data => {
+						// console.log(data);
+						tabOffsetY = data[0].height;
+					}).exec();
+				}, 500);
+
+				uni.$on("onPageScroll", e => {
+					let scrollTop = e;
+
+					if (scrollTop >= 0) {
+						if (scrollTop <= 100) {
+							this.navBarBackground = "rgba(255, 255, 255, 0)";
+							this.navBarAvatarOpacity = 0;
+						} else {
+							this.navBarBackground = "rgba(255, 255, 255, 1)";
+							this.navBarAvatarOpacity = 1;
+						}
+
+						if (scrollTop <= tabOffsetY) {
+							this.tabBackground = "rgba(255, 255, 255, 0)";
+						} else {
+							this.tabBackground = "rgba(255, 255, 255, 1)";
+						}
+					}
+				});
+			},
+			clickShare() {
+				this.$refs.share.handleShare();
+			},
 			updateViewCount() {
 				utils.calc("uni-id-users", "view_count", this.userId, 1).then(res => {
 					// console.log(res);
@@ -254,25 +301,42 @@
 					.groupBy("user_id").groupField("sum(like_count) as total").get();
 				this.count.likeMeCount = likeMeCount.result.data[0].total;
 			},
-			getPosts() {
+			getPosts(e = {}) {
+				const {
+					loadMore = false
+				} = e;
+
+				let skip = 0;
+				if (loadMore) {
+					skip = this.posts.length;
+				}
+
 				let tempPosts = db.collection("db-posts").where(`user_id == "${this.userId}" && sec_check != 1`).orderBy(
-					"last_modify_date desc").getTemp();
+					"last_modify_date desc").skip(skip).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname, intro").getTemp();
 				let tempTopics = db.collection("db-topics").getTemp();
 
 				db.collection(tempPosts, tempUsers, tempTopics).get().then(async res => {
-					let resData = res.result.data;
+					let resData = [];
 
-					if (store.hasLogin) {
-						await checkLikes(resData).then(result => {
-							resData = result;
-						});
+					if (loadMore) {
+						if (res.result.data.length == 0) {
+							this.noMore = true;
+						}
+						resData = [...this.posts, ...res.result.data];
+					} else {
+						this.posts = [];
+						resData = res.result.data;
+						this.noMore = false;
 					}
 
-					this.posts = [];
-					setTimeout(() => {
-						this.posts = resData;
-					}, 150);
+					await checkLikes(resData).then(result => {
+						resData = result;
+					});
+
+					this.posts = resData;
+
+					this.loadMore = "";
 				})
 			},
 			getUserInfo() {
@@ -484,14 +548,6 @@
 
 	.tab-view {
 		padding: 25rpx;
-
-		&.tab-user {
-			padding-bottom: calc(env(safe-area-inset-bottom) + 48px);
-		}
-
-		&.ntab-user {
-			padding-bottom: calc(env(safe-area-inset-bottom));
-		}
 
 		.resume-wrap {
 			background: #fff;

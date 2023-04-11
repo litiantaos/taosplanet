@@ -20,5 +20,9 @@ module.exports = {
 
 	async addData(col, data) {
 		return await db.collection(col).add(data);
+	},
+
+	async updateData(col, id, data) {
+		return await db.collection(col).doc(id).update(data);
 	}
 }

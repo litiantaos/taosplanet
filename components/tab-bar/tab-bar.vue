@@ -2,7 +2,7 @@
 	<view class="tab-bar">
 		<view class="item" v-for="(item, index) in tabs" :key="index" @click="clickTab(item, index)">
 			<image class="item-icon" :src="selectedIndex == index ? item.selectedIconPath : item.iconPath">
-				<view v-if="index == 2 && msgsLen" class="dot"></view>
+				<view v-if="index == 2 && messages.length" class="dot"></view>
 			</image>
 			<view v-if="showText" class="item-text" :class="{'active': selectedIndex == index}">
 				{{item.text}}
@@ -13,8 +13,8 @@
 
 <script>
 	import {
-		msgsStore
-	} from "@/stores/messages.js";
+		mapState
+	} from "vuex";
 
 	export default {
 		name: "tab-bar",
@@ -60,9 +60,9 @@
 			this.selectedIndex = this.index;
 		},
 		computed: {
-			msgsLen() {
-				return msgsStore().messages.length;
-			}
+			...mapState({
+				messages: state => state.messages.messages
+			})
 		},
 		methods: {
 			clickTab(item, index) {
@@ -108,10 +108,10 @@
 					right: -5rpx;
 					width: 15rpx;
 					height: 15rpx;
-					border: 2px solid #fff;
 					border-radius: 50%;
-					background: indianred;
+					border: 2px solid #fff;
 					box-sizing: content-box;
+					background: indianred;
 				}
 			}
 

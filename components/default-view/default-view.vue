@@ -1,5 +1,5 @@
 <template>
-	<view class="container">
+	<view class="container" :class="fullScreen ? 'full' : 'nfull'">
 		<image class="image" src="@/static/images/default.svg" mode="widthFix"></image>
 		<view v-if="showText" class="text">{{text}}</view>
 	</view>
@@ -11,11 +11,15 @@
 		props: {
 			showText: {
 				type: Boolean,
-				default: false
+				default: true
 			},
 			text: {
 				type: String,
 				default: "暂无内容"
+			},
+			fullScreen: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data() {
@@ -35,9 +39,16 @@
 		align-items: center;
 		opacity: 0.8;
 
+		&.full {
+			height: 100vh;
+		}
+
+		&.nfull {
+			height: 600rpx;
+		}
+
 		.image {
 			width: 50%;
-			margin-top: 120rpx;
 		}
 
 		.text {
