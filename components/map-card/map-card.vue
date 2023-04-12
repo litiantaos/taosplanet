@@ -15,6 +15,12 @@
 <script>
 	export default {
 		name: "map-card",
+		props: {
+			data: {
+				type: Object,
+				default: {}
+			}
+		},
 		data() {
 			return {
 				longitude: 118.782974,
@@ -22,21 +28,15 @@
 			};
 		},
 		mounted() {
-			this.getLocation();
+			if (this.data.longitude) {
+				this.longitude = this.data.longitude;
+				this.latitude = this.data.latitude;
+			}
 		},
 		methods: {
 			toFootprint() {
 				uni.navigateTo({
 					url: "/pages-fun/footprint/footprint"
-				});
-			},
-			getLocation() {
-				uni.getLocation({
-					type: "gcj02",
-					success: res => {
-						this.longitude = res.longitude;
-						this.latitude = res.latitude;
-					}
 				});
 			}
 		}
@@ -56,16 +56,12 @@
 			align-items: center;
 			width: 100%;
 			height: 100%;
-			background: #fff;
-			transition: background .15s;
-
-			&:active {
-				background: #eee;
-			}
 
 			.map {
 				width: 100%;
 				height: 150%;
+				background: #fff;
+				border-radius: 20rpx;
 			}
 		}
 

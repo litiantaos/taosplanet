@@ -139,16 +139,29 @@
 		{
 			"root": "pages-fun",
 			"pages": [{
-				"path": "footprint/footprint",
-				"style": {
-					"navigationBarTitleText": "足迹"
-				}
-			}, {
-				"path": "party/party",
-				"style": {
-					"navigationBarTitleText": ""
-				}
-			}]
+					"path": "event/event",
+					"style": {
+						"navigationBarTitleText": "",
+						"navigationStyle": "custom"
+					}
+				}, {
+					"path": "event/event-detail/event-detail",
+					"style": {
+						"navigationBarTitleText": ""
+					}
+				}, {
+					"path": "event/event-create/event-create",
+					"style": {
+						"navigationBarTitleText": "创建活动"
+					}
+				},
+				// {
+				// 	"path": "footprint/footprint",
+				// 	"style": {
+				// 		"navigationBarTitleText": "足迹"
+				// 	}
+				// }
+			]
 		}
 	],
 	"globalStyle": {

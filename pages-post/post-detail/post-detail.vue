@@ -4,12 +4,7 @@
 			:isCurrentUser="isCurrentUser" :isCollapse="false" @like="clickLike" @more="clickMore" @share="clickShare"></post>
 
 		<view class="avatar-wrap" v-if="likeUsers.length">
-			<view class="avatar-group">
-				<view class="avatar-item" v-for="(item, index) in likeUsers" :key="index">
-					<cloud-file :src="item.user_id[0]" width="100%" height="100%"></cloud-file>
-				</view>
-				<view class="avatar-item more">···</view>
-			</view>
+			<avatar-group :avatars="likeUsers"></avatar-group>
 		</view>
 
 		<view style="height: 20rpx; background: #eee;"></view>
@@ -537,33 +532,6 @@
 		display: flex;
 		justify-content: center;
 		margin-bottom: 25rpx;
-
-		.avatar-group {
-			display: flex;
-			align-items: center;
-
-			.avatar-item {
-				width: 60rpx;
-				height: 60rpx;
-				border-radius: 50%;
-				border: 5rpx solid #fff;
-				background: #eee;
-				overflow: hidden;
-
-				&:not(:first-child) {
-					margin-left: -20rpx;
-				}
-
-				&.more {
-					font-size: 20rpx;
-					font-weight: bold;
-					color: #666;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-				}
-			}
-		}
 	}
 
 	.comment-wrap {

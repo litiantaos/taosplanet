@@ -220,11 +220,8 @@
 		},
 		onLoad() {},
 		computed: {
-			hasLogin() {
-				return store.hasLogin
-			},
 			userInfo() {
-				return store.userInfo
+				return store.userInfo;
 			}
 		},
 		methods: {

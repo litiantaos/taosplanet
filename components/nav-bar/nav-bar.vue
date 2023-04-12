@@ -78,7 +78,8 @@
 			}
 
 			.title {
-				font-size: 28rpx;
+				font-size: 34rpx;
+				font-weight: bold;
 			}
 		}
 	}

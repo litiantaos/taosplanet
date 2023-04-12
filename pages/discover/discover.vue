@@ -16,9 +16,11 @@
 				<cover-view class="callout" v-for="(item, index) in list" :key="index" :marker-id="markers[index].id">
 					<cover-view class="avatar-group">
 						<cover-view class="avatar-item" v-for="(v, i) in item.list" :key="i">
-							<cloud-file :src="v.avatar_url" width="100%" height="100%"></cloud-file>
+							<cloud-file :src="v.avatar_url" width="100%" height="100%" isCover></cloud-file>
 						</cover-view>
-						<cover-view class="avatar-item more">···</cover-view>
+						<cover-view class="avatar-item more">
+							<cover-view class="text">···</cover-view>
+						</cover-view>
 					</cover-view>
 				</cover-view>
 			</cover-view>
@@ -30,7 +32,7 @@
 
 		<view class="container">
 			<scroll-view class="func-wrap" scroll-x>
-				<view class="func-item" @click="toParty">
+				<view class="func-item" @click="toEvent">
 					<view class="func-item-title">组局吧</view>
 					<view class="func-item-text">组局约会面基</view>
 				</view>
@@ -53,7 +55,6 @@
 
 <script>
 	import {
-		getDistrict,
 		getReGeocode
 	} from "@/common/request.js";
 
@@ -77,23 +78,37 @@
 		},
 		onLoad() {
 			this.startLocation();
-			this.getDistrictGroup();
-			this.getCityGroup();
+			this.getUserGroup();
 		},
 		onReady() {
 			this.mapCtx = uni.createMapContext("map", this);
 		},
+		computed: {
+			hasLogin() {
+				return store.hasLogin;
+			},
+			userInfo() {
+				return store.userInfo;
+			}
+		},
 		methods: {
-			toParty() {
+			toEvent() {
 				uni.navigateTo({
-					url: "/pages-fun/party/party"
+					url: "/pages-fun/event/event"
 				});
+			},
+			async getUserGroup() {
+				await this.getCityGroup();
+
+				if (this.userInfo.city) {
+					await this.getDistrictGroup();
+				}
 			},
 			async getDistrictGroup() {
 				let districtRes = await uniCloud.callFunction({
 					name: "users-location-group",
 					data: {
-						city: store.userInfo.city
+						city: this.userInfo.city
 					}
 				});
 
@@ -109,7 +124,7 @@
 						height: 0,
 						customCallout: {
 							anchorX: 0,
-							anchorY: -20,
+							anchorY: 0,
 							display: "ALWAYS",
 						}
 					}
@@ -124,10 +139,9 @@
 				});
 
 				let cityGroup = cityRes.result.data;
-				// console.log(cityGroup);
 
 				cityGroup.map((item, index) => {
-					if (item._id != store.userInfo.city) {
+					if (item._id != this.userInfo.city) {
 						let cityMarker = {
 							id: index,
 							longitude: item.city_lng,
@@ -137,7 +151,7 @@
 							height: 0,
 							customCallout: {
 								anchorX: 0,
-								anchorY: -20,
+								anchorY: 0,
 								display: "ALWAYS",
 							}
 						}
@@ -150,7 +164,7 @@
 			startLocation() {
 				let sto = uni.getStorageSync("discStart");
 				let tempRegion = uni.getStorageSync("tempRegion");
-				let userRegion = store.userInfo.region;
+				let userRegion = this.userInfo.region;
 
 				if (!sto) {
 					setTimeout(() => {
@@ -168,10 +182,10 @@
 
 						uni.setStorageSync("discStart", true);
 					}, 100);
-				} else if (store.hasLogin && userRegion.longitude) {
+				} else if (this.hasLogin && userRegion.longitude) {
 					this.longitude = userRegion.longitude;
 					this.latitude = userRegion.latitude;
-				} else if (!store.hasLogin && tempRegion) {
+				} else if (!this.hasLogin && tempRegion) {
 					this.longitude = tempRegion.longitude;
 					this.latitude = tempRegion.latitude;
 				}
@@ -199,7 +213,7 @@
 								...r
 							};
 
-							if (store.hasLogin) {
+							if (this.hasLogin) {
 								mutations.updateUserInfo({
 									region: location
 								});
@@ -291,6 +305,7 @@
 		background: #fff;
 		padding: 0 20rpx;
 		border-radius: 40rpx;
+		width: fit-content;
 
 		.avatar-group {
 			display: flex;
@@ -309,12 +324,15 @@
 				}
 
 				&.more {
-					font-size: 20rpx;
-					font-weight: bold;
-					color: #666;
 					display: flex;
 					justify-content: center;
 					align-items: center;
+
+					.text {
+						font-size: 20rpx;
+						font-weight: bold;
+						color: #666;
+					}
 				}
 			}
 		}

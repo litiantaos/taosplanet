@@ -62,7 +62,7 @@
 			</view>
 
 			<view class="footprint">
-				<map-card></map-card>
+				<map-card :data="userInfo.region"></map-card>
 			</view>
 		</view>
 

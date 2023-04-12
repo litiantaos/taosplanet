@@ -1,0 +1,120 @@
+<template>
+	<view class="event-card" @click="onClick">
+		<view class="content">
+			<view class="title">人工智能圆桌讨论会</view>
+			<view class="tags">
+				<view class="tag">江苏 · 南京</view>
+				<view class="tag">04/15 24:00 截止</view>
+			</view>
+			<view class="participant">
+				<avatar-group borderColor="#7f9dde" radius="50rpx"></avatar-group>
+				<view class="text">12人已参与</view>
+			</view>
+		</view>
+		<view class="founder-wrap">
+			<view class="founder">
+				<view class="avatar">
+					<cloud-file width="100%" height="100%"></cloud-file>
+				</view>
+				<view class="name">TAOVIA</view>
+			</view>
+
+			<view class="description">04/12 09:00 发起</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		name: "event-card",
+		data() {
+			return {
+
+			};
+		},
+		methods: {
+			onClick() {
+				this.$emit("click");
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.event-card {
+		width: 100%;
+		background: #7f9dde;
+		border-radius: 20rpx;
+		overflow: hidden;
+		margin-bottom: 25rpx;
+		color: #fff;
+
+		.content {
+			width: 100%;
+			padding: 25rpx;
+
+			.title {
+				font-size: 32rpx;
+				font-weight: bold;
+				margin: 10rpx 0 30rpx 0;
+			}
+
+			.tags {
+				display: flex;
+				margin-bottom: 35rpx;
+
+				.tag {
+					width: fit-content;
+					padding: 5rpx 15rpx;
+					border: 1px solid #fff;
+					border-radius: 8rpx;
+					font-size: 22rpx;
+					margin-right: 15rpx;
+				}
+			}
+
+			.participant {
+				display: flex;
+				align-items: center;
+
+				.text {
+					font-size: 26rpx;
+					margin-left: 15rpx;
+				}
+			}
+		}
+
+		.founder-wrap {
+			width: 100%;
+			background: #7594d8;
+			padding: 25rpx;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.founder {
+				display: flex;
+				align-items: center;
+
+				.avatar {
+					width: 50rpx;
+					height: 50rpx;
+					border: 1px solid #fff;
+					border-radius: 50%;
+					background: #eee;
+					overflow: hidden;
+				}
+
+				.name {
+					font-size: 28rpx;
+					font-weight: bold;
+					margin-left: 15rpx;
+				}
+			}
+
+			.description {
+				font-size: 26rpx;
+			}
+		}
+	}
+</style>
