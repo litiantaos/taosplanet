@@ -62,7 +62,7 @@
 			</view>
 
 			<view class="footprint">
-				<map-card :data="userInfo.region"></map-card>
+				<map-card :data="userInfo.region" :showFront="true" title="足迹" text="12个地区"></map-card>
 			</view>
 		</view>
 

@@ -99,19 +99,9 @@
 
 				store.commit("clearTempMsgs");
 
-				let res = await db.collection("db-messages").where(`user_id == $cloudEnv_uid && is_read != true`).get();
-
-				let resData = res.result.data;
-
-				if (resData.length) {
-					let promise = resData.map(async item => {
-						return await db.collection("db-messages").where(`_id == "${item._id}"`).update({
-							is_read: true
-						});
-					});
-
-					await Promise.all(promise);
-				};
+				await db.collection("db-messages").where(`user_id == $cloudEnv_uid && is_read != true`).update({
+					is_read: true
+				});
 
 				this.$refs.toast.show({
 					type: "success",

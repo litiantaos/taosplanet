@@ -1,12 +1,5 @@
 <template>
-	<nav-bar></nav-bar>
-	<safe-area></safe-area>
-
-	<view class="container">
-		<input-pro :inputIn="inputIn" @input="onInput"></input-pro>
-		<view class="button" @click="submit">完成</view>
-	</view>
-
+	<edit-view :inputIn="inputIn" @input="onInput" @confirm="onConfirm"></edit-view>
 	<toast ref="toast"></toast>
 </template>
 
@@ -15,8 +8,6 @@
 		store,
 		mutations
 	} from "@/uni_modules/uni-id-pages/common/store.js";
-
-	const db = uniCloud.database();
 
 	export default {
 		data() {
@@ -42,7 +33,7 @@
 			onInput(e) {
 				this.inputIn.value = e;
 			},
-			async submit() {
+			async onConfirm() {
 				let intro = this.inputIn.value;
 
 				if (!intro) return;
@@ -75,25 +66,6 @@
 	}
 </script>
 
-<style lang="scss" scoped>
-	.container {
-		margin: 25rpx;
+<style lang="scss">
 
-		.button {
-			height: 100rpx;
-			background: #333;
-			border-radius: 20rpx;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: #fff;
-			font-size: 28rpx;
-			margin: 80rpx 0;
-			transition: opacity .2s;
-
-			&:active {
-				opacity: 0.8;
-			}
-		}
-	}
 </style>

@@ -342,10 +342,10 @@
 						let data;
 						if (Array.isArray(res)) {
 							data = {
-								province: res[0],
-								city: res[1],
-								district: res[2],
-								adcode: res[3]
+								province: res[0].name,
+								city: res[1].name,
+								district: res[2].name,
+								adcode: res[2].code
 							}
 						} else {
 							data = res;
@@ -359,13 +359,7 @@
 							});
 
 							let cityRes = await getDistrict(data.city);
-
-							let distRes;
-							cityRes.districts.forEach(item => {
-								if (item.name == data.district) {
-									distRes = item;
-								}
-							});
+							let distRes = await getDistrict(data.district);
 
 							console.log(cityRes, distRes);
 
@@ -416,10 +410,10 @@
 						let data;
 						if (Array.isArray(res)) {
 							data = {
-								province: res[0],
-								city: res[1],
-								district: res[2],
-								adcode: res[3]
+								province: res[0].name,
+								city: res[1].name,
+								district: res[2].name,
+								adcode: res[2].code
 							}
 						} else {
 							data = res;

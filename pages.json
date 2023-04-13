@@ -147,20 +147,28 @@
 				}, {
 					"path": "event/event-detail/event-detail",
 					"style": {
-						"navigationBarTitleText": ""
+						"navigationBarTitleText": "活动",
+						"enablePullDownRefresh": true
 					}
 				}, {
 					"path": "event/event-create/event-create",
 					"style": {
 						"navigationBarTitleText": "创建活动"
 					}
-				},
-				// {
+				}
+				// , {
 				// 	"path": "footprint/footprint",
 				// 	"style": {
 				// 		"navigationBarTitleText": "足迹"
 				// 	}
 				// }
+				, {
+					"path": "event/event-create/event-intro/event-intro",
+					"style": {
+						"navigationBarTitleText": "",
+						"navigationStyle": "custom"
+					}
+				}
 			]
 		}
 	],

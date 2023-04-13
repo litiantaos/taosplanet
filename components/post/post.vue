@@ -383,7 +383,8 @@
 				width: 240rpx;
 				height: 240rpx;
 				background: $uni-bg-color-grey;
-				border-radius: $uni-border-radius-base;
+				border-radius: 15rpx;
+				vertical-align: bottom;
 			}
 
 			.body-video {
@@ -391,7 +392,8 @@
 				width: 480rpx;
 				height: 270rpx;
 				background: $uni-bg-color-grey;
-				border-radius: $uni-border-radius-base;
+				border-radius: 15rpx;
+				vertical-align: bottom;
 
 				.video-mask {
 					position: absolute;

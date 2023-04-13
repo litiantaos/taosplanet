@@ -23,10 +23,7 @@
 			</view>
 		</pull-down>
 
-		<view class="float-btn" :style="{transform: (floatBtnMove ? 'translateY(300%)' : 'translateY(0)')}"
-			@click="toPostPublish" @longpress="toSearch">
-			<view class="iconfont icon-add"></view>
-		</view>
+		<float-button @click="toPostPublish" @longpress="toSearch"></float-button>
 
 		<popup ref="popup"></popup>
 
@@ -54,9 +51,6 @@
 			return {
 				posts: [],
 				scrollTop: 0,
-				startScrollTop: 0,
-				endScrollTop: 0,
-				floatBtnMove: false,
 				isLoading: true,
 				loadMore: "",
 				noMore: false,
@@ -187,23 +181,8 @@
 			});
 		},
 		onPageScroll(e) {
-			// console.log(e.scrollTop);
 			this.scrollTop = e.scrollTop;
-
 			uni.$emit("onPageScroll", e.scrollTop);
-
-			setTimeout(() => {
-				this.startScrollTop = e.scrollTop;
-				setTimeout(() => {
-					this.endScrollTop = e.scrollTop;
-				}, 1000);
-			}, 10);
-
-			if (this.startScrollTop > this.endScrollTop) {
-				this.floatBtnMove = true;
-			} else if (this.startScrollTop < this.endScrollTop) {
-				this.floatBtnMove = false;
-			}
 		},
 		onShareAppMessage() {
 			return {
@@ -252,26 +231,5 @@
 				margin: 0 25rpx;
 			}
 		}
-	}
-
-	.float-btn {
-		width: 120rpx;
-		height: 56rpx;
-		background: #eee;
-		border-radius: 28rpx;
-		opacity: 0.9;
-		filter: invert(10%);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #999;
-		position: fixed;
-		left: calc(50vw - 60rpx);
-		bottom: calc(env(safe-area-inset-bottom) + 58px);
-		z-index: 998;
-		transform: translateY(0);
-		transition: transform .5s;
 	}
 </style>

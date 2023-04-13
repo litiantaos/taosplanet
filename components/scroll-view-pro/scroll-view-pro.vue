@@ -58,7 +58,7 @@
 
 				&.scroll-x {
 					&:not(:last-child) {
-						margin-right: $uni-spacing-base;
+						margin-right: 20rpx;
 					}
 
 					&:first-child {

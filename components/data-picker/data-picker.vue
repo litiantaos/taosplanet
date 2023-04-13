@@ -58,7 +58,13 @@
 				let levels = this.pickerIn.levels;
 
 				if (currLevel == levels - 1) {
-					this.data.push(e.name, e.code, e._id);
+					this.data.push({
+						name: e.name,
+						code: e.code,
+						id: e._id
+					});
+
+					console.log(this.data);
 
 					this.$emit("data", this.data);
 				} else {
@@ -67,7 +73,11 @@
 						this.data.splice(currLevel, levels - currLevel);
 					}
 					this.tabs.push(e.name);
-					this.data.push(e.name);
+					this.data.push({
+						name: e.name,
+						code: e.code,
+						id: e._id
+					});
 					this.tabIndex = currLevel + 1;
 					this.getData(currLevel + 1, e.code);
 				}

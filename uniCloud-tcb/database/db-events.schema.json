@@ -1,0 +1,127 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"title": {
+			"bsonType": "string",
+			"title": "主题",
+			"trim": "both"
+		},
+		"intro": {
+			"bsonType": "string",
+			"title": "说明",
+			"trim": "right"
+		},
+		"start_date": {
+			"bsonType": "timestamp",
+			"title": "活动开始时间"
+		},
+		"end_date": {
+			"bsonType": "timestamp",
+			"title": "活动结束时间"
+		},
+		"deadline": {
+			"bsonType": "timestamp",
+			"title": "报名截止时间"
+		},
+		"limited_participant_count": {
+			"bsonType": "int",
+			"title": "限定参与人数"
+		},
+		"region": {
+			"bsonType": "object",
+			"title": "地区"
+		},
+		"location": {
+			"bsonType": "object",
+			"title": "位置"
+		},
+		"location_name": {
+			"bsonType": "string",
+			"title": "位置名称"
+		},
+		"images": {
+			"bsonType": "array",
+			"title": "图片"
+		},
+		"view_count": {
+			"bsonType": "int",
+			"title": "浏览量",
+			"permission": {
+				"write": false
+			}
+		},
+		"participant_count": {
+			"bsonType": "int",
+			"title": "参与人数"
+		},
+		"publish_date": {
+			"bsonType": "timestamp",
+			"title": "发布时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"publish_ip": {
+			"bsonType": "string",
+			"title": "发布 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"is_modified": {
+			"bsonType": "bool",
+			"description": "true is modified, false is unmodified",
+			"defaultValue": false
+		},
+		"last_modify_date": {
+			"bsonType": "timestamp",
+			"title": "最后修改时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"last_modify_ip": {
+			"bsonType": "string",
+			"title": "最后修改 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"is_sticky": {
+			"bsonType": "bool",
+			"title": "置顶",
+			"permission": {
+				"write": false
+			}
+		},
+		"sort": {
+			"bsonType": "int",
+			"title": "排序"
+		},
+		"sec_check": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 通过 1 违规 2 错误"
+		}
+	},
+	"version": "0.0.1"
+}

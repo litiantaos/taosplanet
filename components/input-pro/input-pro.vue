@@ -13,13 +13,13 @@
 				:auto-height="inputIn.autoHeight ? inputIn.autoHeight : false" :show-confirm-bar="false" @input="onInput"
 				@focus="onFocus" @blur="onBlur" @confirm="onConfirm" @keyboardheightchange="onKeyboardHeightChange"></textarea>
 
-			<input v-else class="input" type="text" :value="value"
+			<input v-else class="input" :type="inputIn.type ? inputIn.type : 'text'" :value="value"
 				:placeholder="inputIn.placeholder ? inputIn.placeholder : '请输入内容'"
 				:maxlength="inputIn.maxlength ? inputIn.maxlength : 10"
 				:confirm-type="inputIn.confirmType ? inputIn.confirmType : 'done'"
 				:cursor-spacing="inputIn.cursorSpacing ? inputIn.cursorSpacing : 70"
-				:adjust-position="inputIn.adjustPosition ? inputIn.adjustPosition : false" @input="onInput" @focus="onFocus"
-				@blur="onBlur" @confirm="onConfirm" @keyboardheightchange="onKeyboardHeightChange" />
+				:adjust-position="inputIn.adjustPosition || true" @input="onInput" @focus="onFocus" @blur="onBlur"
+				@confirm="onConfirm" @keyboardheightchange="onKeyboardHeightChange" />
 
 			<i v-if="!inputIn.textarea" class="iconfont icon-close-circle-fill suffix-icon" :class="{'active': value != ''}"
 				@click="clearInput"></i>

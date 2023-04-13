@@ -11,10 +11,10 @@ const utils = uniCloud.importObject("utils", {
 	customUI: true
 });
 
-export function getTempFileURL(ids) {
+export function getTempFileURL(fileIds) {
 	return new Promise((resolve, reject) => {
 		uniCloud.getTempFileURL({
-			fileList: ids,
+			fileList: fileIds,
 			success: res => {
 				let arr = res.fileList.map(item => {
 					return item.tempFileURL
@@ -122,4 +122,22 @@ export function listenMessages() {
 		utils.addData("db-messages", res.data.payload);
 		store.commit("saveTempMsgs", res);
 	});
+}
+
+export async function uploadFile(e) {
+	let promise = e.tempPaths.map(async (item, index) => {
+		return await uniCloud.uploadFile({
+			filePath: item,
+			cloudPath: e.path + e.user_id + "_" + Date.now() + "_" +
+				index + "." + item.split(".").pop().toLowerCase()
+		});
+	});
+
+	let promiseAll = await Promise.all(promise);
+
+	let fileIdList = promiseAll.map(item => {
+		return item.fileID;
+	});
+
+	return fileIdList;
 }

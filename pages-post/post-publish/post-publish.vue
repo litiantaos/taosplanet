@@ -5,7 +5,7 @@
 	<view class="container">
 		<view class="title">
 			<view>新的动态</view>
-			<view v-if="inputValue && topicId" class="publish iconfont icon-arrow-right-t" @click="publish"></view>
+			<view v-if="data.content && data.topic_id" class="publish iconfont icon-arrow-right-t" @click="publish"></view>
 		</view>
 
 		<scroll-view class="topic-wrap" scroll-x :scroll-left="scrollLeft">
@@ -26,9 +26,9 @@
 					@input="getInput"></textarea>
 
 				<view class="wrap">
-					<view v-if="locationName" class="location">
+					<view v-if="data.location_name" class="location">
 						<i class="iconfont icon-location-fill"></i>
-						<view class="text">{{locationName}}</view>
+						<view class="text">{{data.location_name}}</view>
 						<i class="iconfont icon-close-circle-fill" @click="clearLocation"></i>
 					</view>
 
@@ -48,7 +48,7 @@
 						</scroll-view-pro>
 					</view>
 
-					<link-card v-if="link" :data="link" :showRemove="true" @handle="removeLink"></link-card>
+					<link-card v-if="data.link" :data="data.link" :showRemove="true" @handle="removeLink"></link-card>
 				</view>
 			</view>
 
@@ -78,6 +78,7 @@
 	} from "@/common/utils.js";
 
 	import {
+		uploadFile,
 		checkContent,
 		checkMedia
 	} from "@/common/cloud.js";
@@ -92,21 +93,15 @@
 			return {
 				screenHeight: 0,
 				keyboardHeight: 0,
-				inputValue: "",
+				data: {},
 				topics: [],
-				topicId: "",
 				topic: "",
 				recTopics: [],
 				recTopicsNum: 5,
 				isSelected: false,
 				textareaHeight: "100%",
 				tempImagePaths: [],
-				cloudImagePaths: [],
 				tempVideoPaths: [],
-				cloudVideoPaths: [],
-				locationName: "",
-				location: {},
-				link: "",
 				scrollLeft: 0,
 				old: {
 					scrollLeft: 0
@@ -130,62 +125,46 @@
 		methods: {
 			// 发布内容入库
 			async addData() {
-				let data = {
-					content: this.inputValue,
-					topic_id: this.topicId,
-				};
-
 				// 文本安全检测
-				await checkContent(data.content).then(res => {
+				await checkContent(this.data.content).then(res => {
 					console.log(res);
 					if (res == 1) {
-						data.sec_check = 1;
+						this.data.sec_check = 1;
 					}
 				});
 
-				if (this.cloudImagePaths.length) {
-					data.images = this.cloudImagePaths;
-
+				if (this.data.images?.length) {
 					// 图片安全检测
-					data.images.map(async item => {
+					this.data.images.map(async item => {
 						await checkMedia(item).then(res => {
 							console.log(res);
 							if (res == 1) {
-								data.sec_check = 1;
+								this.data.sec_check = 1;
 								return;
 							}
 						});
 					});
 				}
 
-				if (this.cloudVideoPaths.length) {
-					data.videos = this.cloudVideoPaths;
-
+				if (this.data.videos?.length) {
 					// 视频安全检测
-					data.videos.map(async item => {
+					this.data.videos.map(async item => {
 						await checkMedia(item).then(res => {
 							console.log(res);
 							if (res == 1) {
-								data.sec_check = 1;
+								this.data.sec_check = 1;
 								return;
 							}
 						});
 					});
 				}
 
-				if (Object.keys(this.location).length != 0 && this.locationName) {
-					data.location = this.location;
-					data.location_name = this.locationName;
-				}
+				console.log(this.data);
 
-				if (this.link) {
-					data.link = this.link;
-				}
-
-				db.collection("db-posts").add(data).then(res => {
+				db.collection("db-posts").add(this.data).then(res => {
 					console.log("addData", res);
-					utils.calc("db-topics", "post_count", this.topicId, 1);
-					if (data.sec_check && data.sec_check == 1) {
+					utils.calc("db-topics", "post_count", this.data.topic_id, 1);
+					if (this.data.sec_check && this.data.sec_check == 1) {
 						this.$refs.toast.show({
 							type: "error",
 							text: "内容违规，待人工审核",
@@ -207,24 +186,6 @@
 				});
 			},
 
-			async uploadFile(e) {
-				let promise = e.tempPaths.map(async (item, index) => {
-					return await uniCloud.uploadFile({
-						filePath: item,
-						cloudPath: e.path + this.userInfo._id + "_" + Date.now() + "_" +
-							index + "." + item.split(".").pop().toLowerCase()
-					})
-				});
-
-				let promiseAll = await Promise.all(promise);
-
-				let fileIdList = promiseAll.map(item => {
-					return item.fileID;
-				});
-
-				return fileIdList;
-			},
-
 			publish: throttle(async function() {
 				this.$refs.toast.show({
 					type: "loading",
@@ -233,23 +194,21 @@
 				});
 
 				if (this.tempImagePaths.length) {
-					let fileIdList = await this.uploadFile({
+					let fileIds = await uploadFile({
 						tempPaths: this.tempImagePaths,
 						path: "posts/images/"
 					});
 
-					this.cloudImagePaths = fileIdList;
-					console.log(this.cloudImagePaths);
+					this.data.images = fileIds;
 				}
 
 				if (this.tempVideoPaths.length) {
-					let fileIdList = await this.uploadFile({
+					let fileIds = await uploadFile({
 						tempPaths: this.tempVideoPaths,
 						path: "posts/videos/"
 					});
 
-					this.cloudVideoPaths = fileIdList;
-					console.log(this.cloudVideoPaths);
+					this.data.videos = fileIds;
 				}
 
 				this.addData();
@@ -263,9 +222,7 @@
 					type: "input",
 					inputIn: {
 						placeholder: "输入网页链接",
-						value: this.link,
-						adjustPosition: true,
-						cursorSpacing: 15,
+						value: this.data.link || "",
 						maxlength: -1
 					},
 					showHandle: true,
@@ -283,7 +240,7 @@
 							if (!isHttp && !isHttps) {
 								res = "http://" + res;
 							}
-							this.link = res;
+							this.data.link = res;
 							this.$refs.popup.hide();
 						} else {
 							this.$refs.toast.show({
@@ -296,7 +253,7 @@
 				});
 			},
 			removeLink() {
-				this.link = "";
+				delete this.data.link;
 			},
 
 			// LOCATION
@@ -304,8 +261,8 @@
 				uni.chooseLocation({
 					success: res => {
 						console.log(res);
-						this.locationName = res.name;
-						this.location = {
+						this.data.location_name = res.name;
+						this.data.location = {
 							type: "Point",
 							coordinates: [
 								res.longitude,
@@ -316,7 +273,8 @@
 				})
 			},
 			clearLocation() {
-				this.locationName = "";
+				delete this.data.location_name;
+				delete this.data.location;
 			},
 
 			// 选择视频
@@ -386,13 +344,13 @@
 			// INPUT
 			getInput(e) {
 				// console.log(e.detail);
-				this.inputValue = e.detail.value;
+				this.data.content = e.detail.value;
 			},
 			onFocus(e) {
 				// console.log(e.detail);
 				const query = uni.createSelectorQuery().in(this);
 				query.select(".textarea").boundingClientRect(data => {
-					console.log(data);
+					// console.log(data);
 					this.keyboardHeight = e.detail.height;
 					this.textareaHeight = `${this.screenHeight - this.keyboardHeight - data.top - 15}px`;
 				}).exec();
@@ -410,7 +368,7 @@
 					checks: this.topics,
 					success: (res) => {
 						// console.log(res);
-						this.topicId = res._id;
+						this.data.topic_id = res._id;
 						this.topic = res.name;
 						this.isSelected = true;
 
@@ -426,10 +384,8 @@
 				let current = this.recTopics[e.index];
 
 				this.topic = current.name;
-				this.topicId = current._id;
+				this.data.topic_id = current._id;
 				this.isSelected = true;
-
-				// console.log(this.topic, this.topicId);
 
 				if (this.recTopics.length == this.recTopicsNum) {
 					this.init = current;
@@ -442,7 +398,7 @@
 				};
 
 				this.topics.forEach((item, index) => {
-					if (this.topicId.indexOf(item._id) !== -1) {
+					if (this.data.topic_id.indexOf(item._id) !== -1) {
 						item.checked = true;
 					} else {
 						item.checked = false;
@@ -604,6 +560,7 @@
 							border: 1px solid #eee;
 							border-radius: 15rpx;
 							box-sizing: border-box;
+							vertical-align: bottom;
 						}
 
 						.image {

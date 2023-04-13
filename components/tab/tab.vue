@@ -87,19 +87,15 @@
 			display: flex;
 
 			&-title {
-				margin: 0 25rpx;
 				color: #999;
 				font-size: 30rpx;
 				line-height: 50rpx;
 				flex-shrink: 0;
 				transition: color .3s, font-weight .3s;
-
-				&:first-child {
-					margin: 0 25rpx 0 0;
-				}
+				margin-right: 25rpx;
 
 				&:last-child {
-					margin: 0 0 0 25rpx;
+					margin-right: 0;
 				}
 
 				&.active {

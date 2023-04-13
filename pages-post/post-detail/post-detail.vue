@@ -89,13 +89,6 @@
 			clickShare() {
 				this.$refs.share.handleShare();
 			},
-			getTempFileURL() {
-				uniCloud.getTempFileURL({
-					fileList: this.post.images
-				}).then(res => {
-					this.tempFileURL = res.fileList[0].tempFileURL;
-				});
-			},
 			updated() {
 				if (this.comment.comment_type == 0) {
 					this.showDefault = false;
@@ -204,7 +197,7 @@
 							this.deleteComment(e.reply._id);
 						}
 					}
-				})
+				});
 			},
 			clickComment(e) {
 				// console.log(e);
