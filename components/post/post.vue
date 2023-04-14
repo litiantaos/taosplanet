@@ -20,17 +20,16 @@
 				<view v-if="isOverflow && isCollapse" class="content-more">···</view>
 			</view>
 
-			<scroll-view-pro v-if="post.images && !isSimple" :list="fileUrls" v-slot="{item, index}">
+			<scroll-view-pro v-if="post.images && !isSimple" :list="thumbnails" v-slot="{item, index}">
 				<image class="body-image" :src="item" mode="aspectFill" lazy-load show-menu-by-longpress
 					@click.stop="previewImage(index)"></image>
 			</scroll-view-pro>
 
 			<scroll-view-pro v-if="post.videos && !isSimple" :list="fileUrls" v-slot="{item, index}">
 				<video class="body-video" :src="item" :controls="false" :show-progress="false" :show-fullscreen-btn="false"
-					:show-play-btn="false" :show-center-play-btn="false" :enable-progress-gesture="false"
-					:mobilenet-hint-type="0">
-					<view class="video-mask iconfont icon-play-circle-fill" @click.stop="previewVideo(item, index)">
-					</view>
+					:show-play-btn="false" :show-center-play-btn="false" :enable-progress-gesture="false" :mobilenet-hint-type="0"
+					object-fit="cover" :vslide-gesture-in-fullscreen="false">
+					<view class="video-mask iconfont icon-play-circle-fill" @click.stop="previewVideo(item, index)"></view>
 				</video>
 			</scroll-view-pro>
 
@@ -51,6 +50,10 @@
 				</view>
 			</view>
 
+			<view v-if="post.shared_event_id" class="event" @click.stop="toEventDetail(sharedEvent._id)">
+				<event-card :data="sharedEvent"></event-card>
+			</view>
+
 			<link-card v-if="post.link" :data="post.link"></link-card>
 
 			<view v-if="post.is_modified" class="body-modified">已编辑</view>
@@ -58,9 +61,8 @@
 
 		<view v-if="!isSimple" class="footer">
 			<view class="footer-item">
-				<i class="iconfont icon-like like" :class="{'active': post.isLike, 'animation': isClickLike}"
-					@click.stop="clickLike"></i>
-				<view class="text">{{post.like_count || ""}}</view>
+				<like-handler :isLike="post.isLike" :isClick="isClickLike" :text="post.like_count || ''"
+					@click="clickLike"></like-handler>
 			</view>
 			<view class="footer-item">
 				<i class="iconfont icon-message"></i>
@@ -142,7 +144,9 @@
 				post: this.data,
 				isOverflow: false,
 				fileUrls: [],
+				thumbnails: [],
 				sharedPost: {},
+				sharedEvent: {},
 				isClickLike: false
 			};
 		},
@@ -158,7 +162,11 @@
 			this.setTempFileURL();
 
 			if (this.post.shared_post_id) {
-				this.getsharedPost();
+				this.getSharedPost();
+			}
+
+			if (this.post.shared_event_id) {
+				this.getSharedEvent();
 			}
 		},
 		methods: {
@@ -256,13 +264,24 @@
 					});
 				}
 			},
-			getsharedPost() {
-				let tempsharedPost = db.collection("db-posts").where(`_id == "${this.post.shared_post_id}"`).field(
+			async getSharedEvent() {
+				let res = await db.collection("db-events").where(`_id == "${this.post.shared_event_id}"`)
+					.field("title, start_date, end_date, deadline, user_id, region, publish_date, participant_count")
+					.get();
+				this.sharedEvent = res.result.data[0];
+			},
+			toEventDetail(id) {
+				uni.navigateTo({
+					url: "/pages-fun/event/event-detail/event-detail?id=" + id
+				});
+			},
+			getSharedPost() {
+				let tempSharedPost = db.collection("db-posts").where(`_id == "${this.post.shared_post_id}"`).field(
 					"_id, user_id, content, topic_id, images").getTemp();
 				let tempTopic = db.collection("db-topics").field("_id, name").getTemp();
 				let tempUser = db.collection("uni-id-users").field("_id, avatar_file").getTemp();
 
-				db.collection(tempsharedPost, tempTopic, tempUser).get().then(res => {
+				db.collection(tempSharedPost, tempTopic, tempUser).get().then(res => {
 					// console.log(res);
 					this.sharedPost = res.result.data[0];
 				});
@@ -270,6 +289,9 @@
 			async setTempFileURL() {
 				if (this.post.images) {
 					this.fileUrls = await getTempFileURL(this.post.images);
+					this.thumbnails = this.fileUrls.map(item => {
+						return item + "?imageMogr2/thumbnail/320x"
+					});
 				} else if (this.post.videos) {
 					this.fileUrls = await getTempFileURL(this.post.videos);
 				}
@@ -506,32 +528,8 @@
 					font-size: 36rpx;
 				}
 
-				.like {
-					&.active {
-						color: $uni-color-primary;
-					}
-
-					&.animation {
-						animation: likeActive .5s;
-
-						@keyframes likeActive {
-							0% {
-								transform: scale(1);
-							}
-
-							60% {
-								transform: scale(1.2);
-							}
-
-							100% {
-								transform: scale(1);
-							}
-						}
-					}
-				}
-
 				.text {
-					font-size: $uni-font-size-sm;
+					font-size: 26rpx;
 					color: $uni-text-color-grey-m;
 					margin-left: 20rpx;
 				}

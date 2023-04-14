@@ -174,10 +174,16 @@
 							duration: "2000"
 						});
 					} else {
-						this.$refs.toast.show({
-							type: "success",
-							text: "发布成功",
-							duration: "2000"
+						// 创建人加入参与者表
+						db.collection("db-events-participants").add({
+							event_id: res.result.id,
+							is_creator: true
+						}).then(() => {
+							this.$refs.toast.show({
+								type: "success",
+								text: "发布成功",
+								duration: "2000"
+							});
 						});
 					}
 
@@ -233,6 +239,12 @@
 					});
 					return;
 				}
+
+				this.$refs.toast.show({
+					type: "loading",
+					text: "发布中",
+					duration: "none"
+				});
 
 				if (this.tempImagePaths.length) {
 					let fileIdList = await uploadFile({
@@ -357,7 +369,8 @@
 						type: "number"
 					},
 					success: res => {
-						this.data.limited_participant_count = parseInt(res);
+						let count = parseInt(res);
+						this.data.limited_participant_count = count;
 						this.$refs.popup.hide();
 					}
 				});

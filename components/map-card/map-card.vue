@@ -1,7 +1,7 @@
 <template>
 	<view class="footprint" :style="{borderRadius}" @click="onClick">
 		<view class="footprint-back">
-			<map id="map" class="map" :longitude="longitude" :latitude="latitude" :scale="12" :layer-style="2"
+			<map id="map" class="map" :longitude="data.longitude" :latitude="data.latitude" :scale="12" :layer-style="2"
 				:enable-zoom="false" :enable-scroll="false" :show-location="showLocation" :style="{borderRadius}"
 				subkey="PT2BZ-U4LY4-JAFU6-XW4C3-XLZA3-GFBU3">
 			</map>
@@ -20,7 +20,10 @@
 		props: {
 			data: {
 				type: Object,
-				default: {}
+				default: {
+					longitude: 118.782974,
+					latitude: 32.043668
+				}
 			},
 			showFront: {
 				type: Boolean,
@@ -48,17 +51,9 @@
 			}
 		},
 		data() {
-			return {
-				longitude: 118.782974,
-				latitude: 32.043668
-			};
+			return {};
 		},
-		mounted() {
-			if (this.data.longitude) {
-				this.longitude = this.data.longitude;
-				this.latitude = this.data.latitude;
-			}
-		},
+		mounted() {},
 		methods: {
 			onClick() {
 				this.$emit("click");

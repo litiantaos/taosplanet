@@ -3,7 +3,7 @@
 		<view class="content">
 			<view class="title">{{data.title}}</view>
 			<view class="tags">
-				<view class="tag">
+				<view v-if="data.region" class="tag">
 					<short-name :data="data.region.province"></short-name> ·
 					<short-name :data="data.region.city"></short-name>
 				</view>
@@ -13,11 +13,11 @@
 				</view>
 			</view>
 			<view class="participant">
-				<avatar-group borderColor="#7f9dde" radius="50rpx"></avatar-group>
-				<view class="text">12人已参与</view>
+				<avatar-group :avatars="avatars" borderColor="#7f9dde" radius="50rpx"></avatar-group>
+				<view class="text">{{data.participant_count || 1}}人已参与</view>
 			</view>
 		</view>
-		<view class="founder-wrap">
+		<view v-if="data.user_id && data.user_id[0].nickname" class="founder-wrap">
 			<view class="founder">
 				<view class="avatar">
 					<cloud-file :src="data.user_id[0]" width="100%" height="100%"></cloud-file>
@@ -36,6 +36,8 @@
 </template>
 
 <script>
+	const db = uniCloud.database();
+
 	export default {
 		name: "event-card",
 		props: {
@@ -46,10 +48,31 @@
 		},
 		data() {
 			return {
-
+				avatars: []
 			};
 		},
+		mounted() {
+			this.getAvatars();
+		},
+		watch: {
+			data() {
+				this.getAvatars();
+			}
+		},
 		methods: {
+			async getAvatars() {
+				let tempParticitants = await db.collection("db-events-participants")
+					.where(`event_id == "${this.data._id}"`).orderBy("date desc").limit(5).getTemp();
+				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file").getTemp();
+
+				let res = await db.collection(tempParticitants, tempUsers).get();
+
+				let resData = res.result.data.reverse();
+
+				this.avatars = resData.map(item => {
+					return item.user_id[0].avatar_file.url;
+				});
+			},
 			onClick() {
 				this.$emit("click");
 			}

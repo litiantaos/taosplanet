@@ -17,8 +17,8 @@
 			<default-view v-if="!comments.length && showDefault"></default-view>
 
 			<view class="" v-for="(item, index) in comments" :key="index">
-				<comment :comment="item" :commentIndex="index" :postUserId="post.user_id[0]._id" @comment="clickComment"
-					@reply="clickReply" :ref="'comment' + index">
+				<comment :data="item" :commentIndex="index" :postUserId="post.user_id[0]._id" @onComment="clickComment"
+					@onReply="clickReply" :ref="'comment' + index">
 				</comment>
 			</view>
 
@@ -177,7 +177,7 @@
 			},
 			clickReply(e) {
 				// console.log(e);
-				this.commentIndex = e.commentIndex;
+				this.commentIndex = e.replyIndex;
 
 				let actions = this.commentActions(e.reply.user_id[0]._id);
 

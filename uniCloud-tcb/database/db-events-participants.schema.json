@@ -29,6 +29,9 @@
 			"bsonType": "string",
 			"trim": "both"
 		},
+		"is_creator": {
+			"bsonType": "bool"
+		},
 		"date": {
 			"bsonType": "timestamp",
 			"defaultValue": {

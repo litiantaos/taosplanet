@@ -4,11 +4,11 @@
 
 	<view class="container">
 		<view class="title">
-			<view>转发动态</view>
+			<view>转发到动态</view>
 		</view>
 
-		<view class="post">
-			<post v-if="post.user_id" :data="post" :postId="post._id._value" :isSimple="true"></post>
+		<view class="wrap">
+			<event-card :data="event"></event-card>
 
 			<input-pro :inputIn="inputIn" @input="onInput"></input-pro>
 
@@ -26,7 +26,7 @@
 	export default {
 		data() {
 			return {
-				post: {},
+				event: {},
 				inputIn: {
 					placeholder: "写下你的想法",
 					value: "",
@@ -36,10 +36,10 @@
 			};
 		},
 		onLoad() {
-			this.post = uni.getStorageSync("post-share");
+			this.event = uni.getStorageSync("event-share");
 		},
 		onUnload() {
-			uni.removeStorageSync("post-share");
+			uni.removeStorageSync("event-share");
 		},
 		methods: {
 			publish() {
@@ -50,8 +50,9 @@
 				});
 
 				db.collection("db-posts").add({
-					shared_post_id: this.post._id,
+					shared_event_id: this.event._id,
 					content: this.inputIn.value,
+					topic_id: "2cc84e266439602c08a76f4126b1d2aa"
 				}).then(res => {
 					this.$refs.toast.show({
 						type: "success",
@@ -82,7 +83,7 @@
 			margin: 25rpx;
 		}
 
-		.post {
+		.wrap {
 			padding: 0 25rpx;
 		}
 

@@ -139,37 +139,41 @@
 		{
 			"root": "pages-fun",
 			"pages": [{
-					"path": "event/event",
-					"style": {
-						"navigationBarTitleText": "",
-						"navigationStyle": "custom"
-					}
-				}, {
-					"path": "event/event-detail/event-detail",
-					"style": {
-						"navigationBarTitleText": "活动",
-						"enablePullDownRefresh": true
-					}
-				}, {
-					"path": "event/event-create/event-create",
-					"style": {
-						"navigationBarTitleText": "创建活动"
-					}
+				"path": "event/event",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
 				}
-				// , {
-				// 	"path": "footprint/footprint",
-				// 	"style": {
-				// 		"navigationBarTitleText": "足迹"
-				// 	}
-				// }
-				, {
-					"path": "event/event-create/event-intro/event-intro",
-					"style": {
-						"navigationBarTitleText": "",
-						"navigationStyle": "custom"
-					}
+			}, {
+				"path": "event/event-detail/event-detail",
+				"style": {
+					"navigationBarTitleText": "活动",
+					"enablePullDownRefresh": true
 				}
-			]
+			}, {
+				"path": "event/event-create/event-create",
+				"style": {
+					"navigationBarTitleText": "创建活动"
+				}
+			}, {
+				"path": "event/event-create/event-intro/event-intro",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "event/event-self/event-self",
+				"style": {
+					"navigationBarTitleText": "",
+					"enablePullDownRefresh": false
+				}
+			}, {
+				"path": "event/event-share/event-share",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}]
 		}
 	],
 	"globalStyle": {

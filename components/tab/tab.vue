@@ -92,7 +92,7 @@
 				line-height: 50rpx;
 				flex-shrink: 0;
 				transition: color .3s, font-weight .3s;
-				margin-right: 25rpx;
+				margin-right: 40rpx;
 
 				&:last-child {
 					margin-right: 0;
@@ -101,7 +101,6 @@
 				&.active {
 					color: #333;
 					font-weight: bold;
-					// background: #eee;
 				}
 			}
 		}

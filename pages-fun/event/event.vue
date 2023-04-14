@@ -5,7 +5,8 @@
 	<view class="container">
 		<view class="title">
 			<view>正在组局</view>
-			<view class="add-btn iconfont icon-add" @click="createEvent"></view>
+			<cloud-file v-if="hasLogin" :src="userInfo" width="50rpx" height="50rpx" borderRadius="50%"
+				@click="toEventSelf"></cloud-file>
 		</view>
 
 		<view class="">
@@ -14,9 +15,17 @@
 			</view>
 		</view>
 	</view>
+
+	<safe-area type="bottom"></safe-area>
+
+	<float-button theme="dark" bottomHeight="20px" @click="createEvent"></float-button>
 </template>
 
 <script>
+	import {
+		store
+	} from "@/uni_modules/uni-id-pages/common/store.js";
+
 	const db = uniCloud.database();
 
 	export default {
@@ -28,11 +37,24 @@
 		onLoad() {
 			this.getEvents();
 		},
+		computed: {
+			userInfo() {
+				return store.userInfo;
+			},
+			hasLogin() {
+				return store.hasLogin;
+			}
+		},
 		methods: {
+			toEventSelf() {
+				uni.navigateTo({
+					url: "/pages-fun/event/event-self/event-self"
+				});
+			},
 			async getEvents() {
 				let tempEvents = await db.collection("db-events").where(`deadline > new Date().getTime() && sec_check != 1`)
-					.field("title, start_date, end_date, deadline, user_id, region, publish_date")
-					.orderBy("deadline desc").getTemp();
+					.field("title, start_date, end_date, deadline, user_id, region, publish_date, participant_count")
+					.orderBy("deadline").getTemp();
 				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempEvents, tempUsers).get();
@@ -50,6 +72,9 @@
 					url: "/pages-fun/event/event-create/event-create"
 				});
 			}
+		},
+		onPageScroll(e) {
+			uni.$emit("onPageScroll", e.scrollTop);
 		}
 	}
 </script>
@@ -66,18 +91,6 @@
 			font-size: 45rpx;
 			font-weight: bold;
 			margin-bottom: 25rpx;
-
-			.add-btn {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				width: 100rpx;
-				height: 50rpx;
-				background: #333;
-				border-radius: 25rpx;
-				font-size: 24rpx;
-				color: #fff;
-			}
 		}
 	}
 </style>

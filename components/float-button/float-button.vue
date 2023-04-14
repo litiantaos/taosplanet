@@ -1,5 +1,5 @@
 <template>
-	<view class="float-btn" :class="custom == 'dark' ? 'dark' : 'light'"
+	<view class="float-btn" :class="theme"
 		:style="[`--bottom-height: ${bottomHeight};`, {transform: (offsetY ? 'translate(-50%, 300%)' : 'translate(-50%, 0)')}]"
 		@click="onClick" @longpress="onLongPress">
 		<view v-if="text" class="text">{{text}}</view>
@@ -11,7 +11,7 @@
 	export default {
 		name: "float-button",
 		props: {
-			custom: {
+			theme: {
 				type: String,
 				default: "light"
 			},
@@ -86,6 +86,11 @@
 
 		&.dark {
 			background: #333;
+			color: #fff;
+		}
+
+		&.red {
+			background: #dd524d;
 			color: #fff;
 		}
 

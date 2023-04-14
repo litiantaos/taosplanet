@@ -71,7 +71,8 @@
 		},
 		"participant_count": {
 			"bsonType": "int",
-			"title": "参与人数"
+			"title": "参与人数",
+			"defaultValue": 1
 		},
 		"publish_date": {
 			"bsonType": "timestamp",
