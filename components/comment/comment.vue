@@ -1,142 +1,309 @@
 <template>
-	<view class="comment">
+	<view class="comment-wrap" :class="type == 0 ? 'comment': 'reply'">
 		<view class="header">
-			<view class="user-wrap">
-				<cloud-file :src="data.user_id[0]" width="80rpx" height="80rpx" borderRadius="50%"
-					border="1px solid #eee"></cloud-file>
-				<view class="user-info">
-					<view class="user-info-name">
-						<name-init :data="data.user_id[0]"></name-init>
-						<view v-if="data.user_id[0]._id == postUserId" class="id-label">作者</view>
+			<view class="header-user">
+				<cloud-file :src="comment.user_id[0]" :width="type == 0 ? '80rpx': '40rpx'"
+					:height="type == 0 ? '80rpx': '40rpx'" borderRadius="50%" border="1px solid #eee"></cloud-file>
+				<view class="user-wrap" :class="type == 0 ? 'comment': 'reply'">
+					<view class="user-name" :class="type == 0 ? 'comment': 'reply'">
+						<name-init :data="comment.user_id[0]"></name-init>
+						<view v-if="comment.user_id[0]._id == postData.user_id" class="id-label">作者</view>
+						<view v-if="comment.comment_type == 2" class="reply-to-user">
+							<i class="iconfont icon-arrow-right-fill"></i>
+							<name-init :data="comment.reply_user_id[0]"></name-init>
+							<view v-if="comment.reply_user_id[0]._id == postData.user_id" class="id-label">作者</view>
+						</view>
 					</view>
-					<view class="user-info-desc">
-						<uni-dateformat :date="data.comment_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
+					<view v-if="type == 0" class="user-date">
+						<uni-dateformat :date="comment.comment_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
 						</uni-dateformat>
 					</view>
 				</view>
 			</view>
 			<view class="like">
-				<like-handler :isLike="data.isLike" :isClick="isClickLike" left @click="clickLike"></like-handler>
+				<like-handler :isLike="comment.isLike" :isClick="isClickLike" isLeft isSmall :text="comment.like_count || ''"
+					@click="clickLike"></like-handler>
 			</view>
 		</view>
 
-		<view class="body">
-			<view class="content" @click="clickComment(commentIndex)">{{data.comment_content}}</view>
-
-			<view class="replies" v-for="(item, index) in replies" :key="index">
-				<comment-reply :data="item" :replyIndex="index" :postUserId="postUserId" @onReply="onReply"></comment-reply>
+		<view class="body" :class="type == 0 ? 'comment': 'reply'">
+			<view class="content" :class="type == 0 ? 'comment': 'reply'" @click="onComment">{{comment.comment_content}}
 			</view>
 
-			<view v-if="data.replyCount" class="reply-count">共{{data.replyCount}}条回复</view>
+			<scroll-view-pro v-if="comment.comment_images" :list="thumbnails" v-slot="{item, index}">
+				<image class="image" :src="item" mode="aspectFill" lazy-load show-menu-by-longpress
+					@click.stop="previewImage(index)"></image>
+			</scroll-view-pro>
+
+			<view v-if="type != 0" class="user-date">
+				<uni-dateformat :date="comment.comment_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
+				</uni-dateformat>
+			</view>
+
+			<view v-for="(reply, replyIndex) in replies" :key="replyIndex">
+				<slot :reply="reply" :replyIndex="replyIndex"></slot>
+			</view>
+
+			<view v-if="comment.replyCount" class="reply-count">共{{comment.replyCount}}条回复</view>
 		</view>
 	</view>
 </template>
 
 <script>
+	import {
+		store
+	} from "@/uni_modules/uni-id-pages/common/store.js";
+
+	import {
+		throttle
+	} from "@/common/utils.js";
+
+	import {
+		checkCommentsLikes,
+		getTempFileURL
+	} from "@/common/cloud.js";
+
 	const db = uniCloud.database();
+	const utils = uniCloud.importObject("utils", {
+		customUI: true
+	});
 
 	export default {
 		name: "comment",
 		props: {
+			type: {
+				type: Number,
+				default: 0
+			},
 			data: {
 				type: Object,
 				default: {}
 			},
-			commentIndex: {
-				type: Number,
-				default: 0
-			},
-			postUserId: {
-				type: String,
-				default: ""
+			postData: {
+				type: Object,
+				default: {}
 			}
 		},
 		data() {
 			return {
-				postId: "",
+				comment: this.data,
 				replies: [],
-				isClickLike: false
+				isClickLike: false,
+				fileUrls: [],
+				thumbnails: []
 			};
 		},
 		mounted() {
-			this.postId = this.data.post_id;
-			this.getReplies();
+			if (this.type == 0) {
+				this.getReplies();
+			}
+
+			if (this.comment.comment_images?.length) {
+				this.setTempFileURL();
+			}
 		},
 		methods: {
-			clickLike() {
-				// 
-			},
-			// 获取回复列表
-			getReplies() {
-				let tempComments = db.collection("db-posts-comments").where(
-					`post_id == "${this.postId}" && (comment_type == 1 || comment_type == 2) && reply_comment_id == "${this.data._id}"`
-				).orderBy("comment_date desc").limit(5).getTemp();
-				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
-
-				db.collection(tempComments, tempUsers).get().then(res => {
-					this.replies = res.result.data;
-					// console.log(this.replies);
-				})
-			},
-			clickComment(e) {
-				this.$emit("onComment", {
-					comment: this.data,
-					commentIndex: e
+			previewImage(index) {
+				uni.previewImage({
+					current: index,
+					urls: this.fileUrls
 				});
 			},
-			onReply(e) {
-				this.$emit("onReply", e);
+			async setTempFileURL() {
+				this.fileUrls = await getTempFileURL(this.comment.comment_images);
+				this.thumbnails = this.fileUrls.map(item => {
+					return item + "?imageMogr2/thumbnail/240x"
+				});
+			},
+			async handleLike() {
+				let commentId = this.comment._id;
+
+				// 查询是否点赞
+				let count = await db.collection("db-posts-comments-likes")
+					.where(`comment_id == "${commentId}" && user_id == $cloudEnv_uid`).count();
+
+				// 增删点赞数据
+				if (count.result.total) {
+					await db.collection("db-posts-comments-likes").where(
+							`comment_id == "${commentId}" && user_id == $cloudEnv_uid`)
+						.remove();
+					utils.calc("db-posts-comments", "like_count", commentId, -1);
+				} else {
+					await db.collection("db-posts-comments-likes").add({
+						post_id: this.postData.post_id,
+						comment_id: commentId,
+					});
+					utils.calc("db-posts-comments", "like_count", commentId, 1);
+
+					uniCloud.callFunction({
+						name: "push",
+						data: {
+							user_id: this.comment.user_id[0]._id,
+							payload: {
+								type: "like-comment",
+								content: "赞了你的评论",
+								post_id: this.postData.post_id,
+								comment_id: this.comment._id,
+								user_id: this.comment.user_id[0]._id,
+								excerpt: this.comment.comment_content.substr(0, 15),
+								from_user_id: store.userInfo._id,
+								from_user_name: store.userInfo.nickname,
+								from_user_avatar: store.userInfo.avatar_file.url,
+								date: Date.now()
+							}
+						}
+					});
+				}
+			},
+			clickLike: throttle(function() {
+				if (!store.hasLogin) {
+					this.$emit("like");
+					return;
+				}
+
+				// 本地切换点赞状态
+				uni.vibrateShort({
+					success: () => {
+						this.comment.isLike ? this.comment.like_count-- : this.comment.like_count++;
+						this.comment.isLike = !this.comment.isLike;
+						this.isClickLike = true;
+						setTimeout(() => {
+							this.isClickLike = false;
+						}, 500);
+					}
+				});
+
+				this.handleLike();
+			}),
+
+			// 获取回复列表
+			async getReplies() {
+				let tempComments = await db.collection("db-posts-comments").where(
+					`post_id == "${this.comment.post_id}" && (comment_type == 1 || comment_type == 2) && reply_comment_id == "${this.comment._id}"`
+				).orderBy("comment_date desc").limit(5).getTemp();
+				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
+
+				let res = await db.collection(tempComments, tempUsers).get();
+
+				let resData = res.result.data;
+				// console.log(this.replies);
+
+				if (store.hasLogin) {
+					await checkCommentsLikes(resData).then(result => {
+						resData = result;
+					});
+				}
+
+				this.replies = resData;
+			},
+			onComment() {
+				this.$emit("onComment");
 			}
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-	.comment {
-		margin-bottom: 30rpx;
+	.comment-wrap {
+
+		&.comment {
+			margin-bottom: 30rpx;
+		}
+
+		&.reply {
+			margin-bottom: 20rpx;
+		}
 
 		.header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 
-			.user-wrap {
+			.header-user {
 				display: flex;
 				justify-content: flex-start;
 				align-items: center;
 
-				.user-info {
+				.user-wrap {
 					display: flex;
 					flex-direction: column;
 					justify-content: space-around;
-					margin: 0 20rpx;
 
-					.user-info-name {
-						font-size: 28rpx;
-						display: flex;
-						align-items: center;
+					&.comment {
+						margin-left: 20rpx;
 					}
 
-					.user-info-desc {
-						font-size: 24rpx;
-						color: #999;
+					&.reply {
+						margin-left: 10rpx;
+					}
+
+					.user-name {
+						display: flex;
+						align-items: center;
+
+						&.comment {
+							font-size: 28rpx;
+						}
+
+						&.reply {
+							font-size: 26rpx;
+						}
+
+						.reply-to-user {
+							display: flex;
+							align-items: center;
+
+							.iconfont {
+								font-size: 28rpx;
+								color: #aaa;
+								margin: 0 10rpx;
+							}
+						}
+
+						.id-label {
+							background: #eee;
+							border-radius: 8rpx;
+							padding: 2rpx 10rpx;
+							font-size: 18rpx;
+							color: #666;
+							display: flex;
+							align-items: center;
+							margin-left: 10rpx;
+						}
 					}
 				}
 			}
 		}
 
 		.body {
-			margin-left: 100rpx;
 
-			.content {
-				margin: 10rpx 0 15rpx 0;
-				font-size: 30rpx;
-				color: #333;
+			&.comment {
+				margin-left: 100rpx;
 			}
 
-			.replies {
-				width: 100%;
-				padding: 20rpx 0;
+			&.reply {
+				margin-left: 50rpx;
+			}
+
+			.content {
+				font-size: 28rpx;
+				color: #333;
+
+				&.comment {
+					margin: 10rpx 0 20rpx 0;
+				}
+
+				&.reply {
+					margin: 10rpx 0;
+				}
+			}
+
+			.image {
+				width: 150rpx;
+				height: 150rpx;
+				background: #eee;
+				border-radius: 15rpx;
+				vertical-align: bottom;
 			}
 
 			.reply-count {
@@ -148,16 +315,10 @@
 				border-radius: 8rpx;
 			}
 		}
-	}
 
-	.id-label {
-		background: #eee;
-		border-radius: 8rpx;
-		padding: 2rpx 10rpx;
-		font-size: 18rpx;
-		color: #666;
-		display: flex;
-		align-items: center;
-		margin-left: 10rpx;
+		.user-date {
+			font-size: 24rpx;
+			color: #999;
+		}
 	}
 </style>

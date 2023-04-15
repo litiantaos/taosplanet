@@ -67,6 +67,7 @@
 		"view_count": {
 			"bsonType": "int",
 			"title": "浏览量",
+			"defaultValue": 0,
 			"permission": {
 				"write": false
 			}
@@ -74,6 +75,7 @@
 		"like_count": {
 			"bsonType": "int",
 			"title": "喜欢数",
+			"defaultValue": 0,
 			"permission": {
 				"write": false
 			}

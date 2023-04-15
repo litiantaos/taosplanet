@@ -16,17 +16,21 @@
 
 			<default-view v-if="!comments.length && showDefault"></default-view>
 
-			<view class="" v-for="(item, index) in comments" :key="index">
-				<comment :data="item" :commentIndex="index" :postUserId="post.user_id[0]._id" @onComment="clickComment"
-					@onReply="clickReply" :ref="'comment' + index">
+			<view v-for="(comment, commentIndex) in comments" :key="commentIndex">
+				<comment :data="comment" :postData="postData" @onComment="clickComment(comment, commentIndex)" @like="clickLike"
+					:ref="'comment' + commentIndex" v-slot="{reply, replyIndex}">
+
+					<comment :type="1" :data="reply" :postData="postData" @onComment="clickReply(reply)" @like="clickLike">
+					</comment>
+
 				</comment>
 			</view>
 
 			<load-more v-if="!isLoading && !showDefault" :status="loadMore"></load-more>
 		</view>
 
-		<comment-bar :comment="comment" :isAutoFocus="isAutoFocus" :placeholder="placeholder" :pushData="pushData"
-			@toast="showToast" @blur="onBlur" @input="onInput" @updated="updated">
+		<comment-bar :data="sendData" :isAutoFocus="isAutoFocus" :placeholder="placeholder" :postData="postData"
+			@toast="showToast" @blur="onBlur" @input="onInput" @afterSend="afterSend">
 		</comment-bar>
 	</view>
 
@@ -44,9 +48,14 @@
 		store
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
+	import {
+		checkCommentsLikes
+	} from "@/common/cloud.js";
+
 	import pagesJson from "@/pages.json";
 
 	const db = uniCloud.database();
+	const dbCmd = db.command;
 	const utils = uniCloud.importObject("utils", {
 		customUI: true
 	});
@@ -58,7 +67,7 @@
 				post: {},
 				likeUsers: [],
 				comments: [],
-				comment: {
+				sendData: {
 					post_id: "",
 					comment_type: 0
 				},
@@ -71,7 +80,7 @@
 				isLoading: true,
 				fileUrls: [],
 				loadMore: "",
-				pushData: {}
+				postData: {}
 			};
 		},
 		onLoad(e) {
@@ -81,7 +90,7 @@
 			}
 
 			this.postId = e.id;
-			this.comment.post_id = e.id;
+			this.sendData.post_id = e.id;
 
 			this.getPost();
 		},
@@ -89,8 +98,8 @@
 			clickShare() {
 				this.$refs.share.handleShare();
 			},
-			updated() {
-				if (this.comment.comment_type == 0) {
+			afterSend() {
+				if (this.sendData.comment_type == 0) {
 					this.showDefault = false;
 					this.comments = [];
 					this.getComments();
@@ -100,7 +109,7 @@
 				}
 
 				this.placeholder = "说点什么吧~";
-				this.comment.comment_type = 0;
+				this.sendData.comment_type = 0;
 			},
 			onInput(e) {
 				// console.log(e);
@@ -109,7 +118,7 @@
 			onBlur() {
 				if (!this.inputValue) {
 					this.placeholder = "说点什么吧~";
-					this.comment.comment_type = 0;
+					this.sendData.comment_type = 0;
 				}
 				this.isAutoFocus = false;
 			},
@@ -120,7 +129,7 @@
 					duration: e.duration
 				});
 			},
-			deleteComment(comment_id) {
+			deleteComment(id) {
 				this.$refs.popup.show({
 					type: "text",
 					title: "提示",
@@ -130,9 +139,9 @@
 							type: "loading",
 							text: "正在删除",
 							duration: "none"
-						})
+						});
 
-						db.collection("db-posts-comments").doc(comment_id).remove().then(res => {
+						db.collection("db-posts-comments").doc(id).remove().then(res => {
 							this.$refs.toast.show({
 								type: "success",
 								text: "删除成功",
@@ -141,7 +150,7 @@
 
 							this.$refs.popup.hide();
 
-							this.updated();
+							this.afterSend();
 
 							utils.calc("db-posts", "comment_count", this.postId, -1);
 						}).catch(err => {
@@ -150,8 +159,8 @@
 								type: "error",
 								text: "删除失败",
 								duration: "2000"
-							})
-						})
+							});
+						});
 					}
 				})
 			},
@@ -164,22 +173,17 @@
 				}];
 
 				if (uid == id) {
-					let obj = {
+					actions.push({
 						text: "删除",
 						icon: "icon-archive-slash",
 						color: "#e06c75"
-					};
-
-					actions.push(obj);
+					});
 				}
 
 				return actions;
 			},
-			clickReply(e) {
-				// console.log(e);
-				this.commentIndex = e.replyIndex;
-
-				let actions = this.commentActions(e.reply.user_id[0]._id);
+			clickReply(reply) {
+				let actions = this.commentActions(reply.user_id[0]._id);
 
 				this.$refs.popup.show({
 					type: "action",
@@ -187,23 +191,22 @@
 					actions: actions,
 					success: index => {
 						if (index == 0) {
-							this.placeholder = "回复 " + e.reply.user_id[0].nickname;
-							this.comment.comment_type = 2;
-							this.comment.reply_user_id = e.reply.user_id[0]._id;
-							this.comment.reply_comment_id = e.reply.reply_comment_id;
+							this.placeholder = "回复 " + reply.user_id[0].nickname;
+							this.sendData.comment_type = 2;
+							this.sendData.reply_user_id = reply.user_id[0]._id;
+							this.sendData.reply_comment_id = reply.reply_comment_id;
 							this.$refs.popup.hide();
 							this.isAutoFocus = true;
 						} else if (index == 1) {
-							this.deleteComment(e.reply._id);
+							this.deleteComment(reply._id);
 						}
 					}
 				});
 			},
-			clickComment(e) {
-				// console.log(e);
-				this.commentIndex = e.commentIndex;
+			clickComment(comment, commentIndex) {
+				this.commentIndex = commentIndex;
 
-				let actions = this.commentActions(e.comment.user_id[0]._id);
+				let actions = this.commentActions(comment.user_id[0]._id);
 
 				this.$refs.popup.show({
 					type: "action",
@@ -211,18 +214,85 @@
 					actions: actions,
 					success: index => {
 						if (index == 0) {
-							this.placeholder = "回复 " + e.comment.user_id[0].nickname;
-							this.comment.comment_type = 1;
-							this.comment.reply_user_id = e.comment.user_id[0]._id;
-							this.comment.reply_comment_id = e.comment._id;
+							this.placeholder = "回复 " + comment.user_id[0].nickname;
+							this.sendData.comment_type = 1;
+							this.sendData.reply_user_id = comment.user_id[0]._id;
+							this.sendData.reply_comment_id = comment._id;
 							this.$refs.popup.hide();
 							this.isAutoFocus = true;
 						} else if (index == 1) {
-							this.deleteComment(e.comment._id);
+							this.deleteComment(comment._id);
 						}
 					}
 				})
 			},
+
+			// 获取评论列表
+			async getComments(e = {}) {
+				const {
+					loadMore = false
+				} = e;
+
+				let skip = 0;
+				if (loadMore) {
+					skip = this.comments.length;
+				}
+
+				let tempComments = db.collection("db-posts-comments")
+					.where(`post_id == "${this.postId}" && comment_type == 0`)
+					.orderBy("comment_date desc").skip(skip).limit(10).getTemp();
+				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
+
+				let resData = [];
+
+				let res = await db.collection(tempComments, tempUsers).get();
+
+				if (loadMore) {
+					if (res.result.data.length == 0) {
+						this.noMore = true;
+					}
+					resData = [...this.comments, ...res.result.data];
+				} else {
+					resData = res.result.data;
+					this.noMore = false;
+				}
+
+				if (store.hasLogin) {
+					await checkCommentsLikes(resData).then(result => {
+						resData = result;
+					});
+				}
+
+				// 回复计数
+				let arr = resData.map(item => {
+					return item._id
+				});
+
+				let replyGroup = await db.collection("db-posts-comments").where({
+					comment_type: 1,
+					reply_comment_id: db.command.in(arr)
+				}).groupBy("reply_comment_id").groupField("count(*) as replyCount").get();
+
+				resData.forEach(item => {
+					let index = replyGroup.result.data.findIndex(find => {
+						return find.reply_comment_id == item._id;
+					});
+
+					if (index > -1) {
+						item.replyCount = replyGroup.result.data[index].replyCount;
+					}
+				});
+
+				this.comments = resData;
+				this.isLoading = false;
+				this.showDefault = true;
+				this.loadMore = "";
+
+				setTimeout(() => {
+					uni.stopPullDownRefresh();
+				}, 300);
+			},
+
 			deletePost() {
 				this.$refs.popup.show({
 					type: "text",
@@ -346,62 +416,7 @@
 				});
 			},
 
-			// 获取评论列表
-			async getComments(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.comments.length;
-				}
-
-				let tempComments = db.collection("db-posts-comments")
-					.where(`post_id == "${this.postId}" && comment_type == 0`)
-					.orderBy("comment_date desc").skip(skip).limit(10).getTemp();
-				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
-
-				let resData = [];
-
-				let res = await db.collection(tempComments, tempUsers).get();
-
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.comments, ...res.result.data];
-				} else {
-					resData = res.result.data;
-					this.noMore = false;
-				}
-
-				let arr = resData.map(item => {
-					return item._id
-				});
-
-				let replyGroup = await db.collection("db-posts-comments").where({
-					comment_type: 1,
-					reply_comment_id: db.command.in(arr)
-				}).groupBy("reply_comment_id").groupField("count(*) as replyCount").get();
-
-				resData.forEach(item => {
-					let index = replyGroup.result.data.findIndex(find => {
-						return find.reply_comment_id == item._id;
-					});
-
-					if (index > -1) {
-						item.replyCount = replyGroup.result.data[index].replyCount;
-					}
-				});
-
-				this.comments = resData;
-				this.isLoading = false;
-				this.showDefault = true;
-				this.loadMore = "";
-			},
-
-			// 获取点赞的用户
+			// 获取点赞的用户头像
 			getLikeUsers() {
 				let tempLikes = db.collection("db-posts-likes").where(`post_id == "${this.postId}"`)
 					.orderBy("date desc").limit(5).getTemp();
@@ -464,7 +479,7 @@
 				this.getLikeUsers();
 				this.getComments();
 
-				this.pushData = {
+				this.postData = {
 					post_id: this.postId,
 					user_id: this.post.user_id[0]._id,
 					from_user_id: store.userInfo._id,
@@ -484,6 +499,9 @@
 					});
 				}, 1000);
 			},
+		},
+		onPullDownRefresh() {
+			this.getPost();
 		},
 		onReachBottom() {
 			this.loadMore = "loading";

@@ -227,10 +227,10 @@
 
 <style lang="scss" scoped>
 	.nav-icon {
-		font-size: 30rpx;
+		font-size: 34rpx;
 		color: #aaa;
 		margin-left: 15rpx;
-		line-height: 100%;
+		line-height: 44px;
 	}
 
 	.container {

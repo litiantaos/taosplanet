@@ -14,7 +14,7 @@
 	},
 	"properties": {
 		"_id": {
-			"description": "存储文档 ID（文章 ID），系统自动生成"
+			"description": "ID，系统自动生成"
 		},
 		"post_id": {
 			"bsonType": "string",
@@ -46,6 +46,23 @@
 			"description": "被回复的评论用户ID，comment_type为1时有效",
 			"foreignKey": "uni-id-users._id"
 		},
+		"like_count": {
+			"bsonType": "int",
+			"description": "评论点赞数",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"comment_images": {
+			"bsonType": "array",
+			"title": "图片"
+		},
+		"sec_check": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 通过 1 违规 2 错误"
+		},
 		"comment_date": {
 			"bsonType": "timestamp",
 			"forceDefaultValue": {
@@ -57,10 +74,6 @@
 			"forceDefaultValue": {
 				"$env": "clientIP"
 			}
-		},
-		"like_count": {
-			"bsonType": "int",
-			"description": "评论点赞数"
 		}
 	},
 	"version": "0.0.1"

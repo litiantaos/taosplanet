@@ -2,6 +2,7 @@
 	"bsonType": "object",
 	"required": [
 		"post_id",
+		"comment_id",
 		"user_id"
 	],
 	"permission": {
@@ -17,6 +18,10 @@
 		"post_id": {
 			"bsonType": "string",
 			"foreignKey": "db-posts._id"
+		},
+		"comment_id": {
+			"bsonType": "string",
+			"foreignKey": "db-posts-comments._id"
 		},
 		"user_id": {
 			"bsonType": "string",

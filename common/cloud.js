@@ -54,6 +54,30 @@ export async function checkLikes(data) {
 	return data;
 }
 
+// 统一查询评论点赞状态
+export async function checkCommentsLikes(data) {
+	let arr = [];
+
+	data.forEach(item => {
+		arr.push(item._id);
+	});
+
+	let res = await db.collection("db-posts-comments-likes").where({
+		comment_id: dbCmd.in(arr),
+		user_id: uniCloud.getCurrentUserInfo().uid
+	}).get();
+
+	res.result.data.forEach(item => {
+		let index = data.findIndex(find => {
+			return item.comment_id == find._id;
+		});
+
+		data[index].isLike = true;
+	});
+
+	return data;
+}
+
 // 安全检测
 export function checkContent(content) {
 	return new Promise((resolve, reject) => {

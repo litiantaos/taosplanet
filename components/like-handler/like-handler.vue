@@ -1,8 +1,9 @@
 <template>
 	<view class="wrap">
-		<view v-if="left" class="text left">{{text}}</view>
-		<view class="iconfont icon-like" :class="{'active': isLike, 'animation': isClick}" @click.stop="onClick"></view>
-		<view v-if="!left" class="text right">{{text}}</view>
+		<view v-if="isLeft" class="text left">{{text}}</view>
+		<view class="iconfont icon-like" :class="{'active': isLike, 'animation': isClick, 'small': isSmall}"
+			@click.stop="onClick"></view>
+		<view v-if="!isLeft" class="text right">{{text}}</view>
 	</view>
 </template>
 
@@ -20,9 +21,13 @@
 			},
 			text: {
 				type: [String, Number],
-				default: "0"
+				default: ""
 			},
-			left: {
+			isLeft: {
+				type: Boolean,
+				default: false
+			},
+			isSmall: {
 				type: Boolean,
 				default: false
 			}
@@ -48,6 +53,10 @@
 
 		.iconfont {
 			font-size: 36rpx;
+
+			&.small {
+				font-size: 34rpx;
+			}
 
 			&.active {
 				color: $uni-color-primary;

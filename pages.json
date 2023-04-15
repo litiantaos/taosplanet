@@ -58,7 +58,9 @@
 				"path": "post-detail/post-detail",
 				"style": {
 					"navigationBarTitleText": "动态",
-					"navigationBarBackgroundColor": "#fff"
+					"navigationBarBackgroundColor": "#fff",
+					"backgroundColor": "#fff",
+					"enablePullDownRefresh": true
 				}
 			}, {
 				"path": "post-publish/post-publish",
