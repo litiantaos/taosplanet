@@ -162,8 +162,8 @@
 				});
 			},
 			startLocation() {
-				let sto = uni.getStorageSync("discStart");
-				let tempRegion = uni.getStorageSync("tempRegion");
+				let sto = uni.getStorageSync("start-disc");
+				let tempRegion = uni.getStorageSync("temp-region");
 				let userRegion = this.userInfo.region;
 
 				if (!sto) {
@@ -180,7 +180,7 @@
 							},
 						});
 
-						uni.setStorageSync("discStart", true);
+						uni.setStorageSync("start-disc", true);
 					}, 100);
 				} else if (this.hasLogin && userRegion.longitude) {
 					this.longitude = userRegion.longitude;

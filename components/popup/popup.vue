@@ -4,23 +4,26 @@
 		<movable-area class="popup-area" :class="{'active': isShow}"
 			:style="{height: `${popupHeight * 2}px`, bottom: `${-popupHeight * 2}px`, transform: `translateY(${popupY}px)`}">
 			<movable-view class="popup-view" :style="{height: `${popupHeight}px`}" :y="y" direction="vertical" damping="45"
-				:disabled="disabledTouch" @change="moveChange" @touchend="touchEnd">
+				:disabled="config.disabledTouch" @change="moveChange" @touchend="touchEnd">
+
 				<view class="header">
-					<view class="header_title">{{title}}</view>
+					<view class="header-title">{{config.title}}</view>
+					<view v-if="config.showTitleHide" class="header-hide iconfont icon-arrow-down" @click="hide"></view>
 				</view>
 
 				<view class="body">
 					<!-- 文本 -->
-					<view v-if="type == 'text'" class="content">
-						<text class="content_text">{{text}}</text>
+					<view v-if="config.type == 'text'" class="content">
+						<text class="content_text">{{config.text}}</text>
 					</view>
 
-					<view v-if="showLocation" class="location">
+					<view v-if="config.showLocation" class="location">
 						<location-card @location="getLocation"></location-card>
 					</view>
 
 					<!-- 操作 -->
-					<scroll-view-pro v-if="type == 'action'" :list="actions" v-slot="{item, index}" horiMargin="50rpx">
+					<scroll-view-pro v-if="config.type == 'action'" :list="config.actions" v-slot="{item, index}"
+						horiMargin="50rpx">
 						<view class="action" @click="clickAction(index)">
 							<i v-if="item.icon" class="iconfont" :class="item.icon" :style="{color: (item.color || '')}"></i>
 							<view class="action_text" :style="{color: (item.color || '')}">{{item.text}}</view>
@@ -28,33 +31,33 @@
 					</scroll-view-pro>
 
 					<!-- 输入框 -->
-					<view v-if="type == 'input'" class="input">
-						<input-pro :inputIn="inputIn" @input="onInput"></input-pro>
-						<view v-if="showHandle" class="handle-text" @click="trigger">{{text}}</view>
+					<view v-if="config.type == 'input'" class="input">
+						<input-pro :inputIn="config.inputIn" @input="onInput"></input-pro>
+						<view v-if="config.showHandle" class="handle-text" @click="trigger">{{config.text}}</view>
 					</view>
 
 					<!-- 日期时间选择器 -->
-					<view v-if="type == 'date'" class="date">
-						<date-picker :dateIn="dateIn" @data="getDate"></date-picker>
+					<view v-if="config.type == 'date'" class="date">
+						<date-picker :dateIn="config.dateIn" @data="getDate"></date-picker>
 					</view>
 
 					<!-- 数据选择器 -->
-					<view v-if="type == 'picker'" class="picker" :style="{height: pickerHeight}">
-						<data-picker :pickerIn="pickerIn" @data="getPicker"></data-picker>
+					<view v-if="config.type == 'picker'" class="picker" :style="{height: config.pickerHeight}">
+						<data-picker :pickerIn="config.pickerIn" @data="getPicker"></data-picker>
 					</view>
 
 					<!-- 单选 -->
-					<view v-if="type == 'checkbox'" class="checkbox">
-						<checkbox-pro :list="checks" @change="getCheck"></checkbox-pro>
+					<view v-if="config.type == 'checkbox'" class="checkbox">
+						<checkbox-pro :list="config.checks" @change="getCheck"></checkbox-pro>
 					</view>
 
-					<view v-if="type == 'custom'" class="container">
+					<view v-if="config.type == 'custom'" class="container">
 						<slot></slot>
 					</view>
 				</view>
 
-				<view v-if="!hideFooter && (type == 'text' || type == 'input' || type == 'date' || type == 'custom')"
-					class="footer">
+				<view class="footer"
+					v-if="!config.hideFooter && (config.type == 'text' || config.type == 'input' || config.type == 'date' || config.type == 'custom')">
 					<view class="footer_button" @click="hide">
 						<i class="iconfont icon-close"></i>
 					</view>
@@ -62,6 +65,7 @@
 						<i class="iconfont icon-tick"></i>
 					</view>
 				</view>
+
 			</movable-view>
 		</movable-area>
 	</view>
@@ -72,9 +76,9 @@
 		name: "popup",
 		data() {
 			return {
-				windowHeight: 0,
 				isMount: false,
 				isShow: false,
+				windowHeight: 0,
 				popupHeight: 0,
 				popupY: 0,
 				safeTop: 0,
@@ -82,23 +86,11 @@
 				old: {
 					y: 0
 				},
-				type: "text",
-				size: "small",
-				title: "弹窗标题",
-				text: "内容文本",
-				actions: [],
-				success: () => {},
-				handle: () => {},
-				disabledTouch: false,
-				hideFooter: false,
-				inputIn: {},
-				dateIn: {},
-				date: {},
-				pickerIn: {},
-				checks: [],
-				showLocation: false,
-				showHandle: false,
-				pickerHeight: "calc(100% - 75rpx)"
+				config: {},
+				configOptions: ["type", "size", "title", "text", "actions", "inputIn",
+					"disabledTouch", "hideFooter", "dateIn", "pickerIn", "pickerHeight", "checks", "showLocation",
+					"showHandle", "showTitleHide", "success", "handle"
+				]
 			};
 		},
 		mounted() {
@@ -120,36 +112,58 @@
 			}
 		},
 		methods: {
-			trigger() {
-				this.handle();
+			init() {
+				let defaultConfig = {
+					type: "text",
+					size: "small",
+					title: "提示",
+					text: "文本内容",
+					actions: [],
+					disabledTouch: false,
+					hideFooter: false,
+					showTitleHide: false,
+					inputIn: {},
+					dateIn: {},
+					date: {},
+					pickerIn: {},
+					checks: [],
+					showLocation: false,
+					showHandle: false,
+					pickerHeight: "calc(100% - 75rpx)",
+					success: () => {},
+					handle: () => {}
+				};
+
+				this.config = defaultConfig;
 			},
+
+			trigger() {
+				this.config.handle();
+			},
+
 			// SUCCESS TO DATA
 			confirm() {
-				let type = this.type;
+				let type = this.config.type;
 				let data;
 
 				if (type == "input") {
-					data = this.inputIn.value;
+					data = this.config.inputIn.value;
+				} else if (type == "date") {
+					data = this.config.date;
 				}
 
-				if (type == "date") {
-					data = this.date;
-				}
-
-				this.success(data);
+				this.config.success(data);
 			},
 
 			getLocation(e) {
-				this.success(e);
+				this.config.success(e);
 			},
 
 			// CHECKBOX
 			getCheck(e) {
 				let checked = e.id != undefined ? e.id : e._id;
 
-				this.checked = checked;
-
-				this.checks.forEach((item, index) => {
+				this.config.checks.forEach((item, index) => {
 					if (item.id == checked || item._id == checked) {
 						item.checked = true;
 					} else {
@@ -157,27 +171,26 @@
 					}
 				});
 
-				this.success(e);
+				this.config.success(e);
 			},
 
 			// PICKER
 			getPicker(e) {
-				this.success(e);
+				this.config.success(e);
 			},
 
 			// DATE
 			getDate(e) {
-				// console.log(e);
-				this.date = e;
+				this.config.date = e;
 			},
 
 			// INPUT
 			onInput(e) {
-				this.inputIn.value = e;
+				this.config.inputIn.value = e;
 			},
 
 			clickAction(index) {
-				this.success(index);
+				this.config.success(index);
 			},
 
 			// POPUP SET PROPS
@@ -186,28 +199,16 @@
 					this.isMount = true;
 					setTimeout(() => {
 						this.isShow = true;
-						this.type = props.type;
-						this.size = props.size;
-						this.title = props.title;
-						this.text = props.text;
-						this.actions = props.actions;
-						this.success = props.success;
-						this.handle = props.handle;
-						this.inputIn = props.inputIn;
-						this.disabledTouch = props.disabledTouch;
-						this.hideFooter = props.hideFooter;
-						this.dateIn = props.dateIn;
-						this.pickerIn = props.pickerIn;
-						this.pickerHeight = props.pickerHeight;
-						this.checks = props.checks;
-						this.showLocation = props.showLocation;
-						this.showHandle = props.showHandle;
 
-						if (this.size == "large") {
+						this.configOptions.forEach(item => {
+							this.config[item] = props[item];
+						});
+
+						if (this.config.size == "large") {
 							this.popupHeight = this.windowHeight - this.safeTop;
-						} else if (this.size == "medium") {
+						} else if (this.config.size == "medium") {
 							this.popupHeight = (this.windowHeight - this.safeTop) * 0.6;
-						} else if (this.size == "small") {
+						} else if (this.config.size == "small") {
 							this.popupHeight = 240;
 						}
 
@@ -216,24 +217,11 @@
 				}
 			},
 			show(props) {
-				props = {
-					type: props.type ? props.type : this.type,
-					size: props.size ? props.size : this.size,
-					title: props.title ? props.title : this.title,
-					text: props.text ? props.text : this.text,
-					actions: props.actions ? props.actions : this.actions,
-					success: props.success,
-					handle: props.handle,
-					inputIn: props.inputIn ? props.inputIn : this.inputIn,
-					disabledTouch: props.disabledTouch ? props.disabledTouch : this.disabledTouch,
-					hideFooter: props.hideFooter ? props.hideFooter : this.hideFooter,
-					dateIn: props.dateIn ? props.dateIn : this.dateIn,
-					pickerIn: props.pickerIn ? props.pickerIn : this.pickerIn,
-					pickerHeight: props.pickerHeight ? props.pickerHeight : this.pickerHeight,
-					checks: props.checks ? props.checks : this.checks,
-					showLocation: props.showLocation ? props.showLocation : this.showLocation,
-					showHandle: props.showHandle ? props.showHandle : this.showHandle
-				};
+				this.init();
+
+				this.configOptions.forEach(item => {
+					props[item] = props[item] || this.config[item];
+				});
 
 				if (this.isShow) {
 					this.hide();
@@ -250,8 +238,6 @@
 				setTimeout(() => {
 					this.isMount = false;
 				}, 300);
-
-				this.showLocation = false;
 			},
 			touchEnd(e) {
 				let oy = this.old.y,
@@ -335,10 +321,24 @@
 					height: 150rpx;
 					padding: 50rpx;
 
-					&_title {
+					.header-title {
 						font-size: 40rpx;
 						font-weight: bold;
 						color: #333;
+					}
+
+					.header-hide {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						width: 46rpx;
+						height: 46rpx;
+						background: #eee;
+						border-radius: 50%;
+						font-size: 24rpx;
+						font-weight: bold;
+						color: #333;
+						line-height: 46rpx;
 					}
 				}
 

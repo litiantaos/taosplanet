@@ -32,7 +32,7 @@
 		},
 		methods: {
 			getTempRegion() {
-				let sto = uni.getStorageSync("tempRegion");
+				let sto = uni.getStorageSync("temp-region");
 
 				if (sto && !store.userInfo.region.longitude) {
 					mutations.updateUserInfo({
@@ -40,7 +40,7 @@
 					});
 
 					setTimeout(() => {
-						uni.removeStorageSync("tempRegion");
+						uni.removeStorageSync("temp-region");
 					}, 200);
 				}
 			},

@@ -26,7 +26,22 @@
 
 		<float-button @click="toPostPublish" @longpress="toSearch"></float-button>
 
-		<popup ref="popup"></popup>
+		<popup ref="popup">
+			<view class="start">
+				<view class="start-text">
+					这里是陶学子专属的精神领地，希望能让大家聚在一起共同交流、讨论、发现、创造！
+				</view>
+				<image class="start-image"
+					src="https://7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658.tcb.qcloud.la/common/share_poster_sim.jpg"
+					mode="widthFix">
+				</image>
+				<view class="start-title">在这里，你可以</view>
+				<view class="start-text">
+					展示自己的经历与状态<br>分享自己的观点与生活<br>自由的交流与互动<br>发现志同道合的朋友<br>······
+				</view>
+			</view>
+		</popup>
+
 		<toast ref="toast"></toast>
 		<share-handler ref="share"></share-handler>
 
@@ -62,8 +77,25 @@
 		},
 		onLoad() {
 			this.getPosts();
+			this.showStart();
 		},
 		methods: {
+			showStart() {
+				let sto = uni.getStorageSync("start-init");
+				if (!sto) {
+					setTimeout(() => {
+						this.$refs.popup.show({
+							size: "large",
+							type: "custom",
+							title: "欢迎来到陶客星球！",
+							hideFooter: true,
+							showTitleHide: true
+						});
+
+						uni.setStorageSync("start-init", true);
+					}, 100);
+				}
+			},
 			voteDate() {
 				this.$refs.toast.show({
 					type: "info",
@@ -209,6 +241,27 @@
 </script>
 
 <style lang="scss" scoped>
+	.start {
+		.start-image {
+			width: 100%;
+			margin-top: 40rpx;
+		}
+
+		.start-title {
+			font-size: 32rpx;
+			font-weight: bold;
+			color: #333;
+			margin-bottom: 40rpx;
+			margin-top: 10rpx;
+		}
+
+		.start-text {
+			font-size: 28rpx;
+			color: #333;
+			line-height: 50rpx;
+		}
+	}
+
 	.nav-bar {
 		&_icon {
 			font-size: 48rpx;

@@ -67,7 +67,7 @@
 	<safe-area type="bottom"></safe-area>
 
 	<float-button :theme="isParticipated ? 'red' : 'dark'" :text="isParticipated ? '取消参加' : '我要参加'" bottomHeight="20px"
-		@click="join"></float-button>
+		@click="joinEvent"></float-button>
 
 	<toast ref="toast"></toast>
 	<popup ref="popup"></popup>
@@ -268,7 +268,7 @@
 					});
 				}
 			},
-			join() {
+			joinEvent() {
 				if (this.isParticipated) {
 					this.$refs.popup.show({
 						size: "small",

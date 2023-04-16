@@ -19,6 +19,7 @@
 	<safe-area type="bottom"></safe-area>
 
 	<float-button theme="dark" bottomHeight="20px" @click="createEvent"></float-button>
+	<popup ref="popup"></popup>
 </template>
 
 <script>
@@ -68,9 +69,24 @@
 				});
 			},
 			createEvent() {
-				uni.navigateTo({
-					url: "/pages-fun/event/event-create/event-create"
-				});
+				if (this.hasLogin) {
+					uni.navigateTo({
+						url: "/pages-fun/event/event-create/event-create"
+					});
+				} else {
+					this.$refs.popup.show({
+						size: "small",
+						type: "text",
+						title: "提示",
+						text: "请登录后再参与吧~",
+						success: res => {
+							uni.navigateTo({
+								url: "/pages/login/login"
+							});
+							this.$refs.popup.hide();
+						}
+					});
+				}
 			}
 		},
 		onPageScroll(e) {
