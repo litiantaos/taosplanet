@@ -102,7 +102,10 @@
 			<view v-if="userInfo.emotion_id && userInfo.emotion_id == 6" class="item-wrap" @click="editLover">
 				<text class="title">关联恋人</text>
 				<view class="value-wrap">
-					<text class="value">ZHEN</text>
+					<view class="value">
+						<name-init v-if="userInfo.lover_id" :data="loverName"></name-init>
+						<text v-else>选择恋人</text>
+					</view>
 					<i class="iconfont icon-arrow-right"></i>
 				</view>
 			</view>
@@ -215,16 +218,28 @@
 						id: 2,
 						name: "女"
 					}
-				]
+				],
+				loverName: ""
 			};
 		},
-		onLoad() {},
+		onLoad() {
+			if (this.userInfo.lover_id) {
+				this.getLover();
+			}
+		},
 		computed: {
 			userInfo() {
 				return store.userInfo;
 			}
 		},
 		methods: {
+			getLover() {
+				db.collection("uni-id-users").where(`_id == "${this.userInfo.lover_id}"`).field("_id, nickname").get().then(
+					res => {
+						this.loverName = res.result.data[0].nickname;
+						console.log(this.loverName);
+					});
+			},
 			editLover() {
 				uni.navigateTo({
 					url: "/pages-user/user-info/user-relationship/user-relationship"

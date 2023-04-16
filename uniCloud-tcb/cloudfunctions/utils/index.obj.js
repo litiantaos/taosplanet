@@ -24,5 +24,11 @@ module.exports = {
 
 	async updateData(col, id, data) {
 		return await db.collection(col).doc(id).update(data);
+	},
+
+	async deleteField(col, id, field) {
+		let obj = {};
+		obj[field] = dbCmd.remove();
+		return await db.collection(col).doc(id).update(obj);
 	}
 }

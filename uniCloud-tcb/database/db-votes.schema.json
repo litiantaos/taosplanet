@@ -1,0 +1,41 @@
+{
+	"bsonType": "object",
+	"required": [
+		"post_id",
+		"option_id",
+		"user_id"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"post_id": {
+			"bsonType": "string",
+			"foreignKey": "db-posts._id"
+		},
+		"option_id": {
+			"bsonType": "string",
+			"foreignKey": "db-votes-options._id"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"title": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

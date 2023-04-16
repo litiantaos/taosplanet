@@ -1,0 +1,49 @@
+{
+	"bsonType": "object",
+	"required": [
+		"post_id",
+		"user_id"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"post_id": {
+			"bsonType": "string",
+			"foreignKey": "db-posts._id"
+		},
+		"option_content": {
+			"bsonType": "string",
+			"title": "选项内容",
+			"trim": "both"
+		},
+		"vote_count": {
+			"bsonType": "int",
+			"title": "票数",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"title": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

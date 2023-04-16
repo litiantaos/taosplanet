@@ -56,6 +56,9 @@
 
 			<link-card v-if="post.link" :data="post.link"></link-card>
 
+			<vote-view v-if="voteOptions.length" :data="voteOptions" :voteIn="voteIn" :voted="voted" @voteLogin="voteLogin"
+				@voteDate="voteDate"></vote-view>
+
 			<view v-if="post.is_modified" class="body-modified">已编辑</view>
 		</view>
 
@@ -147,7 +150,10 @@
 				thumbnails: [],
 				sharedPost: {},
 				sharedEvent: {},
-				isClickLike: false
+				isClickLike: false,
+				voteOptions: [],
+				voteIn: {},
+				voted: ""
 			};
 		},
 		mounted() {
@@ -168,8 +174,47 @@
 			if (this.post.shared_event_id) {
 				this.getSharedEvent();
 			}
+
+			if (this.post.vote_end_date) {
+				this.getVotes();
+			}
 		},
 		methods: {
+			voteDate() {
+				this.$emit("voteDate");
+			},
+			voteLogin() {
+				this.$emit("voteLogin");
+			},
+			async getVotes() {
+				let res = await db.collection("db-votes-options").where(`post_id == "${this.postId}"`).get();
+
+				this.voteOptions = res.result.data;
+
+				// console.log("voteOptions", this.voteOptions);
+
+				this.voteIn = {
+					post_id: this.postId,
+					vote_end_date: this.post.vote_end_date,
+					vote_count: this.post.vote_count
+				};
+
+				if (store.hasLogin) {
+					let voteRes = await db.collection("db-votes").where(
+						`post_id == "${this.postId}" && user_id == $cloudEnv_uid`).get();
+
+					// console.log("voteRes", voteRes);
+
+					if (voteRes.result.data.length) {
+						this.voteOptions.forEach(item => {
+							if (item._id == voteRes.result.data[0].option_id) {
+								item.isChecked = true;
+								this.voted = item._id;
+							}
+						});
+					}
+				}
+			},
 			clickMore() {
 				this.$emit("more");
 			},
@@ -216,7 +261,7 @@
 			},
 			clickLike: throttle(function() {
 				if (!store.hasLogin) {
-					this.$emit("like");
+					this.$emit("likeLogin");
 					return;
 				}
 

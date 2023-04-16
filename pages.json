@@ -69,11 +69,6 @@
 					"navigationStyle": "custom"
 				}
 			}, {
-				"path": "post-publish/support-detail/support-detail",
-				"style": {
-					"navigationBarTitleText": "外链支持说明"
-				}
-			}, {
 				"path": "post-edit/post-edit",
 				"style": {
 					"navigationBarTitleText": "",

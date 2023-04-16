@@ -5,6 +5,7 @@
 	<view>
 		<view class="input-area" :style="{transform: `translateY(${inputOffset})`}">
 			<input-pro :inputIn="inputIn" @confirm="onConfirm" @focus="onFocus" @blur="onBlur"></input-pro>
+			<view class="delete-relation" @click="deleteRelation">删除关联信息</view>
 		</view>
 
 		<view class="container">
@@ -22,10 +23,15 @@
 
 <script>
 	import {
-		store
+		store,
+		mutations
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	const db = uniCloud.database();
+	const dbCmd = db.command;
+	const utils = uniCloud.importObject("utils", {
+		customUI: true
+	});
 
 	export default {
 		data() {
@@ -35,11 +41,47 @@
 					value: "",
 					confirmType: "search"
 				},
-				inputOffset: `-50vh`,
+				inputOffset: `-40vh`,
 				users: []
 			};
 		},
 		methods: {
+			deleteRelation() {
+				this.$refs.popup.show({
+					type: "text",
+					title: "提示",
+					text: "你确定要删除关联信息吗？",
+					success: async () => {
+						this.$refs.toast.show({
+							type: "loading",
+							text: "正在更新",
+							duration: "none"
+						});
+
+						await utils.updateData("uni-id-users", store.userInfo._id, {
+							lover_id: ""
+						});
+
+						await utils.updateData("uni-id-users", store.userInfo.lover_id, {
+							lover_id: ""
+						});
+
+						this.$refs.toast.show({
+							type: "success",
+							text: "删除成功",
+							duration: "2000"
+						});
+
+						this.$refs.popup.hide();
+
+						mutations.updateUserInfo();
+
+						setTimeout(() => {
+							uni.navigateBack();
+						}, 1000);
+					}
+				});
+			},
 			showInfo() {
 				this.$refs.toast.show({
 					type: "info",
@@ -110,6 +152,13 @@
 		bottom: 0;
 		transition: transform .3s;
 		z-index: 999;
+
+		.delete-relation {
+			font-size: 24rpx;
+			color: #999;
+			margin-top: 30rpx;
+			text-align: center;
+		}
 	}
 
 	.container {

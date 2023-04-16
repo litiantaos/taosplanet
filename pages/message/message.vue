@@ -54,7 +54,8 @@
 
 <script>
 	import {
-		store as uniIdStore
+		store as uniIdStore,
+		mutations as uniIdMutations
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	import store from "@/store/index.js";
@@ -115,7 +116,7 @@
 				});
 			},
 			toDetail(item, index) {
-				if (item.type == "like" || item.type == "comment" || item.type == "reply") {
+				if (item.type == "like" || item.type == "comment" || item.type == "reply" || item.type == "comment-like") {
 					this.handleRead(item._id);
 					this.messages[index].is_read = true;
 
@@ -142,6 +143,8 @@
 								lover_id: item.user_id
 							});
 
+							uniIdMutations.updateUserInfo();
+
 							this.$refs.toast.show({
 								type: "success",
 								text: "关联成功",
@@ -153,8 +156,8 @@
 								data: {
 									user_id: item.from_user_id,
 									payload: {
-										type: "relationship_callback",
-										content: this.userInfo.nickname + "已同意与你关联为恋人",
+										type: "relationship-callback",
+										content: "已同意与你关联为恋人",
 										user_id: item.from_user_id,
 										excerpt: "愿我如星君如月，夜夜流光相皎洁。",
 										from_user_id: this.userInfo._id,
@@ -166,6 +169,9 @@
 							});
 						}
 					});
+				} else {
+					this.handleRead(item._id);
+					this.messages[index].is_read = true;
 				}
 			},
 			async getMessages(e = {}) {

@@ -35,14 +35,18 @@
 						<text v-else>{{userInfo.intro ? userInfo.intro : "星球合伙人"}}</text>
 					</view>
 
-					<scroll-view class="tags"
+					<view class="tags"
 						v-if="userInfo.status_id || userInfo.emotion_id || userInfo.region || colleges.length || resumes.length">
 						<view v-if="userInfo.status_id && userInfo.status_id != 0" class="tag">{{userInfo.status_name}}</view>
-						<view v-if="userInfo.emotion_id && userInfo.emotion_id != 0" class="tag">{{userInfo.emotion_name}}</view>
+						<view v-if="userInfo.emotion_id && userInfo.emotion_id != 0" class="tag" @click="toUserDetail">
+							<cloud-file v-if="userInfo.emotion_id == 6 && userInfo.lover_avatar" class="lover-avatar"
+								:src="userInfo.lover_avatar" width="30rpx" height="30rpx" borderRadius="50%"></cloud-file>
+							<view>{{userInfo.emotion_name}}</view>
+						</view>
 						<view v-if="userInfo.region" class="tag">{{userInfo.region.city}}</view>
 						<view v-if="colleges.length" class="tag">{{colleges[0].college_name}}</view>
 						<view v-if="resumes.length" class="tag">{{resumes[0].position}}</view>
-					</scroll-view>
+					</view>
 
 					<view class="data-wrap">
 						<view class="data-item">
@@ -61,7 +65,7 @@
 				</view>
 			</view>
 
-			<view class="footprint">
+			<view class="footprint" @click="toFootprint">
 				<map-card :data="userInfo.region" :showFront="true" title="足迹" text="12个地区"></map-card>
 			</view>
 		</view>
@@ -137,6 +141,7 @@
 	</view>
 
 	<share-handler ref="share"></share-handler>
+	<toast ref="toast"></toast>
 </template>
 
 <script>
@@ -204,13 +209,6 @@
 				}
 
 				this.getUserInfo();
-				this.getPosts();
-				this.getCount();
-				this.getColleges();
-				this.getResumes();
-				this.updateViewCount();
-			} else {
-				return;
 			}
 
 			this.onReachBottom();
@@ -224,6 +222,20 @@
 			}
 		},
 		methods: {
+			toUserDetail() {
+				if (this.userInfo.emotion_id == 6 && this.userInfo.lover_id) {
+					uni.navigateTo({
+						url: "/pages-user/user-detail/user-detail?id=" + this.userInfo.lover_id
+					});
+				}
+			},
+			toFootprint() {
+				this.$refs.toast.show({
+					type: "info",
+					text: "功能尚未开放",
+					duration: "2000"
+				});
+			},
 			onReachBottom() {
 				uni.$on("onReachBottom", () => {
 					if (this.tabIndex == 0) {
@@ -342,10 +354,23 @@
 			getUserInfo() {
 				db.collection("uni-id-users").where(`_id == "${this.userId}"`)
 					.field(
-						"_id, avatar_file, nickname, intro, gender, birth_date, hometown, region, emotion_id, emotion_name, status_id, status_name, view_count"
+						"_id, avatar_file, nickname, intro, gender, birth_date, hometown, region, emotion_id, emotion_name, lover_id, status_id, status_name, view_count"
 					).get().then(res => {
 						this.userInfo = res.result.data[0];
 						this.$emit("userInfo", this.userInfo);
+
+						if (this.userInfo.lover_id) {
+							db.collection("uni-id-users").where(`_id == "${this.userInfo.lover_id}"`)
+								.field("_id, avatar_file").get().then(res => {
+									this.userInfo.lover_avatar = res.result.data[0].avatar_file.url;
+								});
+						}
+
+						this.getPosts();
+						this.getCount();
+						this.updateViewCount();
+						this.getColleges();
+						this.getResumes();
 					});
 			},
 			toUserResume(e) {
@@ -363,7 +388,6 @@
 				});
 			},
 			tabChange(e) {
-				// console.log(e);
 				this.tabIndex = e;
 			},
 			toUserInfo() {
@@ -507,25 +531,33 @@
 				}
 
 				.tags {
+					display: flex;
+					flex-wrap: wrap;
 					width: 100%;
-					white-space: nowrap;
 					margin-top: 25rpx;
 
 					.tag {
-						display: inline-block;
-						padding: 5rpx 15rpx;
+						display: flex;
+						align-items: center;
+						height: 45rpx;
+						padding: 0 15rpx;
 						background: #eee;
 						border-radius: 10rpx;
 						font-size: 22rpx;
 						color: #333;
 						white-space: nowrap;
 						margin-right: 15rpx;
+						margin-bottom: 15rpx;
+
+						.lover-avatar {
+							margin-right: 15rpx;
+						}
 					}
 				}
 
 				.data-wrap {
 					display: flex;
-					margin-top: 40rpx;
+					margin-top: 25rpx;
 
 					.data-item {
 						text-align: center;

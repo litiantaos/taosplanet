@@ -16,7 +16,8 @@
 				</swiper>
 
 				<view v-for="(item, index) in posts" :key="index">
-					<post :data="item" :postId="item._id" @like="clickLike" @share="clickShare"></post>
+					<post :data="item" :postId="item._id" @likeLogin="needLogin" @share="clickShare" @voteLogin="needLogin"
+						@voteDate="voteDate"></post>
 				</view>
 
 				<load-more v-if="!isLoading" :status="loadMore"></load-more>
@@ -26,7 +27,7 @@
 		<float-button @click="toPostPublish" @longpress="toSearch"></float-button>
 
 		<popup ref="popup"></popup>
-
+		<toast ref="toast"></toast>
 		<share-handler ref="share"></share-handler>
 
 		<tab-bar :index="0" @change="clickTab"></tab-bar>
@@ -63,6 +64,13 @@
 			this.getPosts();
 		},
 		methods: {
+			voteDate() {
+				this.$refs.toast.show({
+					type: "info",
+					text: "投票已结束",
+					duration: "2000"
+				});
+			},
 			clickTab(e) {
 				// console.log(e);
 				if (this.scrollTop > 0) {
@@ -95,11 +103,11 @@
 			clickShare() {
 				this.$refs.share.handleShare();
 			},
-			clickLike() {
+			needLogin() {
 				this.$refs.popup.show({
 					type: "text",
 					title: "提示",
-					text: "请登录后再点赞吧！",
+					text: "请登录后再继续吧！",
 					success: () => {
 						this.$refs.popup.hide();
 						uni.navigateTo({

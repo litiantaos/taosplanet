@@ -49,6 +49,11 @@
 					</view>
 
 					<link-card v-if="data.link" :data="data.link" :showRemove="true" @handle="removeLink"></link-card>
+
+					<view class="vote">
+						<vote-editor v-if="showVote" :voteDate="voteDate" @input="getVoteValue"
+							@chooseDate="chooseDate"></vote-editor>
+					</view>
 				</view>
 			</view>
 
@@ -56,15 +61,14 @@
 				<i class="iconfont icon-gallery" @click="chooseImage"></i>
 				<i class="iconfont icon-video" @click="chooseVideo"></i>
 				<i class="iconfont icon-location" @click="chooseLocation"></i>
-				<i class="iconfont icon-link" @click="editLink"></i>
-				<!-- <i class="iconfont icon-graph" @click="toCreateVote"></i> -->
+				<!-- <i class="iconfont icon-link" @click="editLink"></i> -->
+				<i class="iconfont icon-graph" @click="createVote"></i>
 			</view>
 		</view>
 	</view>
 
-	<toast ref="toast"></toast>
-
 	<popup ref="popup"></popup>
+	<toast ref="toast"></toast>
 </template>
 
 <script>
@@ -105,7 +109,10 @@
 				scrollLeft: 0,
 				old: {
 					scrollLeft: 0
-				}
+				},
+				showVote: false,
+				voteDate: "",
+				voteValue: []
 			};
 		},
 		onLoad() {
@@ -159,11 +166,29 @@
 					});
 				}
 
+				if (this.showVote) {
+					this.data.vote_end_date = this.voteDate;
+				}
+
 				console.log(this.data);
 
-				db.collection("db-posts").add(this.data).then(res => {
+				db.collection("db-posts").add(this.data).then(async res => {
 					console.log("addData", res);
 					utils.calc("db-topics", "post_count", this.data.topic_id, 1);
+
+					// VOTE
+					if (this.showVote) {
+						let arr = [];
+						this.voteValue.forEach(item => {
+							let obj = {};
+							obj.option_content = item.value;
+							obj.post_id = res.result.id;
+							arr.push(obj);
+						});
+
+						await db.collection("db-votes-options").add(arr);
+					}
+
 					if (this.data.sec_check && this.data.sec_check == 1) {
 						this.$refs.toast.show({
 							type: "error",
@@ -193,6 +218,33 @@
 					duration: "none"
 				});
 
+				if (this.showVote) {
+					if (this.voteValue.length) {
+						if (!this.voteValue[0].value || !this.voteValue[1].value) {
+							this.$refs.toast.show({
+								type: "info",
+								text: "投票至少两项",
+								duration: "2000"
+							});
+							return;
+						} else if (!this.voteDate) {
+							this.$refs.toast.show({
+								type: "info",
+								text: "请选择投票时间",
+								duration: "2000"
+							});
+							return;
+						}
+					} else {
+						this.$refs.toast.show({
+							type: "info",
+							text: "投票至少两项",
+							duration: "2000"
+						});
+						return;
+					}
+				}
+
 				if (this.tempImagePaths.length) {
 					let fileIds = await uploadFile({
 						tempPaths: this.tempImagePaths,
@@ -213,6 +265,45 @@
 
 				this.addData();
 			}),
+
+			createVote() {
+				this.showVote = !this.showVote;
+				// this.$refs.vote.show({
+				// 	size: "large",
+				// 	type: "custom",
+				// 	title: "投票",
+				// 	success: res => {
+
+				// 		setTimeout(() => {
+				// 			this.$refs.popup.hide();
+				// 		}, 200);
+				// 	}
+				// });
+			},
+			getVoteValue(e) {
+				console.log(e);
+				this.voteValue = e;
+			},
+			chooseDate() {
+				let ndate = new Date();
+				let dateValue = [ndate.getFullYear() - 1916, ndate.getMonth(), ndate.getDate() + 2, 12, 30];
+
+				this.$refs.popup.show({
+					size: "medium",
+					type: "date",
+					title: "选择截止时间",
+					dateIn: {
+						value: dateValue,
+						cols: ["year", "month", "day", "hour", "minute"],
+					},
+					disabledTouch: true,
+					success: res => {
+						// console.log(res);
+						this.voteDate = res.timestamp;
+						this.$refs.popup.hide();
+					}
+				});
+			},
 
 			// LINK
 			editLink() {
@@ -288,6 +379,15 @@
 					return;
 				}
 
+				if (this.showVote) {
+					this.$refs.toast.show({
+						type: "info",
+						text: "视频投票不可共选",
+						duration: "2000"
+					});
+					return;
+				}
+
 				uni.chooseMedia({
 					mediaType: ["video"],
 					success: res => {
@@ -311,6 +411,15 @@
 					this.$refs.toast.show({
 						type: "info",
 						text: "图片视频不可共选",
+						duration: "2000"
+					});
+					return;
+				}
+
+				if (this.showVote) {
+					this.$refs.toast.show({
+						type: "info",
+						text: "图片投票不可共选",
 						duration: "2000"
 					});
 					return;
@@ -581,6 +690,10 @@
 							color: #fff;
 							opacity: 0.6;
 						}
+					}
+
+					.vote {
+						margin-top: 25rpx;
 					}
 				}
 			}

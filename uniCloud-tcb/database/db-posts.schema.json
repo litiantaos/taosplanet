@@ -146,6 +146,18 @@
 			"bsonType": "int",
 			"title": "排序"
 		},
+		"vote_end_date": {
+			"bsonType": "timestamp",
+			"title": "投票结束时间"
+		},
+		"vote_count": {
+			"bsonType": "int",
+			"title": "票数",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
 		"sec_check": {
 			"bsonType": "int",
 			"defaultValue": 0,

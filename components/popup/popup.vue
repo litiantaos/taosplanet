@@ -47,9 +47,14 @@
 					<view v-if="type == 'checkbox'" class="checkbox">
 						<checkbox-pro :list="checks" @change="getCheck"></checkbox-pro>
 					</view>
+
+					<view v-if="type == 'custom'" class="container">
+						<slot></slot>
+					</view>
 				</view>
 
-				<view v-if="!hideFooter && (type == 'text' || type == 'input' || type == 'date')" class="footer">
+				<view v-if="!hideFooter && (type == 'text' || type == 'input' || type == 'date' || type == 'custom')"
+					class="footer">
 					<view class="footer_button" @click="hide">
 						<i class="iconfont icon-close"></i>
 					</view>
@@ -381,7 +386,8 @@
 					.input,
 					.date,
 					.picker,
-					.location {
+					.location,
+					.container {
 						width: 100%;
 						padding: 0 50rpx;
 					}

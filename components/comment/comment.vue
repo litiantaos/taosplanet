@@ -140,7 +140,7 @@
 						data: {
 							user_id: this.comment.user_id[0]._id,
 							payload: {
-								type: "like-comment",
+								type: "comment-like",
 								content: "赞了你的评论",
 								post_id: this.postData.post_id,
 								comment_id: this.comment._id,
@@ -157,7 +157,7 @@
 			},
 			clickLike: throttle(function() {
 				if (!store.hasLogin) {
-					this.$emit("like");
+					this.$emit("likeLogin");
 					return;
 				}
 

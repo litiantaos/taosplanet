@@ -1,7 +1,9 @@
 <template>
 	<view>
 		<post v-if="post.user_id" :data="post" :postId="postId" :isCard="false" :isClick="false" :showMore="true"
-			:isCurrentUser="isCurrentUser" :isCollapse="false" @like="clickLike" @more="clickMore" @share="clickShare"></post>
+			:isCurrentUser="isCurrentUser" :isCollapse="false" @likeLogin="needLogin" @more="clickMore" @share="clickShare"
+			@voteLogin="needLogin" @voteDate="voteDate">
+		</post>
 
 		<view class="avatar-wrap" v-if="likeUsers.length">
 			<avatar-group :avatars="likeUsers"></avatar-group>
@@ -17,10 +19,10 @@
 			<default-view v-if="!comments.length && showDefault"></default-view>
 
 			<view v-for="(comment, commentIndex) in comments" :key="commentIndex">
-				<comment :data="comment" :postData="postData" @onComment="clickComment(comment, commentIndex)" @like="clickLike"
-					:ref="'comment' + commentIndex" v-slot="{reply, replyIndex}">
+				<comment :data="comment" :postData="postData" @onComment="clickComment(comment, commentIndex)"
+					@likeLogin="needLogin" :ref="'comment' + commentIndex" v-slot="{reply, replyIndex}">
 
-					<comment :type="1" :data="reply" :postData="postData" @onComment="clickReply(reply)" @like="clickLike">
+					<comment :type="1" :data="reply" :postData="postData" @onComment="clickReply(reply)" @likeLogin="needLogin">
 					</comment>
 
 				</comment>
@@ -95,6 +97,13 @@
 			this.getPost();
 		},
 		methods: {
+			voteDate() {
+				this.$refs.toast.show({
+					type: "info",
+					text: "投票已结束",
+					duration: "2000"
+				});
+			},
 			clickShare() {
 				this.$refs.share.handleShare();
 			},
@@ -243,9 +252,9 @@
 					.orderBy("comment_date desc").skip(skip).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
-				let resData = [];
-
 				let res = await db.collection(tempComments, tempUsers).get();
+
+				let resData = [];
 
 				if (loadMore) {
 					if (res.result.data.length == 0) {
@@ -270,7 +279,7 @@
 
 				let replyGroup = await db.collection("db-posts-comments").where({
 					comment_type: 1,
-					reply_comment_id: db.command.in(arr)
+					reply_comment_id: dbCmd.in(arr)
 				}).groupBy("reply_comment_id").groupField("count(*) as replyCount").get();
 
 				resData.forEach(item => {
@@ -310,7 +319,7 @@
 							utils.calc("db-topics", "post_count", this.post.topic_id[0]._id, -1);
 
 							// 删除云文件
-							if (this.post.images.length) {
+							if (this.post.images?.length) {
 								await uniCloud.callFunction({
 									name: "delete-file",
 									data: {
@@ -320,7 +329,7 @@
 										console.log(result);
 									}
 								});
-							} else if (this.post.videos.length) {
+							} else if (this.post.videos?.length) {
 								await uniCloud.callFunction({
 									name: "delete-file",
 									data: {
@@ -347,6 +356,11 @@
 									commentDb.remove();
 								}
 							});
+
+							if (this.post.vote_end_date) {
+								await db.collection("db-votes-options").where(`post_id == "${this.postId}"`).remove();
+								await db.collection("db-votes").where(`post_id == "${this.postId}"`).remove();
+							}
 
 							this.$refs.toast.show({
 								type: "success",
@@ -402,11 +416,11 @@
 					}
 				})
 			},
-			clickLike() {
+			needLogin() {
 				this.$refs.popup.show({
 					type: "text",
 					title: "提示",
-					text: "请登录后再点赞吧！",
+					text: "请登录后再继续吧！",
 					success: () => {
 						this.$refs.popup.hide();
 						uni.navigateTo({
