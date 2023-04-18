@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3993701 */
-  src: url('iconfont.woff?t=1680508698055') format('woff');
+  src: url('iconfont.woff?t=1681839984206') format('woff');
 }
 
 .iconfont {
@@ -9,6 +9,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-copy:before {
+  content: "\e67c";
+}
+
+.icon-copy-success:before {
+  content: "\e67d";
+}
+
+.icon-emoji-happy:before {
+  content: "\e67b";
 }
 
 .icon-link:before {

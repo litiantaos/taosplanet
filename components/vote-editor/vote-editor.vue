@@ -90,7 +90,7 @@
 	.date-wrap {
 		width: 100%;
 		height: 80rpx;
-		background: #f5f5f5;
+		background: #fff;
 		border: 1px solid #ccc;
 		box-sizing: border-box;
 		border-radius: 15rpx;

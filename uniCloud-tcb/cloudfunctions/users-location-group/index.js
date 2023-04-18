@@ -16,12 +16,18 @@ exports.main = async (event, context) => {
 					user_id: "$_id",
 					avatar_url: "$avatar_file.url"
 				}),
+				count: $.sum(1)
 			})
+			.sort({
+				register_date: -1
+			})
+			.limit(5)
 			.project({
 				district: "$_id.district",
 				district_lng: 1,
 				district_lat: 1,
-				list: 1
+				list: 1,
+				count: 1
 			})
 			.end();
 
@@ -36,12 +42,18 @@ exports.main = async (event, context) => {
 					user_id: "$_id",
 					avatar_url: "$avatar_file.url"
 				}),
+				count: $.sum(1)
 			})
+			.sort({
+				register_date: -1
+			})
+			.limit(5)
 			.project({
 				city: "$_id.city",
 				city_lng: 1,
 				city_lat: 1,
-				list: 1
+				list: 1,
+				count: 1
 			})
 			.end();
 

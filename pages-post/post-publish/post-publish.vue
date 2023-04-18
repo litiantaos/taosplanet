@@ -61,8 +61,8 @@
 				<i class="iconfont icon-gallery" @click="chooseImage"></i>
 				<i class="iconfont icon-video" @click="chooseVideo"></i>
 				<i class="iconfont icon-location" @click="chooseLocation"></i>
-				<!-- <i class="iconfont icon-link" @click="editLink"></i> -->
 				<i class="iconfont icon-graph" @click="createVote"></i>
+				<i class="iconfont icon-link" @click="editLink"></i>
 			</view>
 		</view>
 	</view>
@@ -317,12 +317,7 @@
 						maxlength: -1
 					},
 					showHandle: true,
-					text: "外链支持说明",
-					handle: () => {
-						uni.navigateTo({
-							url: "/pages-post/post-publish/support-detail/support-detail"
-						});
-					},
+					text: "小程序不支持打开外链，需复制链接到浏览器打开",
 					success: res => {
 						// console.log(res);
 						if (isValidUrl(res)) {

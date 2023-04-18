@@ -16,31 +16,33 @@
 				<view class="title">评论</view>
 			</view>
 
-			<default-view v-if="!comments.length && showDefault"></default-view>
+			<default-view v-if="!comments.length"></default-view>
 
-			<view v-for="(comment, commentIndex) in comments" :key="commentIndex">
-				<comment :data="comment" :postData="postData" @onComment="clickComment(comment, commentIndex)"
-					@likeLogin="needLogin" :ref="'comment' + commentIndex" v-slot="{reply, replyIndex}">
+			<view v-for="(comment, commentIndex) in comments" :key="comment._id">
+				<comment :data="comment" :postData="postData" @onComment="$event => clickComment(comment, commentIndex)"
+					@likeLogin="needLogin" :ref="'comment' + commentIndex" v-slot="{replies}">
 
-					<comment :type="1" :data="reply" :postData="postData" @onComment="clickReply(reply)" @likeLogin="needLogin">
-					</comment>
+					<view v-for="(reply, replyIndex) in replies" :key="reply._id">
+						<comment :type="1" :data="reply" :postData="postData"
+							@onComment="$event => clickReply(reply, commentIndex, replyIndex)" @likeLogin="needLogin">
+						</comment>
+					</view>
 
 				</comment>
 			</view>
 
-			<load-more v-if="!isLoading && !showDefault" :status="loadMore"></load-more>
+			<load-more v-if="!isLoading" :status="loadMore"></load-more>
 		</view>
 
-		<comment-bar :data="sendData" :isAutoFocus="isAutoFocus" :placeholder="placeholder" :postData="postData"
-			@toast="showToast" @blur="onBlur" @input="onInput" @afterSend="afterSend">
-		</comment-bar>
+		<send-view :placeholder="placeholder" :focus="isFocus" @input="onInput" @send="sendComment" @blur="onBlur"
+			ref="sendView">
+		</send-view>
 	</view>
 
 	<load-view background="#fff" :isLoading="isLoading"></load-view>
 
-	<toast ref="toast"></toast>
-
 	<popup ref="popup"></popup>
+	<toast ref="toast"></toast>
 
 	<share-handler ref="share"></share-handler>
 </template>
@@ -51,7 +53,10 @@
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	import {
-		checkCommentsLikes
+		checkCommentsLikes,
+		uploadFile,
+		checkContent,
+		checkMedia
 	} from "@/common/cloud.js";
 
 	import pagesJson from "@/pages.json";
@@ -74,15 +79,15 @@
 					comment_type: 0
 				},
 				placeholder: "说点什么吧~",
-				isAutoFocus: false,
+				isFocus: false,
 				inputValue: "",
 				commentIndex: 0,
 				isCurrentUser: false,
-				showDefault: true,
 				isLoading: true,
 				fileUrls: [],
 				loadMore: "",
-				postData: {}
+				postData: {},
+				replyUserName: ""
 			};
 		},
 		onLoad(e) {
@@ -97,6 +102,146 @@
 			this.getPost();
 		},
 		methods: {
+			async sendComment(e) {
+				this.$refs.toast.show({
+					type: "loading",
+					text: "发布中",
+					duration: "none"
+				});
+
+				if (e.value) {
+					this.sendData.comment_content = e.value;
+
+					// 文本安全检测
+					await checkContent(this.sendData.comment_content).then(res => {
+						console.log(res);
+						if (res == 1) {
+							this.sendData.sec_check = 1;
+						}
+					});
+				}
+
+				if (e.images && e.images.length) {
+					let fileIds = await uploadFile({
+						tempPaths: e.images,
+						path: "comments/images/"
+					});
+
+					this.sendData.comment_images = fileIds;
+
+					// 图片安全检测
+					fileIds.map(async item => {
+						await checkMedia(item).then(res => {
+							console.log(res);
+							if (res == 1) {
+								this.sendData.sec_check = 1;
+								return;
+							}
+						});
+					});
+				}
+
+				db.collection("db-posts-comments").add(this.sendData).then(res => {
+					// console.log(res);
+
+					utils.calc("db-posts", "comment_count", this.sendData.post_id, 1);
+
+					if (this.sendData.sec_check && this.sendData.sec_check == 1) {
+						this.$refs.toast.show({
+							type: "error",
+							text: "内容违规，待人工审核",
+							duration: "2000"
+						});
+					} else {
+						if (this.sendData.comment_type == 0) {
+							uniCloud.callFunction({
+								name: "push",
+								data: {
+									user_id: this.post.user_id[0]._id,
+									payload: {
+										type: "comment",
+										content: "评论了你的动态",
+										excerpt: this.sendData.comment_content.substr(0, 15),
+										post_id: this.postId,
+										user_id: this.post.user_id[0]._id,
+										from_user_id: store.userInfo._id,
+										from_user_name: store.userInfo.nickname,
+										from_user_avatar: store.userInfo.avatar_file?.url,
+										date: Date.now()
+									}
+								}
+							});
+						} else if (this.sendData.comment_type == 1) {
+							uniCloud.callFunction({
+								name: "push",
+								data: {
+									user_id: this.sendData.reply_user_id,
+									payload: {
+										type: "reply",
+										content: "回复了你的评论",
+										excerpt: this.sendData.comment_content.substr(0, 15),
+										post_id: this.postId,
+										user_id: this.sendData.reply_user_id,
+										from_user_id: store.userInfo._id,
+										from_user_name: store.userInfo.nickname,
+										from_user_avatar: store.userInfo.avatar_file?.url,
+										date: Date.now()
+									}
+								}
+							});
+						}
+
+						this.afterSend(res.result.id);
+
+						this.$refs.toast.show({
+							type: "success",
+							text: "发布成功",
+							duration: "2000"
+						});
+					}
+
+					this.resetSend();
+				});
+			},
+			resetSend() {
+				this.placeholder = "说点什么吧~";
+				this.sendData.comment_type = 0;
+				this.$refs.sendView.reset();
+			},
+			afterSend(id) {
+				if (this.sendData.comment_type == 0) {
+					let data = {
+						_id: id,
+						comment_date: Date.now(),
+						user_id: [{
+							avatar_file: {
+								url: store.userInfo.avatar_file.url
+							},
+							nickname: store.userInfo.nickname,
+							_id: store.userInfo._id
+						}],
+						like_count: 0,
+						...this.sendData
+					};
+
+					this.comments.unshift(data);
+				} else {
+					let ref = "comment" + this.commentIndex;
+					this.$refs[ref][0].addSend(this.sendData, id, this.replyUserName);
+				}
+			},
+			onBlur() {
+				if (!this.inputValue) {
+					this.placeholder = "说点什么吧~";
+					this.sendData.comment_type = 0;
+					this.$refs.sendView.reset();
+				}
+				this.isFocus = false;
+			},
+			onInput(e) {
+				// console.log(e);
+				this.inputValue = e;
+			},
 			voteDate() {
 				this.$refs.toast.show({
 					type: "info",
@@ -107,30 +252,6 @@
 			clickShare() {
 				this.$refs.share.handleShare();
 			},
-			afterSend() {
-				if (this.sendData.comment_type == 0) {
-					this.showDefault = false;
-					this.comments = [];
-					this.getComments();
-				} else {
-					let ref = "comment" + this.commentIndex;
-					this.$refs[ref][0].getReplies();
-				}
-
-				this.placeholder = "说点什么吧~";
-				this.sendData.comment_type = 0;
-			},
-			onInput(e) {
-				// console.log(e);
-				this.inputValue = e;
-			},
-			onBlur() {
-				if (!this.inputValue) {
-					this.placeholder = "说点什么吧~";
-					this.sendData.comment_type = 0;
-				}
-				this.isAutoFocus = false;
-			},
 			showToast(e) {
 				this.$refs.toast.show({
 					type: e.type,
@@ -138,7 +259,15 @@
 					duration: e.duration
 				});
 			},
-			deleteComment(id) {
+			afterDelete(type, index) {
+				if (type == 0) {
+					this.comments.splice(index, 1);
+				} else {
+					let ref = "comment" + this.commentIndex;
+					this.$refs[ref][0].deleteSend(index);
+				}
+			},
+			deleteComment(id, type, index) {
 				this.$refs.popup.show({
 					type: "text",
 					title: "提示",
@@ -150,7 +279,13 @@
 							duration: "none"
 						});
 
-						db.collection("db-posts-comments").doc(id).remove().then(res => {
+						db.collection("db-posts-comments").doc(id).remove().then(async res => {
+							if (type == 0) {
+								await db.collection("db-posts-comments").where(`reply_comment_id == "${id}"`).remove();
+							}
+
+							this.afterDelete(type, index);
+
 							this.$refs.toast.show({
 								type: "success",
 								text: "删除成功",
@@ -158,8 +293,6 @@
 							});
 
 							this.$refs.popup.hide();
-
-							this.afterSend();
 
 							utils.calc("db-posts", "comment_count", this.postId, -1);
 						}).catch(err => {
@@ -191,7 +324,9 @@
 
 				return actions;
 			},
-			clickReply(reply) {
+			clickReply(reply, commentIndex, replyIndex) {
+				this.commentIndex = commentIndex;
+
 				let actions = this.commentActions(reply.user_id[0]._id);
 
 				this.$refs.popup.show({
@@ -205,9 +340,10 @@
 							this.sendData.reply_user_id = reply.user_id[0]._id;
 							this.sendData.reply_comment_id = reply.reply_comment_id;
 							this.$refs.popup.hide();
-							this.isAutoFocus = true;
+							this.isFocus = true;
+							this.replyUserName = reply.user_id[0].nickname;
 						} else if (index == 1) {
-							this.deleteComment(reply._id);
+							this.deleteComment(reply._id, 1, replyIndex);
 						}
 					}
 				});
@@ -228,9 +364,9 @@
 							this.sendData.reply_user_id = comment.user_id[0]._id;
 							this.sendData.reply_comment_id = comment._id;
 							this.$refs.popup.hide();
-							this.isAutoFocus = true;
+							this.isFocus = true;
 						} else if (index == 1) {
-							this.deleteComment(comment._id);
+							this.deleteComment(comment._id, 0, commentIndex);
 						}
 					}
 				})
@@ -278,7 +414,7 @@
 				});
 
 				let replyGroup = await db.collection("db-posts-comments").where({
-					comment_type: 1,
+					comment_type: dbCmd.neq(0),
 					reply_comment_id: dbCmd.in(arr)
 				}).groupBy("reply_comment_id").groupField("count(*) as replyCount").get();
 
@@ -294,7 +430,6 @@
 
 				this.comments = resData;
 				this.isLoading = false;
-				this.showDefault = true;
 				this.loadMore = "";
 
 				setTimeout(() => {
@@ -495,10 +630,7 @@
 
 				this.postData = {
 					post_id: this.postId,
-					user_id: this.post.user_id[0]._id,
-					from_user_id: store.userInfo._id,
-					from_user_name: store.userInfo.nickname,
-					from_user_avatar: store.userInfo.avatar_file.url
+					user_id: this.post.user_id[0]._id
 				}
 			},
 			paramError(param) {

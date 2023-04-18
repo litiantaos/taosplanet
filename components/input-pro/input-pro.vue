@@ -1,34 +1,31 @@
 <template>
-	<view class="input-pro" :class="inputIn.textarea ? 'background' : 'border'"
-		:style="{borderRadius: inputIn.borderRadius ? inputIn.borderRadius : '20rpx'}">
-		<view class="input-inner">
-			<i v-if="inputIn.prefixIcon ? inputIn.prefixIcon : false" class="iconfont icon-search prefix-icon"></i>
+	<view class="input-pro" :class="inputIn.style || 'border'" :style="{borderRadius: inputIn.borderRadius || '20rpx'}">
+		<view v-if="inputIn.textarea" class="textarea-wrap">
+			<textarea class="textarea" v-model="value" :placeholder="inputIn.placeholder || '请输入内容'"
+				:maxlength="inputIn.maxlength || 10" :confirm-type="inputIn.confirmType || 'done'"
+				:cursor-spacing="inputIn.cursorSpacing || 70" :adjust-position="inputIn.adjustPosition || false"
+				:auto-height="inputIn.autoHeight || false" :show-confirm-bar="false" @input="onInput" @focus="onFocus"
+				@blur="onBlur" @confirm="onConfirm">
+			</textarea>
+			<view v-if="inputIn.showCount" class="input-count">
+				{{value.length}}/{{inputIn.maxlength}}
+			</view>
+		</view>
 
-			<textarea v-if="inputIn.textarea" class="textarea" :value="value"
-				:placeholder="inputIn.placeholder ? inputIn.placeholder : '请输入内容'"
-				:maxlength="inputIn.maxlength ? inputIn.maxlength : 10"
-				:confirm-type="inputIn.confirmType ? inputIn.confirmType : 'done'"
-				:cursor-spacing="inputIn.cursorSpacing ? inputIn.cursorSpacing : 70"
-				:adjust-position="inputIn.adjustPosition ? inputIn.adjustPosition : false"
-				:auto-height="inputIn.autoHeight ? inputIn.autoHeight : false" :show-confirm-bar="false" @input="onInput"
-				@focus="onFocus" @blur="onBlur" @confirm="onConfirm" @keyboardheightchange="onKeyboardHeightChange"></textarea>
+		<view v-else class="input-wrap">
+			<i v-if="inputIn.prefixIcon || false" class="iconfont icon-search prefix-icon"></i>
 
-			<input v-else class="input" :type="inputIn.type ? inputIn.type : 'text'" :value="value"
-				:placeholder="inputIn.placeholder ? inputIn.placeholder : '请输入内容'"
-				:maxlength="inputIn.maxlength ? inputIn.maxlength : 10"
-				:confirm-type="inputIn.confirmType ? inputIn.confirmType : 'done'"
-				:cursor-spacing="inputIn.cursorSpacing ? inputIn.cursorSpacing : 70"
-				:adjust-position="inputIn.adjustPosition || true" @input="onInput" @focus="onFocus" @blur="onBlur"
-				@confirm="onConfirm" @keyboardheightchange="onKeyboardHeightChange" />
+			<input class="input" v-model="value" :type="inputIn.type || 'text'" :placeholder="inputIn.placeholder || '请输入内容'"
+				:maxlength="inputIn.maxlength || 10" :confirm-type="inputIn.confirmType || 'done'"
+				:cursor-spacing="inputIn.cursorSpacing || 70" :adjust-position="inputIn.adjustPosition || true" @input="onInput"
+				@focus="onFocus" @blur="onBlur" @confirm="onConfirm" />
 
-			<i v-if="!inputIn.textarea" class="iconfont icon-close-circle-fill suffix-icon" :class="{'active': value != ''}"
-				@click="clearInput"></i>
+			<i class="iconfont icon-close-circle-fill suffix-icon" :class="{'active': value != ''}" @click="clearInput"></i>
 
-			<view v-if="inputIn.suffixBtn ? inputIn.suffixBtn : false" class="suffix-btn" @click="trigger">
+			<view v-if="inputIn.suffixBtn || false" class="suffix-btn" @click="handle">
 				{{inputIn.suffixBtnText}}
 			</view>
 		</view>
-		<view v-if="inputIn.textarea && inputIn.showCount" class="input-count">{{value.length}}/{{inputIn.maxlength}}</view>
 	</view>
 </template>
 
@@ -57,13 +54,11 @@
 			}
 		},
 		methods: {
-			trigger() {
+			handle() {
 				this.$emit("handle");
 			},
 			onInput(e) {
-				let val = e.detail.value;
-				this.value = val;
-				this.$emit("input", val);
+				this.$emit("input", this.value);
 			},
 			onFocus(e) {
 				this.$emit("focus", e);
@@ -72,11 +67,11 @@
 				this.$emit("blur", e);
 			},
 			onConfirm(e) {
-				let val = e.detail.value;
-				this.$emit("confirm", val);
-			},
-			onKeyboardHeightChange(e) {
-				this.$emit("keyboardHeightChange", e);
+				let {
+					value
+				} = e.detail;
+
+				this.$emit("confirm", value);
 			},
 			clearInput() {
 				this.value = "";
@@ -87,35 +82,48 @@
 
 <style lang="scss" scoped>
 	.input-pro {
-		padding: 0 25rpx;
+		font-size: 28rpx;
 
 		&.border {
 			border: 2px solid #333;
 		}
 
-		&.background {
-			background: #fff;
-			padding-top: 20rpx;
-			padding-bottom: 20rpx;
-			text-align: justify;
+		&.gray {
+			background: #eee;
 		}
 
-		.input-inner {
+		&.white {
+			background: #fff;
+		}
+
+		.textarea-wrap {
+			width: 100%;
+			padding: 25rpx;
+
+			.textarea {
+				width: 100%;
+				height: 500rpx;
+				line-height: 50rpx;
+				text-align: justify;
+			}
+
+			.input-count {
+				font-size: 26rpx;
+				color: #999;
+				text-align: right;
+				margin-top: 20rpx;
+			}
+		}
+
+		.input-wrap {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			font-size: 28rpx;
+			padding: 0 25rpx;
 
 			.prefix-icon {
 				font-size: 36rpx;
 				margin-right: 20rpx;
-			}
-
-			.textarea {
-				flex: 1;
-				min-height: 300rpx;
-				max-height: 900rpx;
-				line-height: 50rpx;
 			}
 
 			.input {
@@ -138,13 +146,6 @@
 				font-size: 28rpx;
 				margin-left: 20rpx;
 			}
-		}
-
-		.input-count {
-			font-size: 26rpx;
-			color: #999;
-			text-align: right;
-			margin-top: 20rpx;
 		}
 	}
 </style>

@@ -31,7 +31,9 @@
 					placeholder: "写下你的想法",
 					value: "",
 					textarea: true,
-					maxlength: 150
+					maxlength: 150,
+					showCount: true,
+					style: "white"
 				}
 			};
 		},

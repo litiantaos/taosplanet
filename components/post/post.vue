@@ -54,7 +54,7 @@
 				<event-card :data="sharedEvent"></event-card>
 			</view>
 
-			<link-card v-if="post.link" :data="post.link"></link-card>
+			<link-card v-if="post.link" :data="post.link" showCopy></link-card>
 
 			<vote-view v-if="voteOptions.length" :data="voteOptions" :voteIn="voteIn" :voted="voted" @voteLogin="voteLogin"
 				@voteDate="voteDate"></vote-view>

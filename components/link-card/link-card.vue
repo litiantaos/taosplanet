@@ -1,7 +1,14 @@
 <template>
 	<view class="link" @click="onClick">
 		<view class="link-image iconfont icon-link"></view>
-		<view class="link-text">{{tempData}}</view>
+		<view class="wrap">
+			<view class="link-url">
+				<view class="url">{{tempData}}</view>
+				<view v-if="showCopy && !copySuccess" class="iconfont icon-copy copy" @click.stop="copy"></view>
+				<view v-if="showCopy && copySuccess" class="iconfont icon-copy-success copy-success"></view>
+			</view>
+			<view class="tip">小程序不支持外链，请复制到浏览器打开</view>
+		</view>
 		<view v-if="showRemove" class="iconfont icon-close-circle-fill delete-btn" @click.stop="handle"></view>
 	</view>
 </template>
@@ -16,14 +23,31 @@
 			showRemove: {
 				type: Boolean,
 				default: false
+			},
+			showCopy: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data() {
 			return {
-				tempData: this.data
+				tempData: this.data,
+				copySuccess: false
 			};
 		},
 		methods: {
+			copy() {
+				uni.setClipboardData({
+					data: this.tempData,
+					showToast: false,
+					success: () => {
+						this.copySuccess = true;
+						setTimeout(() => {
+							this.copySuccess = false;
+						}, 2000);
+					}
+				});
+			},
 			onClick() {
 				uni.navigateTo({
 					url: "/pages/webview/webview?url=" + this.tempData
@@ -41,7 +65,7 @@
 	.link {
 		height: 130rpx;
 		width: 100%;
-		padding: 0 60rpx 0 15rpx;
+		padding: 0 25rpx 0 15rpx;
 		background: #f5f5f5;
 		border-radius: 15rpx;
 		display: flex;
@@ -61,16 +85,39 @@
 			color: #666;
 		}
 
-		.link-text {
-			font-size: 28rpx;
-			color: #333;
-			word-break: break-all;
+		.wrap {
 			margin-left: 20rpx;
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-			text-overflow: ellipsis;
+		}
+
+		.link-url {
+			display: flex;
+			align-items: center;
+
+			.url {
+				font-size: 30rpx;
+				color: #333;
+				word-break: break-all;
+				display: -webkit-box;
+				-webkit-line-clamp: 1;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.copy,
+			.copy-success {
+				margin-left: 20rpx;
+			}
+
+			.copy-success {
+				color: #61c555;
+			}
+		}
+
+		.tip {
+			font-size: 24rpx;
+			color: #999;
+			margin-top: 10rpx;
 		}
 
 		.delete-btn {

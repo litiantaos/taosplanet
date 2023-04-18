@@ -66,7 +66,7 @@
 			</view>
 		</view>
 
-		<view class="group" @click="toEventIntro">
+		<view class="group" @click="editIntro">
 			<view class="item-wrap">
 				<text class="title">活动说明</text>
 				<view class="value-wrap">
@@ -375,11 +375,22 @@
 					}
 				});
 			},
-			toEventIntro() {
-				let data = this.data.intro || "";
-				uni.setStorageSync("event-intro", data);
-				uni.navigateTo({
-					url: "/pages-fun/event/event-create/event-intro/event-intro"
+			editIntro() {
+				this.$refs.popup.show({
+					size: "large",
+					type: "input",
+					title: "编辑说明",
+					inputIn: {
+						placeholder: "请简要对活动内容进行说明",
+						value: this.data.intro || "",
+						textarea: true,
+						maxlength: -1,
+						style: "gray"
+					},
+					success: res => {
+						this.data.intro = res;
+						this.$refs.popup.hide();
+					}
 				});
 			},
 			editDeadline() {

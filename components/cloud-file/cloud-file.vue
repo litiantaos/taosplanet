@@ -104,7 +104,7 @@
 			height: 100%;
 
 			&.cover {
-				z-index: 9;
+				z-index: 988;
 			}
 		}
 	}

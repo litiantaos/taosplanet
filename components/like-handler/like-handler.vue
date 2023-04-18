@@ -1,9 +1,8 @@
 <template>
-	<view class="wrap">
-		<view v-if="isLeft" class="text left">{{text}}</view>
+	<view class="wrap" :class="{'reverse': reverse}">
 		<view class="iconfont icon-like" :class="{'active': isLike, 'animation': isClick, 'small': isSmall}"
 			@click.stop="onClick"></view>
-		<view v-if="!isLeft" class="text right">{{text}}</view>
+		<view class="text">{{text}}</view>
 	</view>
 </template>
 
@@ -23,7 +22,7 @@
 				type: [String, Number],
 				default: ""
 			},
-			isLeft: {
+			reverse: {
 				type: Boolean,
 				default: false
 			},
@@ -50,6 +49,10 @@
 		display: flex;
 		align-items: center;
 		color: #666;
+
+		&.reverse {
+			flex-direction: row-reverse;
+		}
 
 		.iconfont {
 			font-size: 36rpx;
@@ -83,15 +86,7 @@
 
 		.text {
 			font-size: 26rpx;
-			margin-top: 5rpx;
-
-			&.left {
-				margin-right: 20rpx;
-			}
-
-			&.right {
-				margin-left: 20rpx;
-			}
+			margin: 5rpx 20rpx 0 20rpx;
 		}
 	}
 </style>

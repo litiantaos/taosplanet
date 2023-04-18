@@ -97,12 +97,6 @@
 					"navigationStyle": "custom"
 				}
 			}, {
-				"path": "user-info/user-intro/user-intro",
-				"style": {
-					"navigationBarTitleText": "",
-					"navigationStyle": "custom"
-				}
-			}, {
 				"path": "user-info/user-relationship/user-relationship",
 				"style": {
 					"navigationBarTitleText": "",
@@ -153,12 +147,6 @@
 					"navigationBarTitleText": "创建活动"
 				}
 			}, {
-				"path": "event/event-create/event-intro/event-intro",
-				"style": {
-					"navigationBarTitleText": "",
-					"navigationStyle": "custom"
-				}
-			}, {
 				"path": "event/event-self/event-self",
 				"style": {
 					"navigationBarTitleText": "",
@@ -166,6 +154,12 @@
 				}
 			}, {
 				"path": "event/event-share/event-share",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			}, {
+				"path": "chat/chat-group/chat-group",
 				"style": {
 					"navigationBarTitleText": "",
 					"navigationStyle": "custom"

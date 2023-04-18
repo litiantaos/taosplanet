@@ -2,16 +2,17 @@
 	<view class="comment-wrap" :class="type == 0 ? 'comment': 'reply'">
 		<view class="header">
 			<view class="header-user">
-				<cloud-file :src="comment.user_id[0]" :width="type == 0 ? '80rpx': '40rpx'"
-					:height="type == 0 ? '80rpx': '40rpx'" borderRadius="50%" border="1px solid #eee"></cloud-file>
+				<cloud-file v-if="comment.user_id" :src="comment.user_id[0]" :width="type == 0 ? '80rpx': '45rpx'"
+					:height="type == 0 ? '80rpx': '45rpx'" borderRadius="50%" border="1px solid #eee"></cloud-file>
 				<view class="user-wrap" :class="type == 0 ? 'comment': 'reply'">
-					<view class="user-name" :class="type == 0 ? 'comment': 'reply'">
-						<name-init :data="comment.user_id[0]"></name-init>
-						<view v-if="comment.user_id[0]._id == postData.user_id" class="id-label">作者</view>
+					<view class="user-name">
+						<name-init v-if="comment.user_id" :data="comment.user_id[0]"></name-init>
+						<view v-if="comment.user_id && comment.user_id[0]._id == postData.user_id" class="id-label">作者</view>
 						<view v-if="comment.comment_type == 2" class="reply-to-user">
 							<i class="iconfont icon-arrow-right-fill"></i>
-							<name-init :data="comment.reply_user_id[0]"></name-init>
-							<view v-if="comment.reply_user_id[0]._id == postData.user_id" class="id-label">作者</view>
+							<name-init v-if="comment.user_id" :data="comment.reply_user_id[0]"></name-init>
+							<view v-if="comment.reply_user_id && comment.reply_user_id[0]._id == postData.user_id" class="id-label">作者
+							</view>
 						</view>
 					</view>
 					<view v-if="type == 0" class="user-date">
@@ -21,30 +22,36 @@
 				</view>
 			</view>
 			<view class="like">
-				<like-handler :isLike="comment.isLike" :isClick="isClickLike" isLeft isSmall :text="comment.like_count || ''"
+				<like-handler :isLike="comment.isLike" :isClick="isClickLike" reverse isSmall :text="comment.like_count || ''"
 					@click="clickLike"></like-handler>
 			</view>
 		</view>
 
 		<view class="body" :class="type == 0 ? 'comment': 'reply'">
-			<view class="content" :class="type == 0 ? 'comment': 'reply'" @click="onComment">{{comment.comment_content}}
+			<view class="content" @click="onComment">
+				<view class="text">
+					<text>{{comment.comment_content}}</text>
+				</view>
+
+				<view class="images">
+					<scroll-view-pro v-if="comment.comment_images" :list="thumbnails" v-slot="{item, index}">
+						<image class="image" :src="item" mode="aspectFill" lazy-load show-menu-by-longpress
+							@click.stop="previewImage(index)"></image>
+					</scroll-view-pro>
+				</view>
+
+				<view v-if="type != 0" class="user-date reply">
+					<uni-dateformat :date="comment.comment_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
+					</uni-dateformat>
+				</view>
 			</view>
 
-			<scroll-view-pro v-if="comment.comment_images" :list="thumbnails" v-slot="{item, index}">
-				<image class="image" :src="item" mode="aspectFill" lazy-load show-menu-by-longpress
-					@click.stop="previewImage(index)"></image>
-			</scroll-view-pro>
+			<slot :replies="replies"></slot>
 
-			<view v-if="type != 0" class="user-date">
-				<uni-dateformat :date="comment.comment_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
-				</uni-dateformat>
+			<view v-if="comment.replyCount > 5" class="reply-count" @click="$event => getReplies({loadMore: true})">
+				<text>共{{comment.replyCount}}条回复</text>
+				<i v-if="!noMore" class="iconfont icon-arrow-right no-more"></i>
 			</view>
-
-			<view v-for="(reply, replyIndex) in replies" :key="replyIndex">
-				<slot :reply="reply" :replyIndex="replyIndex"></slot>
-			</view>
-
-			<view v-if="comment.replyCount" class="reply-count">共{{comment.replyCount}}条回复</view>
 		</view>
 	</view>
 </template>
@@ -90,7 +97,8 @@
 				replies: [],
 				isClickLike: false,
 				fileUrls: [],
-				thumbnails: []
+				thumbnails: [],
+				noMore: false
 			};
 		},
 		mounted() {
@@ -103,6 +111,31 @@
 			}
 		},
 		methods: {
+			deleteSend(index) {
+				this.replies.splice(index, 1);
+			},
+			addSend(e, id, username) {
+				let data = {
+					_id: id,
+					comment_date: Date.now(),
+					user_id: [{
+						avatar_file: {
+							url: store.userInfo.avatar_file.url
+						},
+						nickname: store.userInfo.nickname,
+						_id: store.userInfo._id
+					}],
+					like_count: 0,
+					...e
+				};
+
+				data.reply_user_id = [{
+					_id: e.reply_user_id,
+					nickname: username
+				}];
+
+				this.replies.unshift(data);
+			},
 			previewImage(index) {
 				uni.previewImage({
 					current: index,
@@ -177,16 +210,34 @@
 			}),
 
 			// 获取回复列表
-			async getReplies() {
+			async getReplies(e = {}) {
+				const {
+					loadMore = false
+				} = e;
+
+				let skip = 0;
+				if (loadMore) {
+					skip = this.replies.length;
+				}
+
 				let tempComments = await db.collection("db-posts-comments").where(
 					`post_id == "${this.comment.post_id}" && (comment_type == 1 || comment_type == 2) && reply_comment_id == "${this.comment._id}"`
-				).orderBy("comment_date desc").limit(5).getTemp();
+				).orderBy("comment_date desc").skip(skip).limit(5).getTemp();
 				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempComments, tempUsers).get();
 
-				let resData = res.result.data;
-				// console.log(this.replies);
+				let resData = [];
+
+				if (loadMore) {
+					if (res.result.data.length < 5) {
+						this.noMore = true;
+					}
+					resData = [...this.replies, ...res.result.data];
+				} else {
+					resData = res.result.data;
+					this.noMore = false;
+				}
 
 				if (store.hasLogin) {
 					await checkCommentsLikes(resData).then(result => {
@@ -240,14 +291,7 @@
 					.user-name {
 						display: flex;
 						align-items: center;
-
-						&.comment {
-							font-size: 28rpx;
-						}
-
-						&.reply {
-							font-size: 26rpx;
-						}
+						font-size: 28rpx;
 
 						.reply-to-user {
 							display: flex;
@@ -268,7 +312,7 @@
 							color: #666;
 							display: flex;
 							align-items: center;
-							margin-left: 10rpx;
+							margin-left: 15rpx;
 						}
 					}
 				}
@@ -286,39 +330,56 @@
 			}
 
 			.content {
-				font-size: 28rpx;
-				color: #333;
+				margin-bottom: 30rpx;
 
-				&.comment {
-					margin: 10rpx 0 20rpx 0;
+				.text {
+					font-size: 28rpx;
+					color: #333;
+					margin-top: 15rpx;
 				}
 
-				&.reply {
-					margin: 10rpx 0;
-				}
-			}
+				.images {
+					margin-top: 15rpx;
 
-			.image {
-				width: 150rpx;
-				height: 150rpx;
-				background: #eee;
-				border-radius: 15rpx;
-				vertical-align: bottom;
+					.image {
+						width: 150rpx;
+						height: 150rpx;
+						background: #eee;
+						border-radius: 15rpx;
+						vertical-align: bottom;
+					}
+				}
 			}
 
 			.reply-count {
 				width: fit-content;
-				font-size: 20rpx;
+				font-size: 24rpx;
 				color: #666;
-				padding: 5rpx 15rpx;
+				padding: 0 20rpx;
+				height: 50rpx;
 				background: #eee;
-				border-radius: 8rpx;
+				border-radius: 10rpx;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+
+				.no-more {
+					font-size: 26rpx;
+					font-weight: bold;
+					color: #999;
+					margin-left: 15rpx;
+					line-height: 100%;
+				}
 			}
 		}
 
 		.user-date {
 			font-size: 24rpx;
 			color: #999;
+
+			&.reply {
+				margin-top: 15rpx;
+			}
 		}
 	}
 </style>

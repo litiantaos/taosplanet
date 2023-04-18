@@ -6,7 +6,7 @@
 					<view class="dot-bor"></view>
 					<view class="dot-in"></view>
 				</view>
-				<view class="">234位陶星人正在探索</view>
+				<view class="">{{userCount}} 位陶星人正在探索</view>
 			</view>
 		</nav-bar>
 
@@ -19,36 +19,47 @@
 							<cloud-file :src="v.avatar_url" width="100%" height="100%" isCover></cloud-file>
 						</cover-view>
 						<cover-view class="avatar-item more">
-							<cover-view class="text">···</cover-view>
+							<cover-view v-if="item.count > 10" class="text">{{item.count < 100 ? item.count : "99+"}}</cover-view>
+							<cover-view v-else class="text">···</cover-view>
 						</cover-view>
 					</cover-view>
 				</cover-view>
 			</cover-view>
 		</map>
 
-		<view class="reset-position" @click="resetPosition">
-			<i class="iconfont icon-navigate-fill" :class="{'active': resetAni}"></i>
+		<view class="float-btn">
+			<view class="refresh" @click="refresh">
+				<i class="iconfont icon-ring" :class="{'active': refreshAni}"></i>
+			</view>
+
+			<view class="reset-position" @click="resetPosition">
+				<i class="iconfont icon-navigate-fill" :class="{'active': resetAni}"></i>
+			</view>
 		</view>
 
 		<view class="container">
 			<scroll-view class="func-wrap" scroll-x>
-				<view class="func-item" @click="toEvent">
+				<view class="func-item event" @click="toEvent">
 					<view class="func-item-title">组局吧</view>
 					<view class="func-item-text">组局约会面基</view>
+					<view class="texture"></view>
 				</view>
-				<view class="func-item">
+				<view class="func-item chat" @click="toChat">
 					<view class="func-item-title">小圆桌</view>
 					<view class="func-item-text">开放空间围炉畅谈</view>
+					<view class="texture"></view>
 				</view>
-				<view class="func-item">
+				<view class="func-item more">
 					<view class="func-item-title">更多</view>
 					<view class="func-item-text">敬请期待...</view>
+					<view class="texture"></view>
 				</view>
 			</scroll-view>
 		</view>
 	</view>
 
 	<popup ref="popup"></popup>
+	<toast ref="toast"></toast>
 
 	<tab-bar :index="1"></tab-bar>
 </template>
@@ -63,6 +74,8 @@
 		mutations
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
+	const db = uniCloud.database();
+
 	export default {
 		data() {
 			return {
@@ -73,12 +86,14 @@
 				list: [],
 				districtGroup: [],
 				cityGroup: [],
-				resetAni: false
+				resetAni: false,
+				refreshAni: false,
+				userCount: 0
 			};
 		},
 		onLoad() {
 			this.startLocation();
-			this.getUserGroup();
+			this.getData();
 		},
 		onReady() {
 			this.mapCtx = uni.createMapContext("map", this);
@@ -92,19 +107,48 @@
 			}
 		},
 		methods: {
+			toChat() {
+				uni.navigateTo({
+					url: "/pages-fun/chat/chat-group/chat-group"
+				});
+			},
+			async getUserCount() {
+				let count = await db.collection("uni-id-users").count();
+				this.userCount = count.result.total;
+			},
+			refresh() {
+				this.refreshAni = true;
+				setTimeout(() => {
+					this.refreshAni = false;
+				}, 1500);
+				this.getData({
+					refresh: true
+				});
+			},
 			toEvent() {
 				uni.navigateTo({
 					url: "/pages-fun/event/event"
 				});
 			},
-			async getUserGroup() {
-				await this.getCityGroup();
+			async getData(e) {
+				await this.getCityGroup(e);
 
 				if (this.userInfo.city) {
-					await this.getDistrictGroup();
+					await this.getDistrictGroup(e);
+				}
+
+				this.getUserCount();
+			},
+			refreshToast(e) {
+				if (e && e.refresh) {
+					this.$refs.toast.show({
+						type: "success",
+						text: "刷新成功",
+						duration: "2000"
+					});
 				}
 			},
-			async getDistrictGroup() {
+			async getDistrictGroup(e) {
 				let districtRes = await uniCloud.callFunction({
 					name: "users-location-group",
 					data: {
@@ -131,9 +175,12 @@
 
 					this.markers.push(distMarker);
 					this.list.push(item);
+					console.log("dist", this.list);
+
+					this.refreshToast(e);
 				});
 			},
-			async getCityGroup() {
+			async getCityGroup(e) {
 				let cityRes = await uniCloud.callFunction({
 					name: "users-location-group"
 				});
@@ -158,6 +205,9 @@
 
 						this.markers.push(cityMarker);
 						this.list.push(item);
+						console.log("city", this.list);
+
+						this.refreshToast(e);
 					}
 				});
 			},
@@ -338,38 +388,69 @@
 		}
 	}
 
-	.reset-position {
-		width: 70rpx;
-		height: 70rpx;
-		background: #fff;
-		border-radius: 10rpx;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	.float-btn {
 		position: fixed;
-		bottom: calc(env(safe-area-inset-bottom) + 48px + 300rpx);
 		right: 25rpx;
+		bottom: calc(env(safe-area-inset-bottom) + 48px + 300rpx);
 
-		.iconfont {
-			font-size: 36rpx;
-			color: #666;
+		.reset-position,
+		.refresh {
+			width: 70rpx;
+			height: 70rpx;
+			background: #fff;
+			border-radius: 10rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
 
-			&.active {
-				animation: back_scale 1s ease;
+		.reset-position {
+			margin-top: 20rpx;
 
-				@keyframes back_scale {
-					0% {
-						opacity: 0;
-						transform: scale(0) rotate(0);
+			.iconfont {
+				font-size: 36rpx;
+				color: #666;
+
+				&.active {
+					animation: back_scale 1s ease;
+
+					@keyframes back_scale {
+						0% {
+							opacity: 0;
+							transform: scale(0) rotate(0);
+						}
+
+						45% {
+							opacity: 1;
+							transform: scale(1.2) rotate(-60deg);
+						}
+
+						90% {
+							transform: scale(1) rotate(0);
+						}
 					}
+				}
+			}
+		}
 
-					45% {
-						opacity: 1;
-						transform: scale(1.2) rotate(-60deg);
-					}
+		.refresh {
 
-					90% {
-						transform: scale(1) rotate(0);
+			.iconfont {
+				font-size: 36rpx;
+				font-weight: bold;
+				color: #999;
+
+				&.active {
+					animation: infi_rotate 1s linear infinite;
+
+					@keyframes infi_rotate {
+						0% {
+							transform: rotate(0);
+						}
+
+						100% {
+							transform: rotate(360deg);
+						}
 					}
 				}
 			}
@@ -387,6 +468,7 @@
 			white-space: nowrap;
 
 			.func-item {
+				position: relative;
 				display: inline-flex;
 				min-width: 320rpx;
 				height: 200rpx;
@@ -397,6 +479,75 @@
 				margin-left: 25rpx;
 				padding: 0 25rpx;
 				transition: background .15s;
+				overflow: hidden;
+
+				&.event {
+					.texture {
+						position: absolute;
+						width: 400rpx;
+						height: 400rpx;
+						background: #0396ff;
+						opacity: .07;
+						border-radius: 50%;
+						pointer-events: none;
+						top: 80rpx;
+						right: -100rpx;
+
+						&::before {
+							content: "";
+							width: 120rpx;
+							height: 120rpx;
+							background: #0396ff;
+							opacity: .5;
+							border-radius: 50%;
+							pointer-events: none;
+							position: absolute;
+							top: -60rpx;
+							right: 90rpx;
+						}
+					}
+				}
+
+				&.chat {
+					.texture {
+						position: absolute;
+						width: 400rpx;
+						height: 400rpx;
+						background: #32ccbc;
+						opacity: .07;
+						border-radius: 50%;
+						pointer-events: none;
+						top: -100rpx;
+						right: -280rpx;
+
+						&::before {
+							content: "";
+							width: 200rpx;
+							height: 200rpx;
+							background: #32ccbc;
+							opacity: .5;
+							border-radius: 50%;
+							pointer-events: none;
+							position: absolute;
+							bottom: 40rpx;
+							left: -90rpx;
+						}
+					}
+				}
+
+				&.more {
+					.texture {
+						position: absolute;
+						width: 400rpx;
+						height: 400rpx;
+						background: #aaa;
+						opacity: .1;
+						border-radius: 50%;
+						pointer-events: none;
+						top: 80rpx;
+						right: -20rpx;
+					}
+				}
 
 				&:last-child {
 					margin-right: 25rpx;
@@ -413,7 +564,7 @@
 
 				.func-item-text {
 					font-size: 24rpx;
-					color: #999;
+					color: #666;
 					margin-top: 20rpx;
 				}
 			}

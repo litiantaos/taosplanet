@@ -27,8 +27,8 @@
 					placeholder: "分享你的想法吧~",
 					value: "",
 					textarea: true,
-					maxlength: 150,
-					autoHeight: true
+					maxlength: -1,
+					style: "white"
 				},
 				post: {}
 			};

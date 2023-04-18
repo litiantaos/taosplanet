@@ -24,7 +24,7 @@
 			</view>
 		</view>
 
-		<view class="group" @click="toUserIntro">
+		<view class="group" @click="editIntro">
 			<view class="item-wrap">
 				<text class="title">简介</text>
 				<view class="value-wrap">
@@ -237,7 +237,7 @@
 				db.collection("uni-id-users").where(`_id == "${this.userInfo.lover_id}"`).field("_id, nickname").get().then(
 					res => {
 						this.loverName = res.result.data[0].nickname;
-						console.log(this.loverName);
+						// console.log(this.loverName);
 					});
 			},
 			editLover() {
@@ -554,9 +554,46 @@
 					}
 				});
 			},
-			toUserIntro() {
-				uni.navigateTo({
-					url: "/pages-user/user-info/user-intro/user-intro"
+			editIntro() {
+				this.$refs.popup.show({
+					size: "large",
+					type: "input",
+					title: "编辑简介",
+					inputIn: {
+						placeholder: "简单介绍一下你自己吧",
+						value: this.userInfo.intro,
+						textarea: true,
+						maxlength: 150,
+						showCount: true,
+						style: "gray"
+					},
+					success: res => {
+						let intro = res;
+
+						if (intro && intro != this.userInfo.intro) {
+							this.$refs.toast.show({
+								type: "loading",
+								text: "正在更新",
+								duration: "none"
+							});
+
+							try {
+								mutations.updateUserInfo({
+									intro
+								});
+
+								this.$refs.toast.show({
+									type: "success",
+									text: "更新成功",
+									duration: "2000"
+								});
+							} catch (err) {
+								console.log(err);
+							}
+						}
+
+						this.$refs.popup.hide();
+					}
 				});
 			},
 			setNickname() {
