@@ -143,8 +143,10 @@ export function checkMedia(url) {
 export function listenMessages() {
 	uni.onPushMessage(res => {
 		// console.log("onPush", res);
-		utils.addData("db-messages", res.data.payload);
-		store.commit("saveTempMsgs", res);
+		if (res.data.payload.type != "chat-group") {
+			utils.addData("db-messages", res.data.payload);
+			store.commit("saveTempMsgs", res);
+		}
 	});
 }
 

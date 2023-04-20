@@ -15,7 +15,7 @@
 		ref="sendView"></send-view>
 
 	<toast ref="toast"></toast>
-	<load-view :isLoading="isLoadMore"></load-view>
+	<!-- <load-view :isLoading="isLoadMore"></load-view> -->
 </template>
 
 <script>
@@ -243,10 +243,10 @@
 				}, 300);
 			},
 			loadMore: throttle(function() {
-				this.isLoadMore = true;
-				setTimeout(() => {
-					this.isLoadMore = false;
-				}, 400);
+				// this.isLoadMore = true;
+				// setTimeout(() => {
+				// 	this.isLoadMore = false;
+				// }, 400);
 
 				this.$refs.toast.show({
 					type: "loading",

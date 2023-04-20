@@ -97,8 +97,8 @@
 		}
 
 		.msg-avatar {
-			width: 70rpx;
-			height: 70rpx;
+			width: 75rpx;
+			height: 75rpx;
 		}
 
 		.wrap {
@@ -112,8 +112,8 @@
 			}
 
 			.msg-name {
-				font-size: 22rpx;
-				color: #999;
+				font-size: 24rpx;
+				color: #666;
 				height: 40rpx;
 			}
 
@@ -122,10 +122,10 @@
 				align-items: center;
 				width: fit-content;
 				max-width: 500rpx;
-				padding: 15rpx 25rpx;
+				padding: 20rpx 25rpx;
 				background: #fff;
 				border-radius: 15rpx;
-				font-size: 28rpx;
+				font-size: 32rpx;
 				color: #333;
 				line-height: 40rpx;
 				text-align: justify;
@@ -160,12 +160,12 @@
 			}
 
 			.msg-time {
-				height: 28rpx;
+				height: 32rpx;
 				padding: 0 10rpx;
-				background: #eee;
-				border-radius: 6rpx;
-				font-size: 16rpx;
-				color: #aaa;
+				background: #e5e5e5;
+				border-radius: 8rpx;
+				font-size: 20rpx;
+				color: #999;
 				margin-top: 15rpx;
 				display: flex;
 				align-items: center;
