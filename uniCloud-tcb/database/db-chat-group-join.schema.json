@@ -1,0 +1,44 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id"
+	],
+	"permission": {
+		"read": true,
+		"create": true,
+		"update": true,
+		"delete": true
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"forceDefaultValue": {
+				"$env": "uid"
+			}
+		},
+		"creat_time": {
+			"bsonType": "timestamp",
+			"description": "首次加入时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_time": {
+			"bsonType": "timestamp",
+			"description": "最后加入时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_ip": {
+			"bsonType": "string",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		}
+	}
+}

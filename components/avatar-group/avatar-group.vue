@@ -6,7 +6,8 @@
 				<cloud-file :src="item" width="100%" height="100%"></cloud-file>
 			</view>
 			<view class="avatar-item more" :style="{width: radius, height: radius, borderColor}">
-				<view class="text">···</view>
+				<view v-if="moreText" class="text">{{moreText}}</view>
+				<view v-else class="text">···</view>
 			</view>
 		</view>
 	</view>
@@ -27,6 +28,10 @@
 			borderColor: {
 				type: String,
 				default: "#fff"
+			},
+			moreText: {
+				type: String,
+				default: ""
 			}
 		},
 		data() {

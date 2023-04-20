@@ -104,6 +104,9 @@
 	const utils = uniCloud.importObject("utils", {
 		customUI: true
 	});
+	const pushMsg = uniCloud.importObject("push-msg", {
+		customUI: true
+	});
 
 	export default {
 		name: "post",
@@ -240,21 +243,18 @@
 					});
 					utils.calc("db-posts", "like_count", postId, 1);
 
-					uniCloud.callFunction({
-						name: "push",
-						data: {
+					pushMsg.sendMsg({
+						user_id: this.post.user_id[0]._id,
+						payload: {
+							type: "like",
+							content: "赞了你的动态",
+							post_id: this.postId,
 							user_id: this.post.user_id[0]._id,
-							payload: {
-								type: "like",
-								content: "赞了你的动态",
-								post_id: this.postId,
-								user_id: this.post.user_id[0]._id,
-								excerpt: this.post.content.substr(0, 15),
-								from_user_id: store.userInfo._id,
-								from_user_name: store.userInfo.nickname,
-								from_user_avatar: store.userInfo.avatar_file.url,
-								date: Date.now()
-							}
+							excerpt: this.post.content.substr(0, 15),
+							from_user_id: store.userInfo._id,
+							from_user_name: store.userInfo.nickname,
+							from_user_avatar: store.userInfo.avatar_file.url,
+							date: Date.now()
 						}
 					});
 				}

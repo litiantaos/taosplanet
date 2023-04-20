@@ -1,0 +1,8 @@
+{
+	"name": "push-msg",
+	"dependencies": {},
+	"extensions": {
+		"uni-cloud-jql": {},
+		"uni-cloud-push": {}
+	}
+}

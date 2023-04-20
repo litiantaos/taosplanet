@@ -24,7 +24,7 @@
 			};
 		},
 		mounted() {
-			this.isShow = true;
+			this.isShow = this.isLoading;
 		},
 		watch: {
 			isLoading(newVal) {
@@ -33,8 +33,13 @@
 						this.opacity = 0;
 						setTimeout(() => {
 							this.isShow = false;
-						}, 500);
+						}, 510);
 					}, 500);
+				} else {
+					this.isShow = true;
+					setTimeout(() => {
+						this.opacity = 1;
+					}, 10);
 				}
 			}
 		}

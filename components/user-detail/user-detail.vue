@@ -511,6 +511,7 @@
 						background: #eee;
 						border-radius: 10rpx;
 						font-size: 20rpx;
+						font-weight: normal;
 						margin-left: 20rpx;
 
 						&.male {

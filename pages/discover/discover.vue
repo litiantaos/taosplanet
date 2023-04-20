@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<nav-bar background="rgba(0,0,0,0)" :showBackBtn="false">
+		<nav-bar background="rgba(0,0,0,0)" :opacity="nabBarOpacity" :showBackBtn="false">
 			<view class="broadcast">
 				<view class="dot">
 					<view class="dot-bor"></view>
@@ -88,7 +88,8 @@
 				cityGroup: [],
 				resetAni: false,
 				refreshAni: false,
-				userCount: 0
+				userCount: 0,
+				nabBarOpacity: 1
 			};
 		},
 		onLoad() {
@@ -131,6 +132,11 @@
 				});
 			},
 			async getData(e) {
+				if (e && e.refresh) {
+					this.markers = [];
+					this.list = [];
+				}
+
 				await this.getCityGroup(e);
 
 				if (this.userInfo.city) {
@@ -141,11 +147,18 @@
 			},
 			refreshToast(e) {
 				if (e && e.refresh) {
-					this.$refs.toast.show({
-						type: "success",
-						text: "刷新成功",
-						duration: "2000"
-					});
+					this.nabBarOpacity = 0;
+					setTimeout(() => {
+						this.$refs.toast.show({
+							type: "success",
+							text: "刷新成功",
+							duration: "2000"
+						});
+
+						setTimeout(() => {
+							this.nabBarOpacity = 1;
+						}, 2200);
+					}, 100);
 				}
 			},
 			async getDistrictGroup(e) {
@@ -402,6 +415,7 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			line-height: 100%;
 		}
 
 		.reset-position {
@@ -437,7 +451,6 @@
 
 			.iconfont {
 				font-size: 36rpx;
-				font-weight: bold;
 				color: #999;
 
 				&.active {

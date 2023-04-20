@@ -30,5 +30,13 @@ module.exports = {
 		let obj = {};
 		obj[field] = dbCmd.remove();
 		return await db.collection(col).doc(id).update(obj);
+	},
+
+	async deleteFile(event) {
+		let res = await uniCloud.deleteFile({
+			fileList: event.fileList
+		});
+
+		return res;
 	}
 }

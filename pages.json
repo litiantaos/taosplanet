@@ -178,7 +178,8 @@
 		"needLogin": [
 			"pages-post/post-publish/post-publish",
 			"pages-user/user-info/user-info",
-			"pages/user/user"
+			"pages/user/user",
+			"pages-fun/chat/chat-group/chat-group"
 		],
 		"resToLogin": true
 	},

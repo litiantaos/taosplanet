@@ -34,8 +34,8 @@
 			<load-more v-if="!isLoading" :status="loadMore"></load-more>
 		</view>
 
-		<send-view :placeholder="placeholder" :focus="isFocus" @input="onInput" @send="sendComment" @blur="onBlur"
-			ref="sendView">
+		<send-view :placeholder="placeholder" :focus="isFocus" :mediaType="['image']" :mediaCount="2" @input="onInput"
+			@send="sendComment" @blur="onBlur" ref="sendView">
 		</send-view>
 	</view>
 
@@ -64,6 +64,9 @@
 	const db = uniCloud.database();
 	const dbCmd = db.command;
 	const utils = uniCloud.importObject("utils", {
+		customUI: true
+	});
+	const pushMsg = uniCloud.importObject("push-msg", {
 		customUI: true
 	});
 
@@ -154,39 +157,33 @@
 						});
 					} else {
 						if (this.sendData.comment_type == 0) {
-							uniCloud.callFunction({
-								name: "push",
-								data: {
+							pushMsg.sendMsg({
+								user_id: this.post.user_id[0]._id,
+								payload: {
+									type: "comment",
+									content: "评论了你的动态",
+									excerpt: this.sendData.comment_content.substr(0, 15),
+									post_id: this.postId,
 									user_id: this.post.user_id[0]._id,
-									payload: {
-										type: "comment",
-										content: "评论了你的动态",
-										excerpt: this.sendData.comment_content.substr(0, 15),
-										post_id: this.postId,
-										user_id: this.post.user_id[0]._id,
-										from_user_id: store.userInfo._id,
-										from_user_name: store.userInfo.nickname,
-										from_user_avatar: store.userInfo.avatar_file?.url,
-										date: Date.now()
-									}
+									from_user_id: store.userInfo._id,
+									from_user_name: store.userInfo.nickname,
+									from_user_avatar: store.userInfo.avatar_file?.url,
+									date: Date.now()
 								}
 							});
 						} else if (this.sendData.comment_type == 1) {
-							uniCloud.callFunction({
-								name: "push",
-								data: {
+							pushMsg.sendMsg({
+								user_id: this.sendData.reply_user_id,
+								payload: {
+									type: "reply",
+									content: "回复了你的评论",
+									excerpt: this.sendData.comment_content.substr(0, 15),
+									post_id: this.postId,
 									user_id: this.sendData.reply_user_id,
-									payload: {
-										type: "reply",
-										content: "回复了你的评论",
-										excerpt: this.sendData.comment_content.substr(0, 15),
-										post_id: this.postId,
-										user_id: this.sendData.reply_user_id,
-										from_user_id: store.userInfo._id,
-										from_user_name: store.userInfo.nickname,
-										from_user_avatar: store.userInfo.avatar_file?.url,
-										date: Date.now()
-									}
+									from_user_id: store.userInfo._id,
+									from_user_name: store.userInfo.nickname,
+									from_user_avatar: store.userInfo.avatar_file?.url,
+									date: Date.now()
 								}
 							});
 						}
@@ -455,24 +452,12 @@
 
 							// 删除云文件
 							if (this.post.images?.length) {
-								await uniCloud.callFunction({
-									name: "delete-file",
-									data: {
-										fileList: this.post.images
-									},
-									success: result => {
-										console.log(result);
-									}
+								utils.deleteFile({
+									fileList: this.post.images
 								});
 							} else if (this.post.videos?.length) {
-								await uniCloud.callFunction({
-									name: "delete-file",
-									data: {
-										fileList: this.post.videos
-									},
-									success: result => {
-										console.log(result);
-									}
+								utils.deleteFile({
+									fileList: this.post.videos
 								});
 							}
 

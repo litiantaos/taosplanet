@@ -64,6 +64,9 @@
 	const utils = uniCloud.importObject("utils", {
 		customUI: true
 	});
+	const pushMsg = uniCloud.importObject("push-msg", {
+		customUI: true
+	});
 
 	export default {
 		data() {
@@ -151,20 +154,17 @@
 								duration: "2000"
 							});
 
-							uniCloud.callFunction({
-								name: "push",
-								data: {
+							pushMsg.sendMsg({
+								user_id: item.from_user_id,
+								payload: {
+									type: "relationship-callback",
+									content: "已同意与你关联为恋人",
 									user_id: item.from_user_id,
-									payload: {
-										type: "relationship-callback",
-										content: "已同意与你关联为恋人",
-										user_id: item.from_user_id,
-										excerpt: "愿我如星君如月，夜夜流光相皎洁。",
-										from_user_id: this.userInfo._id,
-										from_user_name: this.userInfo.nickname,
-										from_user_avatar: this.userInfo.avatar_file.url,
-										date: Date.now()
-									}
+									excerpt: "愿我如星君如月，夜夜流光相皎洁。",
+									from_user_id: this.userInfo._id,
+									from_user_name: this.userInfo.nickname,
+									from_user_avatar: this.userInfo.avatar_file.url,
+									date: Date.now()
 								}
 							});
 						}

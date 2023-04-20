@@ -16,8 +16,8 @@
 					confirm-type="send" :show-confirm-bar="false" :adjust-position="false" :placeholder="placeholder">
 				</textarea>
 				<view class="btn-wrap" :style="{height: wrapHeight + 'px'}">
-					<view v-if="!inputValue" class="emoji iconfont icon-emoji-happy"></view>
-					<view v-if="!inputValue" class="media iconfont icon-gallery" @click="chooseMedia"></view>
+					<!-- <view class="emoji iconfont icon-emoji-happy"></view> -->
+					<view class="media iconfont icon-gallery" @click="chooseMedia"></view>
 					<view v-if="inputValue || tempImagePaths.length" class="send iconfont icon-arrow-circle-up-t-fill"
 						@click="$event => beforeSend()">
 					</view>
@@ -43,6 +43,14 @@
 			focus: {
 				type: Boolean,
 				default: false
+			},
+			mediaType: {
+				type: Array,
+				default: ["image", "video"]
+			},
+			mediaCount: {
+				type: Number,
+				default: 9
 			}
 		},
 		data() {
@@ -51,12 +59,42 @@
 				wrapHeight: 0,
 				alignItems: "center",
 				footerOffsetY: 0,
+				safeBottom: 0,
 				inputValue: this.value,
 				tempImagePaths: []
 			};
 		},
-		mounted() {},
+		mounted() {
+			let {
+				safeAreaInsets
+			} = getApp().globalData.systemInfo;
+
+			this.safeBottom = safeAreaInsets.bottom;
+
+			setTimeout(() => {
+				this.getHeight();
+			}, 200);
+		},
+		watch: {
+			tempImagePaths(newVal) {
+				// console.log(newVal);
+				setTimeout(() => {
+					this.getHeight();
+
+					if (newVal.length) {
+						this.$emit("needScroll");
+					}
+				}, 200);
+			}
+		},
 		methods: {
+			getHeight() {
+				const query = uni.createSelectorQuery().in(this);
+				query.selectAll(".send-view").boundingClientRect(data => {
+					// console.log(data[0]);
+					this.$emit("height", data[0].height);
+				}).exec();
+			},
 			send(data) {
 				if (Object.keys(data).length == 0) return;
 				this.$emit("send", data);
@@ -80,21 +118,26 @@
 			},
 			chooseMedia() {
 				uni.chooseMedia({
-					mediaType: ["image"],
-					count: 2,
+					mediaType: this.mediaType,
+					count: this.mediaCount,
 					success: res => {
 						let tempFilePaths = res.tempFiles.map(item => {
 							return item.tempFilePath
 						});
 
 						let arr = [...this.tempImagePaths, ...tempFilePaths];
-						arr = arr.slice(0, 2);
+						arr = arr.slice(0, this.mediaCount);
 						this.tempImagePaths = arr;
 					}
 				});
 			},
 			removeImage(index) {
 				this.tempImagePaths.splice(index, 1);
+
+				// 监听数组为空
+				if (!this.tempImagePaths.length) {
+					this.tempImagePaths = [];
+				}
 			},
 			previewImage(index) {
 				uni.previewImage({
@@ -115,7 +158,7 @@
 					height
 				} = e.detail;
 
-				this.footerOffsetY = height;
+				this.footerOffsetY = height - this.safeBottom;
 				this.$emit("focus", height);
 			},
 			onBlur(e) {
