@@ -31,7 +31,7 @@
 				</comment>
 			</view>
 
-			<load-more v-if="!isLoading" :status="loadMore"></load-more>
+			<load-more v-if="!isLoading && comments.length" :status="loadMore"></load-more>
 		</view>
 
 		<send-view :placeholder="placeholder" :focus="isFocus" :mediaType="['image']" :mediaCount="2" @input="onInput"
@@ -39,7 +39,7 @@
 		</send-view>
 	</view>
 
-	<load-view v-if="comments.length" background="#fff" :isLoading="isLoading"></load-view>
+	<load-view background="#fff" :isLoading="isLoading"></load-view>
 
 	<popup ref="popup"></popup>
 	<toast ref="toast"></toast>
