@@ -15,23 +15,29 @@
 		</view>
 
 		<view class="body">
-			<view class="body-content" :class="{'collapse': isCollapse}">
-				<text class="content-text" user-select>{{post.content}}</text>
+			<view v-if="post.content" class="body-content">
+				<view class="content-text-wrap" :class="{'collapse': isCollapse}">
+					<text class="content-text" user-select>{{post.content}}</text>
+				</view>
 				<view v-if="isOverflow && isCollapse" class="content-more">···</view>
 			</view>
 
-			<scroll-view-pro v-if="post.images && !isSimple" :list="thumbnails" v-slot="{item, index}">
-				<image class="body-image" :src="item" mode="aspectFill" lazy-load show-menu-by-longpress
-					@click.stop="previewImage(index)"></image>
-			</scroll-view-pro>
+			<view v-if="post.images && !isSimple" class="media-wrap">
+				<scroll-view-pro :list="thumbnails" v-slot="{item, index}">
+					<image class="body-image" :src="item" mode="aspectFill" lazy-load show-menu-by-longpress
+						@click.stop="previewImage(index)"></image>
+				</scroll-view-pro>
+			</view>
 
-			<scroll-view-pro v-if="post.videos && !isSimple" :list="fileUrls" v-slot="{item, index}">
-				<video class="body-video" :src="item" :controls="false" :show-progress="false" :show-fullscreen-btn="false"
-					:show-play-btn="false" :show-center-play-btn="false" :enable-progress-gesture="false" :mobilenet-hint-type="0"
-					object-fit="cover" :vslide-gesture-in-fullscreen="false">
-					<view class="video-mask iconfont icon-play-circle-fill" @click.stop="previewVideo(item, index)"></view>
-				</video>
-			</scroll-view-pro>
+			<view v-if="post.videos && !isSimple" class="media-wrap">
+				<scroll-view-pro :list="fileUrls" v-slot="{item, index}">
+					<video class="body-video" :src="item" :controls="false" :show-progress="false" :show-fullscreen-btn="false"
+						:show-play-btn="false" :show-center-play-btn="false" :enable-progress-gesture="false"
+						:mobilenet-hint-type="0" object-fit="cover" :vslide-gesture-in-fullscreen="false">
+						<view class="video-mask iconfont icon-play-circle-fill" @click.stop="previewVideo(item, index)"></view>
+					</video>
+				</scroll-view-pro>
+			</view>
 
 			<view v-if="post.location && !isSimple" class="body-location">
 				<i class="iconfont icon-location-fill"></i>
@@ -166,7 +172,9 @@
 
 			this.screenWidth = screenWidth;
 
-			this.getContentHeight();
+			if (this.post.content) {
+				this.getContentHeight();
+			}
 
 			this.setTempFileURL();
 
@@ -343,8 +351,7 @@
 			},
 			getContentHeight() {
 				const query = uni.createSelectorQuery().in(this);
-
-				query.select(".body-content").boundingClientRect(data => {
+				query.select(".content-text").boundingClientRect(data => {
 					let wh = 250 * (this.screenWidth / 750);
 
 					if (data.height > wh) {
@@ -417,19 +424,22 @@
 
 		.body {
 			.body-content {
-				margin: 20rpx 0;
+				margin-top: 25rpx;
 
-				&.collapse {
-					max-height: 250rpx;
-					overflow: hidden;
-				}
+				.content-text-wrap {
 
-				.content-text {
-					display: block;
-					font-size: 30rpx;
-					line-height: 50rpx;
-					color: $uni-text-color;
-					text-align: justify;
+					&.collapse {
+						max-height: 250rpx;
+						overflow: hidden;
+					}
+
+					.content-text {
+						display: block;
+						font-size: 30rpx;
+						line-height: 50rpx;
+						color: $uni-text-color;
+						text-align: justify;
+					}
 				}
 
 				.content-more {
@@ -439,11 +449,15 @@
 					width: 80rpx;
 					height: 40rpx;
 					background: $uni-bg-color-grey;
-					border-radius: $uni-border-radius-sm;
-					margin-top: -10rpx;
-					font-size: $uni-font-size-sm;
+					border-radius: 10rpx;
+					margin-top: 10rpx;
+					font-size: 24rpx;
 					color: $uni-text-color-grey-m;
 				}
+			}
+
+			.media-wrap {
+				margin-top: 25rpx;
 			}
 
 			.body-image {
@@ -481,17 +495,22 @@
 			.body-location {
 				display: flex;
 				align-items: center;
-				margin: 20rpx 0;
+				margin-top: 25rpx;
+				width: fit-content;
+				height: 50rpx;
+				background: #f5f5f5;
+				border-radius: 10rpx;
+				padding: 0 20rpx;
 
 				.iconfont {
-					font-size: 30rpx;
-					color: $uni-text-color-grey-m;
+					font-size: 28rpx;
+					color: #999;
 				}
 
 				.location-text {
 					margin-left: 10rpx;
-					font-size: 24rpx;
-					color: $uni-text-color-grey-m;
+					font-size: 22rpx;
+					color: #666;
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;
@@ -506,6 +525,7 @@
 				padding: 20rpx;
 				background: $uni-bg-color-grey;
 				border-radius: $uni-border-radius-base;
+				margin-top: 25rpx;
 
 				&_content {
 					display: flex;
@@ -545,7 +565,7 @@
 			.body-modified {
 				font-size: $uni-font-size-sm;
 				color: $uni-text-color-grey-l;
-				margin-top: 15rpx;
+				margin-top: 25rpx;
 			}
 		}
 

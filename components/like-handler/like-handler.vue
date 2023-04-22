@@ -48,7 +48,6 @@
 	.wrap {
 		display: flex;
 		align-items: center;
-		color: #666;
 
 		&.reverse {
 			flex-direction: row-reverse;
@@ -86,6 +85,7 @@
 
 		.text {
 			font-size: 26rpx;
+			color: #666;
 			margin: 5rpx 20rpx 0 20rpx;
 		}
 	}

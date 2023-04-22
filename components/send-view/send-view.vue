@@ -200,6 +200,7 @@
 		left: 0;
 		width: 100%;
 		background: #fff;
+		transition: transform .3s;
 
 		.main {
 			width: 100%;

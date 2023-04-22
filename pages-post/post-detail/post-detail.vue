@@ -39,7 +39,7 @@
 		</send-view>
 	</view>
 
-	<load-view background="#fff" :isLoading="isLoading"></load-view>
+	<load-view v-if="comments.length" background="#fff" :isLoading="isLoading"></load-view>
 
 	<popup ref="popup"></popup>
 	<toast ref="toast"></toast>

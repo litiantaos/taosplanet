@@ -228,16 +228,10 @@
 					const query = uni.createSelectorQuery().in(this);
 					query.select(`#msg-${msgId}`).boundingClientRect(data => {
 						// console.log(data);
-						let bottom = data.bottom;
-						let duration = 300;
-
-						if (loadMore) {
-							duration = 0;
-						}
 
 						uni.pageScrollTo({
-							scrollTop: bottom,
-							duration: duration
+							scrollTop: data.bottom - 40,
+							duration: loadMore ? 0 : 300
 						});
 					}).exec();
 				}, 300);
@@ -261,7 +255,7 @@
 		},
 		onPageScroll(e) {
 			// console.log(e);
-			if (e.scrollTop == 0) {
+			if (e.scrollTop < 5) {
 				this.loadMore();
 			}
 		}
