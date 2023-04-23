@@ -1,4 +1,4 @@
-import messages from "./modules/messages.js";
+import message from "./modules/message.js";
 
 import {
 	createStore
@@ -6,7 +6,7 @@ import {
 
 const store = createStore({
 	modules: {
-		messages
+		message
 	}
 });
 

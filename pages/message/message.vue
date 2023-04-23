@@ -84,6 +84,13 @@
 		},
 		onLoad() {
 			this.getMessages();
+
+			uni.onPushMessage(res => {
+				console.log("onPush", res);
+				if (res.data.payload.type != "chat-group") {
+					this.messages.unshift(res.data.payload);
+				}
+			});
 		},
 		methods: {
 			refreshStart() {
@@ -101,7 +108,7 @@
 					}
 				});
 
-				store.commit("clearTempMsgs");
+				store.commit("clearUnread");
 
 				await db.collection("db-messages").where(`user_id == $cloudEnv_uid && is_read != true`).update({
 					is_read: true
@@ -113,9 +120,21 @@
 					duration: "2000"
 				});
 			},
-			handleRead(msgId) {
-				db.collection("db-messages").where(`_id == "${msgId}"`).update({
+			async handleRead(msgId) {
+				const msgDb = db.collection("db-messages");
+
+				await msgDb.where(`_id == "${msgId}"`).update({
 					is_read: true
+				});
+
+				msgDb.where(`user_id == $cloudEnv_uid && is_read != true`).count().then(res => {
+					let count = res.result.total;
+					// console.log(count);
+					if (count > 0) {
+						store.commit("showUnread");
+					} else {
+						store.commit("clearUnread");
+					}
 				});
 			},
 			toDetail(item, index) {
@@ -154,18 +173,24 @@
 								duration: "2000"
 							});
 
+							let pushParam = {
+								type: "relationship-callback",
+								content: "已同意与你关联为恋人",
+								user_id: item.from_user_id,
+								excerpt: "愿我如星君如月，夜夜流光相皎洁。",
+								from_user_id: this.userInfo._id,
+								from_user_name: this.userInfo.nickname,
+								from_user_avatar: this.userInfo.avatar_file.url,
+								date: Date.now()
+							};
+
+							await utils.addData("db-messages", pushParam).then(res => {
+								pushParam._id = res.id;
+							});
+
 							pushMsg.sendMsg({
 								user_id: item.from_user_id,
-								payload: {
-									type: "relationship-callback",
-									content: "已同意与你关联为恋人",
-									user_id: item.from_user_id,
-									excerpt: "愿我如星君如月，夜夜流光相皎洁。",
-									from_user_id: this.userInfo._id,
-									from_user_name: this.userInfo.nickname,
-									from_user_avatar: this.userInfo.avatar_file.url,
-									date: Date.now()
-								}
+								payload: pushParam
 							});
 						}
 					});
@@ -210,7 +235,7 @@
 					this.$refs.refresh.success();
 				}, 300);
 
-				// console.log(this.messages);
+				console.log(this.messages);
 			}
 		},
 		onPageScroll(e) {
@@ -336,6 +361,12 @@
 						font-size: 24rpx;
 						color: #999;
 						margin-top: 5rpx;
+						margin-right: 150rpx;
+						display: -webkit-box;
+						-webkit-line-clamp: 1;
+						-webkit-box-orient: vertical;
+						overflow: hidden;
+						text-overflow: ellipsis;
 					}
 				}
 			}

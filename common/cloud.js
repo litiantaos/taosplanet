@@ -141,11 +141,19 @@ export function checkMedia(url) {
 }
 
 export function listenMessages() {
+	if (!uniIdStore.hasLogin) return;
+
+	db.collection("db-messages").where(`user_id == $cloudEnv_uid && is_read == false`).count().then(res => {
+		let count = res.result.total;
+		if (count > 0) {
+			store.commit("showUnread");
+		}
+	});
+
 	uni.onPushMessage(res => {
 		// console.log("onPush", res);
 		if (res.data.payload.type != "chat-group") {
-			utils.addData("db-messages", res.data.payload);
-			store.commit("saveTempMsgs", res);
+			store.commit("showUnread");
 		}
 	});
 }

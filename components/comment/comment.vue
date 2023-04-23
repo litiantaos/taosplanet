@@ -171,20 +171,26 @@
 					});
 					utils.calc("db-posts-comments", "like_count", commentId, 1);
 
+					let pushParam = {
+						type: "comment-like",
+						content: "赞了你的评论",
+						post_id: this.postData.post_id,
+						comment_id: this.comment._id,
+						user_id: this.comment.user_id[0]._id,
+						excerpt: this.comment.comment_content.substr(0, 25),
+						from_user_id: store.userInfo._id,
+						from_user_name: store.userInfo.nickname,
+						from_user_avatar: store.userInfo.avatar_file.url,
+						date: Date.now()
+					};
+
+					await utils.addData("db-messages", pushParam).then(res => {
+						pushParam._id = res.id;
+					});
+
 					pushMsg.sendMsg({
 						user_id: this.comment.user_id[0]._id,
-						payload: {
-							type: "comment-like",
-							content: "赞了你的评论",
-							post_id: this.postData.post_id,
-							comment_id: this.comment._id,
-							user_id: this.comment.user_id[0]._id,
-							excerpt: this.comment.comment_content.substr(0, 15),
-							from_user_id: store.userInfo._id,
-							from_user_name: store.userInfo.nickname,
-							from_user_avatar: store.userInfo.avatar_file.url,
-							date: Date.now()
-						}
+						payload: pushParam
 					});
 				}
 			},

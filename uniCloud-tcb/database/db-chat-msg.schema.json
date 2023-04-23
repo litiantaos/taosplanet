@@ -49,6 +49,11 @@
 			"bsonType": "string",
 			"foreignKey": "_id"
 		},
+		"sec_check": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 通过 1 违规 2 错误"
+		},
 		"create_time": {
 			"bsonType": "timestamp",
 			"forceDefaultValue": {

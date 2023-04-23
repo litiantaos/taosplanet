@@ -98,22 +98,28 @@
 					type: "text",
 					title: "提示",
 					text: "你确定要邀请 " + item.nickname + " 吗？",
-					success: () => {
+					success: async () => {
 						this.$refs.popup.hide();
 						this.users[index].invited = true;
 
+						let pushParam = {
+							type: "relationship",
+							content: "邀请你与TA关联为恋人",
+							user_id: item._id,
+							excerpt: "愿我如星君如月，夜夜流光相皎洁。",
+							from_user_id: store.userInfo._id,
+							from_user_name: store.userInfo.nickname,
+							from_user_avatar: store.userInfo.avatar_file.url,
+							date: Date.now()
+						};
+
+						await utils.addData("db-messages", pushParam).then(res => {
+							pushParam._id = res.id;
+						});
+
 						pushMsg.sendMsg({
 							user_id: item._id,
-							payload: {
-								type: "relationship",
-								content: "邀请你与TA关联为恋人",
-								user_id: item._id,
-								excerpt: "愿我如星君如月，夜夜流光相皎洁。",
-								from_user_id: store.userInfo._id,
-								from_user_name: store.userInfo.nickname,
-								from_user_avatar: store.userInfo.avatar_file.url,
-								date: Date.now()
-							}
+							payload: pushParam
 						});
 					}
 				});

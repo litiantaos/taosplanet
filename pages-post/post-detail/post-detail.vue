@@ -144,7 +144,7 @@
 					});
 				}
 
-				db.collection("db-posts-comments").add(this.sendData).then(res => {
+				db.collection("db-posts-comments").add(this.sendData).then(async res => {
 					// console.log(res);
 
 					utils.calc("db-posts", "comment_count", this.sendData.post_id, 1);
@@ -157,34 +157,46 @@
 						});
 					} else {
 						if (this.sendData.comment_type == 0) {
+							let pushParam = {
+								type: "comment",
+								content: "评论了你的动态",
+								excerpt: this.sendData.comment_content.substr(0, 25),
+								post_id: this.postId,
+								user_id: this.post.user_id[0]._id,
+								from_user_id: store.userInfo._id,
+								from_user_name: store.userInfo.nickname,
+								from_user_avatar: store.userInfo.avatar_file?.url,
+								date: Date.now()
+							};
+
+							await utils.addData("db-messages", pushParam).then(res => {
+								pushParam._id = res.id;
+							});
+
 							pushMsg.sendMsg({
 								user_id: this.post.user_id[0]._id,
-								payload: {
-									type: "comment",
-									content: "评论了你的动态",
-									excerpt: this.sendData.comment_content.substr(0, 15),
-									post_id: this.postId,
-									user_id: this.post.user_id[0]._id,
-									from_user_id: store.userInfo._id,
-									from_user_name: store.userInfo.nickname,
-									from_user_avatar: store.userInfo.avatar_file?.url,
-									date: Date.now()
-								}
+								payload: pushParam
 							});
 						} else if (this.sendData.comment_type == 1) {
+							let pushParam = {
+								type: "reply",
+								content: "回复了你的评论",
+								excerpt: this.sendData.comment_content.substr(0, 25),
+								post_id: this.postId,
+								user_id: this.sendData.reply_user_id,
+								from_user_id: store.userInfo._id,
+								from_user_name: store.userInfo.nickname,
+								from_user_avatar: store.userInfo.avatar_file?.url,
+								date: Date.now()
+							};
+
+							await utils.addData("db-messages", pushParam).then(res => {
+								pushParam._id = res.id;
+							});
+
 							pushMsg.sendMsg({
 								user_id: this.sendData.reply_user_id,
-								payload: {
-									type: "reply",
-									content: "回复了你的评论",
-									excerpt: this.sendData.comment_content.substr(0, 15),
-									post_id: this.postId,
-									user_id: this.sendData.reply_user_id,
-									from_user_id: store.userInfo._id,
-									from_user_name: store.userInfo.nickname,
-									from_user_avatar: store.userInfo.avatar_file?.url,
-									date: Date.now()
-								}
+								payload: pushParam
 							});
 						}
 

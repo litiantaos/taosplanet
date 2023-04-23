@@ -24,7 +24,9 @@
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
 	import {
-		uploadFile
+		uploadFile,
+		checkContent,
+		checkMedia
 	} from "@/common/cloud.js";
 
 	import {
@@ -104,7 +106,8 @@
 					skip = this.msgs.length;
 				}
 
-				let tempMsgs = await msgDb.orderBy("create_time desc").skip(skip).limit(limit).getTemp();
+				let tempMsgs = await msgDb.where(`sec_check != 1`).orderBy("create_time desc")
+					.skip(skip).limit(limit).getTemp();
 				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempMsgs, tempUsers).get();
@@ -157,6 +160,13 @@
 
 				if (e.value) {
 					this.msg.text = e.value;
+					// 文本安全检测
+					await checkContent(this.msg.text).then(res => {
+						console.log(res);
+						if (res == 1) {
+							this.msg.sec_check = 1;
+						}
+					});
 				}
 
 				if (e.images) {
@@ -166,22 +176,41 @@
 					});
 
 					this.msg.images = fileIds;
+
+					// 图片安全检测
+					this.msg.images.map(async item => {
+						await checkMedia(item).then(res => {
+							console.log(res);
+							if (res == 1) {
+								this.msg.sec_check = 1;
+								return;
+							}
+						});
+					});
 				}
 
 				msgDb.add(this.msg).then(res => {
-					this.sendFront(res.result.id);
+					if (this.msg.sec_check && this.msg.sec_check == 1) {
+						this.$refs.toast.show({
+							type: "error",
+							text: "内容违规",
+							duration: "2000"
+						});
+					} else {
+						this.sendFront(res.result.id);
 
-					let param = {
-						user_id: [],
-						payload: {
-							type: "chat-group",
-							...this.tempMsg
-						}
-					};
+						let param = {
+							user_id: [],
+							payload: {
+								type: "chat-group",
+								...this.tempMsg
+							}
+						};
 
-					pushMsg.sendMsgToGroup({
-						param
-					});
+						pushMsg.sendMsgToGroup({
+							param
+						});
+					}
 				}).catch(err => {
 					console.log(err);
 				});

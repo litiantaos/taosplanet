@@ -2,7 +2,7 @@
 	<view class="tab-bar">
 		<view class="item" v-for="(item, index) in tabs" :key="index" @click="clickTab(item, index)">
 			<image class="item-icon" :src="selectedIndex == index ? item.selectedIconPath : item.iconPath">
-				<view v-if="index == 2 && messages.length" class="dot"></view>
+				<view v-if="index == 2 && unread" class="dot"></view>
 			</image>
 			<view v-if="showText" class="item-text" :class="{'active': selectedIndex == index}">
 				{{item.text}}
@@ -61,7 +61,7 @@
 		},
 		computed: {
 			...mapState({
-				messages: state => state.messages.messages
+				unread: state => state.message.unread
 			})
 		},
 		methods: {
