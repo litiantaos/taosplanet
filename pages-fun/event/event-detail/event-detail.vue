@@ -8,18 +8,20 @@
 			<view class="region">{{event.region?.province}} {{event.region?.city}}</view>
 
 			<view class="deadline">
+				截止报名：
 				<uni-dateformat :date="event.deadline" format="MM/dd hh:mm"></uni-dateformat>
-				截止报名
+			</view>
+
+			<view class="date">
+				活动时间：
+				<uni-dateformat :date="event.start_date" format="MM/dd hh:mm"></uni-dateformat>
+				<view v-if="event.end_date">
+					<text style="margin: 0 15rpx;">-</text>
+					<uni-dateformat :date="event.end_date" format="MM/dd hh:mm"></uni-dateformat>
+				</view>
 			</view>
 
 			<view class="intro">{{event.intro}}</view>
-
-			<view class="date">
-				活动时间：<uni-dateformat :date="event.start_date" format="MM/dd hh:mm"></uni-dateformat>
-				<view v-if="event.end_date" class="end-date">
-					- <uni-dateformat :date="event.end_date" format="MM/dd hh:mm"></uni-dateformat>
-				</view>
-			</view>
 
 			<view v-if="event.location" class="location">
 				<map-card :data="location" showMarker :showFront="true" :text="event.location_name" borderRadius="15rpx"
@@ -406,25 +408,18 @@
 				}
 			}
 
-			.date {
-				font-size: 28rpx;
-				color: #333;
-				margin-top: 25rpx;
-
-				.end-date {
-					display: inline-block;
-				}
-			}
-
+			.region,
+			.date,
 			.deadline {
-				font-size: 24rpx;
-				color: #333;
-				margin-top: 25rpx;
-			}
-
-			.region {
+				width: fit-content;
+				height: 50rpx;
+				background: #f5f5f5;
+				border-radius: 10rpx;
+				display: flex;
+				align-items: center;
 				font-size: 24rpx;
 				color: #666;
+				padding: 0 20rpx;
 				margin-top: 25rpx;
 			}
 
@@ -441,7 +436,7 @@
 				font-size: 28rpx;
 				color: #333;
 				text-align: justify;
-				margin: 30rpx 0;
+				margin: 50rpx 0;
 			}
 
 			.images {

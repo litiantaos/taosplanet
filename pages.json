@@ -51,6 +51,13 @@
 		"style": {
 			"navigationBarTitleText": "系统消息"
 		}
+	}, {
+		"path": "pages/topic/topic",
+		"style": {
+			"navigationBarTitleText": "",
+			"enablePullDownRefresh": true,
+			"navigationStyle": "custom"
+		}
 	}],
 	"subPackages": [{
 			"root": "pages-post",

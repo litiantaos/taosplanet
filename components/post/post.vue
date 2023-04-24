@@ -11,7 +11,9 @@
 					<view class="user-info_intro">{{post.user_id[0].intro}}</view>
 				</view>
 			</view>
-			<view v-if="post.topic_id.length" class="header-topic">{{post.topic_id[0].name}}</view>
+			<view v-if="post.topic_id.length" class="header-topic" @click="toTopic(post.topic_id[0]._id)">
+				{{post.topic_id[0].name}}
+			</view>
 		</view>
 
 		<view class="body">
@@ -191,6 +193,11 @@
 			}
 		},
 		methods: {
+			toTopic(id) {
+				uni.navigateTo({
+					url: "/pages/topic/topic?id=" + id
+				})
+			},
 			voteDate() {
 				this.$emit("voteDate");
 			},

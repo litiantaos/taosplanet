@@ -3,19 +3,25 @@
 		<avatar-group :avatars="avatars" :moreText="joinCount > 5 ? (joinCount < 100 ? `${joinCount}+` : joinCount) : '···'"
 			radius="32px" borderColor="#f5f5f5"></avatar-group>
 	</nav-bar>
-	<safe-area></safe-area>
 
-	<view class="container" :style="{paddingBottom: footerHeight + keyboardHeight + 'px'}">
-		<view v-for="(item, index) in msgs" :key="item._id">
-			<chat-msg :id="'msg-' + item._id" :data="item" :isSelf="item.from_uid[0]._id == userInfo._id"></chat-msg>
-		</view>
+	<view class="container" :style="{paddingTop: `${navHeight}px`, paddingBottom: `${footerHeight + keyboardHeight}px`}">
+		<scroll-view class="chat-list-wrap" scroll-y scroll-with-animation @scrolltolower="onScrollMore">
+			<view class="chat-list">
+				<view class="chat-msg" v-for="(item, index) in msgs" :key="item._id" @longpress="pressMsg(index)">
+					<chat-msg :id="'msg-' + item._id" :data="item" :isSelf="item.from_uid[0]._id == userInfo._id"
+						:showFun="item.showFun" @reply="onReply(item)"></chat-msg>
+				</view>
+			</view>
+			<view class="load-more">
+				<load-more v-if="!noMore" :status="loadMore"></load-more>
+			</view>
+		</scroll-view>
 	</view>
 
-	<send-view @send="send" @height="getFooterHeight" @focus="onFocus" @blur="onBlur" @needScroll="needScroll"
-		ref="sendView"></send-view>
+	<send-view moreFun :replyMsg="replyMsg" :focus="autoFocus" @send="send" @height="getFooterHeight" @focus="onFocus"
+		@blur="onBlur" ref="sendView"></send-view>
 
 	<toast ref="toast"></toast>
-	<!-- <load-view :isLoading="isLoadMore"></load-view> -->
 </template>
 
 <script>
@@ -54,10 +60,20 @@
 				avatars: [],
 				joinCount: 0,
 				tempHeight: 0,
-				isLoadMore: false
+				navHeight: 0,
+				loadMore: "loading",
+				noMore: true,
+				replyMsg: {},
+				autoFocus: false
 			};
 		},
 		onLoad() {
+			let {
+				statusBarHeight
+			} = getApp().globalData.systemInfo;
+
+			this.navHeight = statusBarHeight + 44;
+
 			this.joinGroup();
 			this.getMsgs();
 		},
@@ -70,9 +86,6 @@
 				let receiveMsg = res.data.payload;
 				if (receiveMsg.from_uid[0]._id != this.userInfo._id) {
 					this.msgs.push(receiveMsg);
-					this.needScroll({
-						msgId: this.msgs[this.msgs.length - 1]._id
-					});
 				}
 			});
 		},
@@ -82,6 +95,21 @@
 			}
 		},
 		methods: {
+			onReply(item) {
+				this.replyMsg = item;
+				// console.log(item);
+				this.autoFocus = true;
+			},
+			pressMsg(index) {
+				uni.vibrateShort({
+					success: () => {
+						this.msgs[index].showFun = true;
+						setTimeout(() => {
+							this.msgs[index].showFun = false;
+						}, 3000);
+					}
+				})
+			},
 			async getAvatars() {
 				let tempJoin = await joinDb.field("update_time, user_id").orderBy("update_time").limit(5).getTemp();
 				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file").getTemp();
@@ -117,26 +145,12 @@
 				if (loadMore) {
 					this.msgs.unshift(...resData);
 
-					if (resData.length) {
-						this.needScroll({
-							loadMore: true,
-							msgId: resData[resData.length - 1]._id
-						});
-					} else {
-						this.$refs.toast.show({
-							type: "info",
-							text: "没有更多了",
-							duration: "2000"
-						});
+					if (!resData.length) {
+						this.noMore = true;
 					}
 				} else {
 					this.msgs = resData;
-					this.needScroll({
-						msgId: resData[resData.length - 1]._id
-					});
 				}
-
-				this.$refs.toast.hide();
 			},
 			leaveGroup() {
 				joinDb.where(`user_id == $cloudEnv_uid`).remove();
@@ -189,6 +203,30 @@
 					});
 				}
 
+				if (e.videos) {
+					let fileIds = await uploadFile({
+						tempPaths: e.videos,
+						path: "chat/videos/"
+					});
+
+					this.msg.videos = fileIds;
+
+					// 视频安全检测
+					this.msg.videos.map(async item => {
+						await checkMedia(item).then(res => {
+							console.log(res);
+							if (res == 1) {
+								this.msg.sec_check = 1;
+								return;
+							}
+						});
+					});
+				}
+
+				if (e.reply_to_id) {
+					this.msg.reply_to_id = e.reply_to_id;
+				}
+
 				msgDb.add(this.msg).then(res => {
 					if (this.msg.sec_check && this.msg.sec_check == 1) {
 						this.$refs.toast.show({
@@ -232,11 +270,6 @@
 				this.msgs.push(this.tempMsg);
 
 				this.$refs.sendView.reset();
-				setTimeout(() => {
-					this.needScroll({
-						msgId: id
-					});
-				}, 50);
 			},
 			onFocus(e) {
 				this.keyboardHeight = e;
@@ -247,53 +280,49 @@
 			getFooterHeight(e) {
 				this.footerHeight = e;
 			},
-			needScroll(e = {}) {
-				const {
-					loadMore,
-					msgId
-				} = e;
-
-				setTimeout(() => {
-					const query = uni.createSelectorQuery().in(this);
-					query.select(`#msg-${msgId}`).boundingClientRect(data => {
-						// console.log(data);
-
-						uni.pageScrollTo({
-							scrollTop: data.bottom - 40,
-							duration: loadMore ? 0 : 300
-						});
-					}).exec();
-				}, 300);
-			},
-			loadMore: throttle(function() {
-				// this.isLoadMore = true;
-				// setTimeout(() => {
-				// 	this.isLoadMore = false;
-				// }, 400);
-
-				this.$refs.toast.show({
-					type: "loading",
-					text: "加载中",
-					duration: "none"
-				});
-
+			onScrollMore: throttle(function() {
+				this.noMore = false;
+				this.loadMore = "loading";
 				this.getMsgs({
 					loadMore: true
 				});
 			})
-		},
-		onPageScroll(e) {
-			// console.log(e);
-			if (e.scrollTop < 5) {
-				this.loadMore();
-			}
 		}
 	}
 </script>
 
+<style>
+	::-webkit-scrollbar {
+		display: none;
+		width: 0;
+		height: 0;
+		color: transparent;
+	}
+</style>
+
 <style lang="scss" scoped>
 	.container {
-		padding: 25rpx;
+		height: 100vh;
 		transition: padding .3s;
+
+		.chat-list-wrap {
+			height: 100%;
+			transform: rotate(180deg);
+
+			.chat-list {
+				padding: 25rpx;
+				transform: rotate(180deg);
+
+				.chat-msg {
+					&:not(:last-child) {
+						margin-bottom: 50rpx;
+					}
+				}
+			}
+
+			.load-more {
+				transform: rotate(180deg);
+			}
+		}
 	}
 </style>

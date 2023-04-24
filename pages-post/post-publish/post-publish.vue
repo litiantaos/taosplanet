@@ -661,9 +661,7 @@
 						.image,
 						.video {
 							background: #eee;
-							border: 1px solid #eee;
 							border-radius: 15rpx;
-							box-sizing: border-box;
 							vertical-align: bottom;
 						}
 

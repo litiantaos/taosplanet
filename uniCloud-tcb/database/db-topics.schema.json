@@ -23,9 +23,9 @@
 			"label": "描述",
 			"trim": "both"
 		},
-		"icon": {
+		"wallpaper": {
 			"bsonType": "string",
-			"label": "图标",
+			"label": "封面图片",
 			"pattern": "^(http://|https://|/|./|@/)\\S",
 			"trim": "both"
 		},

@@ -65,8 +65,8 @@
 				</view>
 			</view>
 
-			<view class="footprint" @click="toFootprint">
-				<map-card :data="userInfo.region" :showFront="true" title="足迹" text="12个地区"></map-card>
+			<view class="footprint">
+				<map-card :data="userInfo.region" :showFront="true" title="足迹" text="12个地区" @click="toFootprint"></map-card>
 			</view>
 		</view>
 
