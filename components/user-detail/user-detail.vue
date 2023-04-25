@@ -6,138 +6,142 @@
 		</nav-bar>
 		<safe-area></safe-area>
 
-		<view class="container">
-			<view class="header-wrap">
-				<view class="background-wall" :class="currentUser ? 'curr-user' : 'ncurr-user'">
-					<view class="texture"></view>
-				</view>
-
-				<view class="user-wrap">
-					<view class="avatar-wrap">
-						<cloud-file :src="userInfo" width="150rpx" height="150rpx" background="rgba(255, 255, 255, .1)"
-							borderRadius="50%" border="10rpx solid rgba(255, 255, 255, .1)" style="zIndex: 1"
-							@click="toUserInfo"></cloud-file>
-						<view class="visit-wrap">
-							<view class="visit-info">访问量 <text style="font-weight: bold;">{{userInfo.view_count}}</text></view>
-							<view v-if="currentUser" class="func-btn" @click="toUserInfo">编辑信息</view>
-							<!-- <view v-else class="func-btn">加微信</view> -->
-						</view>
+		<pull-down @start="refreshStart" ref="refresh">
+			<view class="container">
+				<view class="header-wrap">
+					<view class="background-wall" :class="currentUser ? 'curr-user' : 'ncurr-user'">
+						<view class="texture"></view>
 					</view>
 
-					<view class="name">
-						<name-init :data="userInfo"></name-init>
-						<view v-if="userInfo.gender && userInfo.gender != 0" class="gender iconfont"
-							:class="userInfo.gender == 1 ? 'icon-man male' : 'icon-woman female'"></view>
-					</view>
-
-					<view class="intro">
-						<text v-if="currentUser">{{hasLogin ? (userInfo.intro ? userInfo.intro : "星球合伙人") : "加入星球合伙人"}}</text>
-						<text v-else>{{userInfo.intro ? userInfo.intro : "星球合伙人"}}</text>
-					</view>
-
-					<view class="tags"
-						v-if="userInfo.status_id || userInfo.emotion_id || userInfo.region || colleges.length || resumes.length">
-						<view v-if="userInfo.status_id && userInfo.status_id != 0" class="tag">{{userInfo.status_name}}</view>
-						<view v-if="userInfo.emotion_id && userInfo.emotion_id != 0" class="tag" @click="toUserDetail">
-							<cloud-file v-if="userInfo.emotion_id == 6 && userInfo.lover_avatar" class="lover-avatar"
-								:src="userInfo.lover_avatar" width="30rpx" height="30rpx" borderRadius="50%"></cloud-file>
-							<view>{{userInfo.emotion_name}}</view>
-						</view>
-						<view v-if="userInfo.region" class="tag">{{userInfo.region.city}}</view>
-						<view v-if="colleges.length" class="tag">{{colleges[0].college_name}}</view>
-						<view v-if="resumes.length" class="tag">{{resumes[0].position}}</view>
-					</view>
-
-					<view class="data-wrap">
-						<view class="data-item">
-							<view class="data-item-num">{{posts.length || 0}}</view>
-							<view class="data-item-text">动态</view>
-						</view>
-						<view class="data-item">
-							<view class="data-item-num">{{count.likeMeCount}}</view>
-							<view class="data-item-text">获赞</view>
-						</view>
-						<view class="data-item" @click="toLikes">
-							<view class="data-item-num">{{count.likeCount}}</view>
-							<view class="data-item-text">点赞</view>
-						</view>
-					</view>
-				</view>
-			</view>
-
-			<view class="footprint">
-				<map-card :data="userInfo.region" :showFront="true" title="足迹" text="12个地区" @click="toFootprint"></map-card>
-			</view>
-		</view>
-
-		<tab :tabs="['动态', '经历']" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx"
-			:background="tabBackground" @change="tabChange"></tab>
-		<view class="tab-view">
-			<view v-if="tabIndex == 0">
-				<view v-for="(item, index) in posts" :key="index">
-					<post :data="item" :postId="item._id" @share="clickShare"></post>
-				</view>
-
-				<load-more :status="loadMore"></load-more>
-			</view>
-
-			<view v-if="tabIndex == 1">
-				<view class="resume-wrap">
-					<view class="resume-title-wrap">
-						<view class="resume-title">工作经历</view>
-						<view v-if="currentUser" class="edit-btn iconfont icon-add-circle" @click="toUserResume('')"></view>
-					</view>
-					<view v-if="resumes.length" class="resume-list">
-						<view class="resume" v-for="(item, index) in resumes" :key="index">
-							<view class="time-line-wrap">
-								<view class="time-dot"></view>
-								<view class="time-line"></view>
-							</view>
-							<view class="resume-content-wrap">
-								<view class="resume-content-title-wrap">
-									<view class="resume-content-title">
-										<uni-dateformat :date="item.start_date" format="yyyy.MM"></uni-dateformat> -
-										<uni-dateformat :date="item.end_date" format="yyyy.MM"></uni-dateformat>
-									</view>
-									<view v-if="currentUser" class="edit-btn iconfont icon-edit" @click="toUserResume(item)">
-									</view>
+					<view class="user-wrap">
+						<view class="avatar-wrap">
+							<cloud-file :src="userInfo" width="150rpx" height="150rpx" background="rgba(255, 255, 255, .1)"
+								borderRadius="50%" border="10rpx solid rgba(255, 255, 255, .1)" style="zIndex: 1"
+								@click="toUserInfo"></cloud-file>
+							<view class="visit-wrap">
+								<view class="visit-info">
+									访问量 <text style="font-weight: bold;">{{currentUser ? view_count : userInfo.view_count}}</text>
 								</view>
-								<view class="resume-content-subtitle">{{item.company}}<text> · {{item.industry_name}}</text></view>
-								<view class="resume-content-text">{{item.position}}</view>
+								<view v-if="currentUser" class="func-btn" @click="toUserInfo">编辑信息</view>
+								<!-- <view v-else class="func-btn">加微信</view> -->
+							</view>
+						</view>
+
+						<view class="name">
+							<name-init :data="userInfo"></name-init>
+							<view v-if="userInfo.gender && userInfo.gender != 0" class="gender iconfont"
+								:class="userInfo.gender == 1 ? 'icon-man male' : 'icon-woman female'"></view>
+						</view>
+
+						<view class="intro">
+							<text v-if="currentUser">{{hasLogin ? (userInfo.intro ? userInfo.intro : "星球合伙人") : "加入星球合伙人"}}</text>
+							<text v-else>{{userInfo.intro ? userInfo.intro : "星球合伙人"}}</text>
+						</view>
+
+						<view class="tags"
+							v-if="userInfo.status_id || userInfo.emotion_id || userInfo.region || colleges.length || resumes.length">
+							<view v-if="userInfo.status_id && userInfo.status_id != 0" class="tag">{{userInfo.status_name}}</view>
+							<view v-if="userInfo.emotion_id && userInfo.emotion_id != 0" class="tag" @click="toUserDetail">
+								<cloud-file v-if="userInfo.emotion_id == 6 && lover_avatar_url" class="lover-avatar"
+									:src="lover_avatar_url" width="30rpx" height="30rpx" borderRadius="50%"></cloud-file>
+								<view>{{userInfo.emotion_name}}</view>
+							</view>
+							<view v-if="userInfo.region" class="tag">{{userInfo.region.city}}</view>
+							<view v-if="colleges.length" class="tag">{{colleges[0].college_name}}</view>
+							<view v-if="resumes.length" class="tag">{{resumes[0].position}}</view>
+						</view>
+
+						<view class="data-wrap">
+							<view class="data-item">
+								<view class="data-item-num">{{posts.length || 0}}</view>
+								<view class="data-item-text">动态</view>
+							</view>
+							<view class="data-item">
+								<view class="data-item-num">{{count.likeMeCount || 0}}</view>
+								<view class="data-item-text">获赞</view>
+							</view>
+							<view class="data-item" @click="toLikes">
+								<view class="data-item-num">{{count.likeCount || 0}}</view>
+								<view class="data-item-text">点赞</view>
 							</view>
 						</view>
 					</view>
-					<view v-else class="resume-default">暂无</view>
 				</view>
 
-				<view class="resume-wrap">
-					<view class="resume-title-wrap">
-						<view class="resume-title">教育经历</view>
-						<view v-if="currentUser" class="edit-btn iconfont icon-add-circle" @click="toUserCollege('')"></view>
-					</view>
-					<view v-if="colleges.length" class="resume-list">
-						<view class="resume" v-for="(item, index) in colleges" :key="index">
-							<view class="time-line-wrap">
-								<view class="time-dot"></view>
-								<view class="time-line"></view>
-							</view>
-							<view class="resume-content-wrap">
-								<view class="resume-content-title-wrap">
-									<view class="resume-content-title">{{item.start_date}} - {{item.end_date}}</view>
-									<view v-if="currentUser" class="edit-btn iconfont icon-edit" @click="toUserCollege(item)">
-									</view>
-								</view>
-								<view class="resume-content-subtitle">{{item.college_name}}</view>
-								<view class="resume-content-text">{{item.major}}</view>
-							</view>
-						</view>
-					</view>
-					<view v-else class="resume-default">暂无</view>
+				<view class="footprint">
+					<map-card :data="userInfo.region" :showFront="true" title="足迹" text="去过的地方" @click="toFootprint"></map-card>
 				</view>
 			</view>
-		</view>
 
-		<safe-area :type="tabUser ? 'tabBar' : 'bottom'"></safe-area>
+			<tab :tabs="['动态', '经历']" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx"
+				:background="tabBackground" @change="tabChange"></tab>
+			<view class="tab-view">
+				<view v-if="tabIndex == 0">
+					<view v-for="(item, index) in posts" :key="index">
+						<post :data="item" :postId="item._id" @share="clickShare"></post>
+					</view>
+
+					<load-more :status="loadMore"></load-more>
+				</view>
+
+				<view v-if="tabIndex == 1">
+					<view class="resume-wrap">
+						<view class="resume-title-wrap">
+							<view class="resume-title">工作经历</view>
+							<view v-if="currentUser" class="edit-btn iconfont icon-add-circle" @click="toUserResume('')"></view>
+						</view>
+						<view v-if="resumes.length" class="resume-list">
+							<view class="resume" v-for="(item, index) in resumes" :key="index">
+								<view class="time-line-wrap">
+									<view class="time-dot"></view>
+									<view class="time-line"></view>
+								</view>
+								<view class="resume-content-wrap">
+									<view class="resume-content-title-wrap">
+										<view class="resume-content-title">
+											<uni-dateformat :date="item.start_date" format="yyyy.MM"></uni-dateformat> -
+											<uni-dateformat :date="item.end_date" format="yyyy.MM"></uni-dateformat>
+										</view>
+										<view v-if="currentUser" class="edit-btn iconfont icon-edit" @click="toUserResume(item)">
+										</view>
+									</view>
+									<view class="resume-content-subtitle">{{item.company}}<text> · {{item.industry_name}}</text></view>
+									<view class="resume-content-text">{{item.position}}</view>
+								</view>
+							</view>
+						</view>
+						<view v-else class="resume-default">暂无</view>
+					</view>
+
+					<view class="resume-wrap">
+						<view class="resume-title-wrap">
+							<view class="resume-title">教育经历</view>
+							<view v-if="currentUser" class="edit-btn iconfont icon-add-circle" @click="toUserCollege('')"></view>
+						</view>
+						<view v-if="colleges.length" class="resume-list">
+							<view class="resume" v-for="(item, index) in colleges" :key="index">
+								<view class="time-line-wrap">
+									<view class="time-dot"></view>
+									<view class="time-line"></view>
+								</view>
+								<view class="resume-content-wrap">
+									<view class="resume-content-title-wrap">
+										<view class="resume-content-title">{{item.start_date}} - {{item.end_date}}</view>
+										<view v-if="currentUser" class="edit-btn iconfont icon-edit" @click="toUserCollege(item)">
+										</view>
+									</view>
+									<view class="resume-content-subtitle">{{item.college_name}}</view>
+									<view class="resume-content-text">{{item.major}}</view>
+								</view>
+							</view>
+						</view>
+						<view v-else class="resume-default">暂无</view>
+					</view>
+				</view>
+			</view>
+
+			<safe-area :type="tabUser ? 'tabBar' : 'bottom'"></safe-area>
+		</pull-down>
 	</view>
 
 	<share-handler ref="share"></share-handler>
@@ -179,7 +183,7 @@
 				navBarAvatarOpacity: 0,
 				tabBackground: "rgba(0, 0, 0, 0)",
 				tabIndex: 0,
-				userInfo: {},
+				cloudUserInfo: {},
 				currentUser: false,
 				posts: [],
 				count: {
@@ -189,7 +193,9 @@
 				colleges: [],
 				resumes: [],
 				loadMore: "",
-				noMore: false
+				noMore: false,
+				lover_avatar_url: "",
+				view_count: 0
 			};
 		},
 		mounted() {
@@ -206,6 +212,7 @@
 
 				if (this.userId == uid) {
 					this.currentUser = true;
+					this.getViewCount();
 				}
 
 				this.getUserInfo();
@@ -219,9 +226,19 @@
 		computed: {
 			hasLogin() {
 				return store.hasLogin;
+			},
+			userInfo() {
+				if (this.currentUser) {
+					return store.userInfo;
+				} else {
+					return this.cloudUserInfo;
+				}
 			}
 		},
 		methods: {
+			refreshStart() {
+				this.getUserInfo();
+			},
 			toUserDetail() {
 				if (this.userInfo.emotion_id == 6 && this.userInfo.lover_id) {
 					uni.navigateTo({
@@ -287,14 +304,19 @@
 				this.$refs.share.handleShare();
 			},
 			updateViewCount() {
-				utils.calc("uni-id-users", "view_count", this.userId, 1).then(res => {
-					// console.log(res);
-				});
+				utils.calc("uni-id-users", "view_count", this.userId, 1);
+			},
+			getViewCount() {
+				db.collection("uni-id-users").where(`_id == "${this.userId}"`)
+					.field("_id, view_count").get().then(res => {
+						// console.log(res);
+						this.view_count = res.result.data[0].view_count;
+					});
 			},
 			getResumes() {
 				db.collection("db-users-resumes").where(`user_id == "${this.userId}"`).orderBy("start_date desc")
 					.get().then(res => {
-						console.log(res);
+						// console.log(res);
 						this.resumes = res.result.data;
 					});
 			},
@@ -349,6 +371,9 @@
 					this.posts = resData;
 
 					this.loadMore = "";
+					setTimeout(() => {
+						this.$refs.refresh.success();
+					}, 300);
 				})
 			},
 			getUserInfo() {
@@ -356,13 +381,13 @@
 					.field(
 						"_id, avatar_file, nickname, intro, gender, birth_date, hometown, region, emotion_id, emotion_name, lover_id, status_id, status_name, view_count"
 					).get().then(res => {
-						this.userInfo = res.result.data[0];
-						this.$emit("userInfo", this.userInfo);
+						this.cloudUserInfo = res.result.data[0];
+						this.$emit("userInfo", this.cloudUserInfo);
 
 						if (this.userInfo.lover_id) {
 							db.collection("uni-id-users").where(`_id == "${this.userInfo.lover_id}"`)
 								.field("_id, avatar_file").get().then(res => {
-									this.userInfo.lover_avatar = res.result.data[0].avatar_file.url;
+									this.lover_avatar_url = res.result.data[0].avatar_file.url;
 								});
 						}
 
@@ -508,9 +533,10 @@
 						align-items: center;
 						width: 40rpx;
 						height: 40rpx;
-						background: #eee;
+						padding-top: 1rpx;
+						background: #f2f2f2;
 						border-radius: 10rpx;
-						font-size: 20rpx;
+						font-size: 24rpx;
 						font-weight: normal;
 						margin-left: 20rpx;
 
@@ -519,7 +545,7 @@
 						}
 
 						&.female {
-							color: pink;
+							color: hotpink;
 						}
 					}
 				}
