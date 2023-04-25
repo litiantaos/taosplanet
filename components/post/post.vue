@@ -47,8 +47,9 @@
 			</view>
 
 			<view v-if="post.shared_post_id" class="shared-post" @click.stop="toPostDetail({isShare: true})">
-				<cloud-file v-if="sharedPost.images || sharedPost.user_id" :src="fileUrls[0] || sharedPost.user_id[0]"
-					width="130rpx" height="130rpx"></cloud-file>
+				<cloud-file v-if="sharedPost.images || sharedPost.user_id"
+					:src="(sharedPost.images && sharedPost.images[0]) || sharedPost.user_id[0]" width="130rpx"
+					height="130rpx"></cloud-file>
 				<view class="shared-post_content">
 					<view class="shared-post_content-text">
 						<text class="text">{{sharedPost.content}}</text>

@@ -408,21 +408,20 @@
 
 		.reset-position,
 		.refresh {
-			width: 70rpx;
-			height: 70rpx;
+			width: 80rpx;
+			height: 80rpx;
 			background: #fff;
 			border-radius: 10rpx;
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			line-height: 100%;
 		}
 
 		.reset-position {
 			margin-top: 20rpx;
 
 			.iconfont {
-				font-size: 36rpx;
+				font-size: 40rpx;
 				color: #666;
 
 				&.active {
@@ -450,7 +449,7 @@
 		.refresh {
 
 			.iconfont {
-				font-size: 36rpx;
+				font-size: 40rpx;
 				color: #999;
 
 				&.active {

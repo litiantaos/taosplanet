@@ -29,8 +29,9 @@
 	.load-more {
 		display: flex;
 		justify-content: center;
-		padding: $uni-spacing-base;
-		font-size: $uni-font-size-sm;
+		align-items: center;
+		height: 80rpx;
+		font-size: 24rpx;
 		color: $uni-text-color-grey-l;
 
 		.loading {
@@ -39,7 +40,7 @@
 			align-items: center;
 
 			.iconfont {
-				font-size: 34rpx;
+				font-size: 40rpx;
 				color: #999;
 				animation: loading 1s linear infinite;
 

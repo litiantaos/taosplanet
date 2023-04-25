@@ -14,7 +14,7 @@
 
 			<view class="button" @click="publish">发布</view>
 		</view>
-
+		<safe-area type="bottom"></safe-area>
 	</view>
 
 	<toast ref="toast"></toast>

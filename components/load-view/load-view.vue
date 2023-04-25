@@ -61,7 +61,7 @@
 		transition: opacity .3s;
 
 		.iconfont {
-			font-size: $uni-font-size-xxl;
+			font-size: 40rpx;
 			color: #999;
 			animation: loading 1s linear infinite;
 

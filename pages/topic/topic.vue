@@ -1,11 +1,9 @@
 <template>
 	<view>
-		<nav-bar background="rgba(0,0,0,0)"></nav-bar>
+		<nav-bar></nav-bar>
+		<safe-area></safe-area>
 
-		<view class="header">
-			<view class="wallpaper"></view>
-			<view class="title">{{topic.name}}</view>
-		</view>
+		<view class="title" :style="{top: navHeight + 'px'}">{{topic.name}}</view>
 
 		<view class="container">
 			<view v-for="(item, index) in posts" :key="index">
@@ -42,7 +40,8 @@
 				noMore: false,
 				isLoading: true,
 				posts: [],
-				topic: {}
+				topic: {},
+				navHeight: 0
 			};
 		},
 		onLoad(e) {
@@ -51,6 +50,12 @@
 				this.getTopic();
 				this.getPosts();
 			}
+
+			let {
+				statusBarHeight
+			} = getApp().globalData.systemInfo;
+
+			this.navHeight = statusBarHeight + 44;
 		},
 		methods: {
 			getTopic() {
@@ -141,24 +146,16 @@
 </script>
 
 <style lang="scss" scoped>
-	.header {
-		width: 100%;
-		height: 400rpx;
-		position: relative;
-
-		.wallpaper {
-			width: 100%;
-			height: 100%;
-			background: #fff;
-		}
-
-		.title {
-			position: absolute;
-			bottom: 25rpx;
-			left: 25rpx;
-			font-size: 42rpx;
-			font-weight: bold;
-		}
+	.title {
+		position: sticky;
+		height: 100rpx;
+		display: flex;
+		align-items: center;
+		font-size: 45rpx;
+		font-weight: bold;
+		padding: 25rpx;
+		background: #f5f5f5;
+		z-index: 990;
 	}
 
 	.container {

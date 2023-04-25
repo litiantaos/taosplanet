@@ -102,7 +102,7 @@
 
 			.textarea {
 				width: 100%;
-				height: 500rpx;
+				height: 400rpx;
 				line-height: 50rpx;
 				text-align: justify;
 			}
