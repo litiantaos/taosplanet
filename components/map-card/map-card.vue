@@ -86,9 +86,9 @@
 			position: absolute;
 			bottom: 0;
 			left: 0;
-			width: 50%;
+			width: 100%;
 			height: 100%;
-			background-image: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+			background-image: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 60%);
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-end;
@@ -98,12 +98,14 @@
 				font-size: 28rpx;
 				font-weight: bold;
 				color: #333;
+				width: fit-content;
 			}
 
 			.footprint-text {
 				font-size: 22rpx;
 				color: #666;
 				margin-top: 10rpx;
+				width: fit-content;
 			}
 		}
 

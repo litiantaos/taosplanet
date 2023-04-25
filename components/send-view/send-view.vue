@@ -26,6 +26,7 @@
 					<view v-else-if="tempReplyMsg.images" class="reply-text">[图片]</view>
 					<view v-else-if="tempReplyMsg.videos" class="reply-text">[视频]</view>
 				</view>
+
 				<view class="iconfont icon-close-circle-fill" @click="removeReply"></view>
 			</view>
 
@@ -122,6 +123,7 @@
 		methods: {
 			removeReply() {
 				this.tempReplyMsg = {};
+				this.footerOffsetY = 0;
 			},
 			getHeight() {
 				const query = uni.createSelectorQuery().in(this);
@@ -160,6 +162,7 @@
 				this.tempImagePaths = [];
 				this.tempVideoPaths = [];
 				this.tempReplyMsg = {};
+				this.footerOffsetY = 0;
 			},
 			chooseMedia() {
 				uni.chooseMedia({

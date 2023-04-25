@@ -173,15 +173,14 @@
 					display: flex;
 					align-items: center;
 					margin-bottom: 10rpx;
+					font-size: 24rpx;
 
 					.msg-name {
-						font-size: 24rpx;
 						font-weight: bold;
 						color: #666;
 					}
 
 					.msg-time {
-						font-size: 22rpx;
 						color: #999;
 						margin: 0 20rpx;
 					}
@@ -276,7 +275,7 @@
 			}
 
 			.wrap-fun {
-				padding: 40rpx 30rpx;
+				padding: 50rpx 30rpx 0;
 				display: flex;
 
 				.fun-btn {
@@ -289,7 +288,6 @@
 					align-items: center;
 					font-size: 30rpx;
 					color: #666;
-					margin: 0 10rpx;
 				}
 			}
 		}

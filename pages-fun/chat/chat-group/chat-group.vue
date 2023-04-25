@@ -270,6 +270,7 @@
 				this.msgs.push(this.tempMsg);
 
 				this.$refs.sendView.reset();
+				this.autoFocus = false;
 			},
 			onFocus(e) {
 				this.keyboardHeight = e;

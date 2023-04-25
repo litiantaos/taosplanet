@@ -29,6 +29,9 @@
 			},
 			getColleges() {
 				this.$refs.userDetail.getColleges();
+			},
+			getPosts() {
+				this.$refs.userDetail.getPosts();
 			}
 		},
 		onReachBottom() {
