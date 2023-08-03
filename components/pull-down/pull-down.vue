@@ -1,9 +1,6 @@
 <template>
-	<view class="pull-down">
-		<safe-area v-if="mode == 'full'"></safe-area>
-		<view class="container" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
-			<slot></slot>
-		</view>
+	<view class="pull-down" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
+		<slot></slot>
 	</view>
 
 	<toast ref="toast"></toast>

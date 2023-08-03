@@ -79,13 +79,14 @@
 
 		&.light {
 			background: #eee;
-			opacity: 0.9;
+			opacity: 0.95;
 			filter: invert(10%);
 			color: #999;
 		}
 
 		&.dark {
 			background: #333;
+			opacity: 0.95;
 			color: #fff;
 		}
 

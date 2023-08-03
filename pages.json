@@ -58,6 +58,18 @@
 			"enablePullDownRefresh": true,
 			"navigationStyle": "custom"
 		}
+	}, {
+		"path": "pages/project/project",
+		"style": {
+			"navigationBarTitleText": "项目",
+			"enablePullDownRefresh": true
+		}
+	}, {
+		"path": "pages/project/project-detail/project-detail",
+		"style": {
+			"navigationBarTitleText": "",
+			"enablePullDownRefresh": false
+		}
 	}],
 	"subPackages": [{
 			"root": "pages-post",
@@ -202,7 +214,7 @@
 			},
 			{
 				"text": "",
-				"pagePath": "pages/discover/discover"
+				"pagePath": "pages/projects/projects"
 			},
 			{
 				"text": "",

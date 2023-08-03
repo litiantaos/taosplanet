@@ -9,15 +9,15 @@
 
 			<view class="deadline">
 				截止报名：
-				<uni-dateformat :date="event.deadline" format="MM/dd hh:mm"></uni-dateformat>
+				<uni-dateformat :date="event.deadline" format="yyyy/MM/dd hh:mm"></uni-dateformat>
 			</view>
 
 			<view class="date">
 				活动时间：
-				<uni-dateformat :date="event.start_date" format="MM/dd hh:mm"></uni-dateformat>
+				<uni-dateformat :date="event.start_date" format="yyyy/MM/dd hh:mm"></uni-dateformat>
 				<view v-if="event.end_date">
 					<text style="margin: 0 15rpx;">-</text>
-					<uni-dateformat :date="event.end_date" format="MM/dd hh:mm"></uni-dateformat>
+					<uni-dateformat :date="event.end_date" format="yyyy/MM/dd hh:mm"></uni-dateformat>
 				</view>
 			</view>
 
@@ -37,8 +37,8 @@
 			<view class="info">
 				<view>{{event.view_count}}人看过</view>
 				<view>
-					<uni-dateformat :date="event.publish_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
-					</uni-dateformat>发布
+					<uni-dateformat :date="event.publish_date" format="yyyy/M/d h:mm" :threshold="[60000, 3600000*24*30]">
+					</uni-dateformat> 发布
 				</view>
 			</view>
 		</view>

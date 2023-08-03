@@ -7,6 +7,12 @@
 
 		<load-view :isLoading="isLoading"></load-view>
 
+		<float-search custom btnText="PARTY" @onSearch="toSearch" @onButton="toEvent"></float-search>
+
+		<view style="margin-bottom: 95rpx;">
+			<safe-area></safe-area>
+		</view>
+
 		<pull-down @show="refreshShow" @start="refreshStart" mode="full" ref="refresh">
 			<swiper v-if="banners.length" class="banner">
 				<swiper-item v-for="(item, index) in banners" :key="index">
@@ -118,6 +124,7 @@
 			},
 			clickTab(e) {
 				// console.log(e);
+				if (e != 0) return;
 				if (this.scrollTop > 0) {
 					uni.pageScrollTo({
 						scrollTop: 0
@@ -134,6 +141,11 @@
 							url: "/pages/search/search"
 						});
 					}
+				});
+			},
+			toEvent() {
+				uni.navigateTo({
+					url: "/pages-fun/event/event"
 				});
 			},
 			toPostPublish() {

@@ -45,7 +45,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding-bottom: env(safe-area-inset-bottom);
+		// padding-bottom: env(safe-area-inset-bottom);
 
 		.video {
 			width: 100%;

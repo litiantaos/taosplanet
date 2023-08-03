@@ -384,13 +384,13 @@
 		background: #fff;
 
 		&.card {
-			padding: $uni-spacing-base;
-			margin-bottom: $uni-spacing-base;
-			border-radius: $uni-border-radius-lg;
+			padding: 25rpx;
+			margin-bottom: 25rpx;
+			border-radius: 20rpx;
 		}
 
 		&.no-card {
-			padding: $uni-spacing-xl $uni-spacing-base;
+			padding: 50rpx 25rpx;
 		}
 
 		.header {

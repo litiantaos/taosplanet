@@ -38,7 +38,7 @@
 						"text": "发现",
 						"iconPath": "/static/icons/discover.svg",
 						"selectedIconPath": "/static/icons/discover-fill.svg",
-						"pagePath": "/pages/discover/discover"
+						"pagePath": "/pages/projects/projects"
 					},
 					{
 						"text": "消息",

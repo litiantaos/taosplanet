@@ -8,7 +8,7 @@
 					<short-name :data="data.region.city"></short-name>
 				</view>
 				<view class="tag">
-					<uni-dateformat :date="data.deadline" format="MM/dd hh:mm"></uni-dateformat>
+					<uni-dateformat :date="data.deadline" format="yyyy/MM/dd hh:mm"></uni-dateformat>
 					截止
 				</view>
 			</view>
@@ -28,7 +28,7 @@
 			</view>
 
 			<view class="description">
-				<uni-dateformat :date="data.publish_date" format="MM/dd hh:mm"></uni-dateformat>
+				<uni-dateformat :date="data.publish_date" format="yyyy/MM/dd"></uni-dateformat>
 				发起
 			</view>
 		</view>

@@ -61,7 +61,7 @@
 	<popup ref="popup"></popup>
 	<toast ref="toast"></toast>
 
-	<tab-bar :index="1"></tab-bar>
+	<!-- <tab-bar :index="1"></tab-bar> -->
 </template>
 
 <script>

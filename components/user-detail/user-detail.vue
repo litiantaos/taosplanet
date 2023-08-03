@@ -68,9 +68,9 @@
 					</view>
 				</view>
 
-				<view class="footprint">
+				<!-- <view class="footprint">
 					<map-card :data="userInfo.region" :showFront="true" title="足迹" text="去过的地方" @click="toFootprint"></map-card>
-				</view>
+				</view> -->
 			</view>
 
 			<tab :tabs="['动态', '经历']" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx"
@@ -448,7 +448,7 @@
 			border-radius: 20rpx;
 			overflow: hidden;
 			position: relative;
-			margin-bottom: 25rpx;
+			// margin-bottom: 25rpx;
 
 			.background-wall {
 				width: 100%;
