@@ -6,12 +6,6 @@
 			"navigationStyle": "custom"
 		}
 	}, {
-		"path": "pages/discover/discover",
-		"style": {
-			"navigationBarTitleText": "",
-			"navigationStyle": "custom"
-		}
-	}, {
 		"path": "pages/message/message",
 		"style": {
 			"navigationBarTitleText": "消息",
@@ -214,7 +208,7 @@
 			},
 			{
 				"text": "",
-				"pagePath": "pages/projects/projects"
+				"pagePath": "pages/project/project"
 			},
 			{
 				"text": "",
