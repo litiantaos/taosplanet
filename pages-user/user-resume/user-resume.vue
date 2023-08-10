@@ -220,7 +220,7 @@
 						field: "_id, code, name, type",
 						orderBy: "code"
 					},
-					success: (res) => {
+					success: res => {
 						// console.log(res);
 						this.data.industry_id = res[3];
 						this.data.industry_name = res[1];

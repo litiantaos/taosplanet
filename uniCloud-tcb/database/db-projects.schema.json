@@ -1,0 +1,105 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id",
+		"title"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"title": {
+			"bsonType": "string",
+			"title": "标题",
+			"trim": "both"
+		},
+		"industry_id": {
+			"bsonType": "string",
+			"title": "行业 ID",
+			"foreignKey": "db-industries._id"
+		},
+		"industry_name": {
+			"bsonType": "string",
+			"title": "行业"
+		},
+		"content": {
+			"bsonType": "string",
+			"title": "内容"
+		},
+		"images": {
+			"bsonType": "array",
+			"title": "图片"
+		},
+		"file": {
+			"bsonType": "object",
+			"title": "文件"
+		},
+		"view_count": {
+			"bsonType": "int",
+			"title": "浏览量",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"support_count": {
+			"bsonType": "int",
+			"title": "支持数",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"publish_date": {
+			"bsonType": "timestamp",
+			"title": "发布时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"publish_ip": {
+			"bsonType": "string",
+			"title": "发布 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"is_modified": {
+			"bsonType": "bool",
+			"description": "true is modified, false is unmodified",
+			"defaultValue": false
+		},
+		"last_modify_date": {
+			"bsonType": "timestamp",
+			"title": "最后修改时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"last_modify_ip": {
+			"bsonType": "string",
+			"title": "最后修改 IP",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"sec_check": {
+			"bsonType": "int",
+			"defaultValue": 0,
+			"description": "0 通过 1 违规 2 错误"
+		}
+	}
+}

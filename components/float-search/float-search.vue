@@ -1,6 +1,9 @@
 <template>
 	<view class="header" :style="{top: `${height}px`, transform: (offsetY ? 'translateY(-100%)' : 'translateY(0)')}">
-		<view class="search-box" @click="onSearch">{{searchText}}</view>
+		<view class="search-box" @click="onSearch">
+			<view class="iconfont icon-search"></view>
+			<view class="search-text">{{searchText}}</view>
+		</view>
 		<view class="search-btn" @click="onButton">
 			<view v-if="iconName" :class="`iconfont icon-${iconName}`"></view>
 			<view v-else class="">{{btnText}}</view>
@@ -102,6 +105,10 @@
 
 			&:active {
 				background: #ccc;
+			}
+
+			.search-text {
+				margin-left: 20rpx;
 			}
 		}
 

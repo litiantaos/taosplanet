@@ -2,17 +2,18 @@
 	<view>
 		<view class="card" @click="toProjectDetail">
 			<view class="header">
-				<view class="title line-clamp">项目标题</view>
+				<view class="title line-clamp">{{data.title}}</view>
 				<view class="user">
-					<view class="avatar"></view>
-					<view class="username">李天涛</view>
+					<cloud-file class="avatar" :src="data.user_id[0]" width="40rpx" height="40rpx"
+						borderRadius="50%"></cloud-file>
+					<view class="username">{{data.user_id[0].nickname}}</view>
 				</view>
 				<view class="intro line-clamp">项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介</view>
 			</view>
 			<view class="body">
 				<view class="investors">
 					<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
-					<view class="text">5人已投资</view>
+					<view class="text">5人已支持</view>
 				</view>
 			</view>
 			<view class="footer">
@@ -28,6 +29,12 @@
 <script>
 	export default {
 		name: "project-card",
+		props: {
+			data: {
+				type: Object,
+				default: {}
+			},
+		},
 		data() {
 			return {
 				avatars: [1, 2, 3, 4]
