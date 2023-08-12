@@ -8,10 +8,10 @@
 						borderRadius="50%"></cloud-file>
 					<view class="username">{{data.user_id[0].nickname}}</view>
 				</view>
-				<view class="intro line-clamp">项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介项目简介</view>
+				<view class="intro line-clamp">{{data.excerpt}}</view>
 			</view>
 			<view class="body">
-				<view class="investors">
+				<view v-if="data.investors" class="investors">
 					<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
 					<view class="text">5人已支持</view>
 				</view>
@@ -43,7 +43,7 @@
 		methods: {
 			toProjectDetail() {
 				uni.navigateTo({
-					url: "/pages/project/project-detail/project-detail"
+					url: "/pages-project/project-detail/project-detail?id=" + this.data._id
 				});
 			},
 		}

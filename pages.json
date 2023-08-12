@@ -58,21 +58,45 @@
 			"navigationBarTitleText": "项目",
 			"enablePullDownRefresh": true
 		}
-	}, {
-		"path": "pages/project/project-detail/project-detail",
-		"style": {
-			"navigationBarTitleText": "",
-			"enablePullDownRefresh": false
-		}
-	}, {
-		"path": "pages/project/project-create/project-create",
-		"style": {
-			"navigationBarTitleText": "创建项目",
-			"navigationBarBackgroundColor": "#fff",
-			"backgroundColor": "#fff"
-		}
 	}],
 	"subPackages": [{
+			"root": "pages-project",
+			"pages": [{
+				"path": "project-detail/project-detail",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationBarBackgroundColor": "#fff",
+					"backgroundColor": "#fff",
+					"enablePullDownRefresh": true
+				}
+			}, {
+				"path": "project-create/project-create",
+				"style": {
+					"navigationBarTitleText": "创建项目",
+					"navigationBarBackgroundColor": "#fff",
+					"backgroundColor": "#fff"
+				}
+			}, {
+				"path": "position/position",
+				"style": {
+					"navigationBarTitleText": "招募伙伴",
+					"enablePullDownRefresh": true
+				}
+			}, {
+				"path": "position/position-create/position-create",
+				"style": {
+					"navigationBarTitleText": "发布职位",
+					"enablePullDownRefresh": false
+				}
+			}, {
+				"path": "project-transfer/project-transfer",
+				"style": {
+					"navigationBarTitleText": "",
+					"enablePullDownRefresh": false
+				}
+			}]
+		},
+		{
 			"root": "pages-post",
 			"pages": [{
 				"path": "post-detail/post-detail",

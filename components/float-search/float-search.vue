@@ -122,8 +122,10 @@
 			background: #e5e5e5;
 			border-radius: 20rpx;
 			margin-left: 20rpx;
-			font-size: 28rpx;
 			font-family: "Asap", sans-serif;
+			font-size: 28rpx;
+			font-weight: 700;
+			font-style: italic;
 			color: #333;
 			transition: background .2s;
 

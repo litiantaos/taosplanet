@@ -1,6 +1,9 @@
 <template>
 	<view>
-		<float-search iconName="add" @onSearch="toSearch" @onButton="toCreate"></float-search>
+		<view class="header-bar">
+			<view class="iconfont icon-search header-btn"></view>
+			<view class="iconfont icon-add-circle header-btn" @click="toCreate"></view>
+		</view>
 
 		<view class="main">
 			<view class="" v-for="(item, index) in projects" :key="index">
@@ -11,10 +14,18 @@
 		<safe-area type="tabBar"></safe-area>
 	</view>
 
+	<popup ref="popup"></popup>
+
 	<tab-bar :index="1"></tab-bar>
 </template>
 
 <script>
+	import {
+		store
+	} from "@/uni_modules/uni-id-pages/common/store.js";
+
+	import pagesJson from "@/pages.json";
+
 	const db = uniCloud.database();
 
 	export default {
@@ -38,7 +49,8 @@
 					skip = this.projects.length;
 				}
 
-				let tempProjects = db.collection("db-projects").where(`sec_check != 1`).orderBy("last_modify_date desc")
+				let tempProjects = db.collection("db-projects").where(`sec_check != 1`)
+					.field("_id, user_id, title, excerpt").orderBy("last_modify_date desc")
 					.skip(skip).limit(20).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
@@ -66,9 +78,23 @@
 				});
 			},
 			toCreate() {
-				uni.navigateTo({
-					url: "/pages/project/project-create/project-create"
-				});
+				if (store.hasLogin) {
+					uni.navigateTo({
+						url: "/pages-project/project-create/project-create"
+					});
+				} else {
+					this.$refs.popup.show({
+						type: "text",
+						title: "提示",
+						text: "请登录后再继续吧！",
+						success: () => {
+							this.$refs.popup.hide();
+							uni.navigateTo({
+								url: "/" + pagesJson.uniIdRouter.loginPage
+							});
+						}
+					});
+				}
 			},
 		},
 		onPageScroll(e) {
@@ -79,6 +105,24 @@
 
 <style lang="scss" scoped>
 	.main {
-		margin-top: 120rpx;
+		margin-top: 90rpx;
+	}
+
+	.header-bar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 80rpx;
+		background: #f5f5f5;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 0 25rpx;
+
+		.header-btn {
+			font-size: 42rpx;
+			margin-left: 35rpx;
+		}
 	}
 </style>

@@ -1,0 +1,66 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id",
+		"title"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"project_id": {
+			"bsonType": "string",
+			"foreignKey": "db-projects._id"
+		},
+		"title": {
+			"bsonType": "string",
+			"title": "标题",
+			"trim": "both"
+		},
+		"description": {
+			"bsonType": "string",
+			"title": "内容"
+		},
+		"education_id": {
+			"bsonType": "int",
+			"title": "学历 ID"
+		},
+		"education_name": {
+			"bsonType": "string",
+			"title": "学历"
+		},
+		"experience_id": {
+			"bsonType": "int",
+			"title": "经验 ID"
+		},
+		"experience_name": {
+			"bsonType": "string",
+			"title": "经验"
+		},
+		"salary_min": {
+			"bsonType": "int",
+			"title": "薪资低"
+		},
+		"salary_max": {
+			"bsonType": "int",
+			"title": "薪资高"
+		},
+		"salary_num": {
+			"bsonType": "int",
+			"title": "薪数"
+		}
+	}
+}

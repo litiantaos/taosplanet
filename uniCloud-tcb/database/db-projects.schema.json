@@ -39,9 +39,10 @@
 			"bsonType": "string",
 			"title": "内容"
 		},
-		"images": {
-			"bsonType": "array",
-			"title": "图片"
+		"excerpt": {
+			"bsonType": "string",
+			"title": "摘要",
+			"trim": "both"
 		},
 		"file": {
 			"bsonType": "object",

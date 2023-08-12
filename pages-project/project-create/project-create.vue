@@ -8,11 +8,11 @@
 			</view>
 		</view>
 
-		<editor id="editor" class="editor" placeholder="项目介绍" @ready="onEditorReady" @focus="onFocus" @blur="onBlur"
+		<editor id="editor" placeholder="项目介绍" @ready="onEditorReady" @focus="onFocus" @blur="onBlur"
 			@statuschange="onStatusChange" show-img-toolbar>
 		</editor>
 
-		<view v-if="isToolShow" class="toolbar" :style="{transform: `translateY(${-height}px)`}">
+		<view v-if="isToolShow" class="toolbar" :style="{bottom: `${height}px`}">
 			<view class="iconfont icon-header" :class="{'active': isHeader}" @click="onHeader"></view>
 			<view class="iconfont icon-bold" :class="{'active': isBold}" @click="onBold"></view>
 			<view class="iconfont icon-list-u" :class="{'active': isListBullet}" @click="onListBullet"></view>
@@ -31,10 +31,6 @@
 		</view>
 
 		<view class="confirm-wrap">
-			<view class="fun-btn">
-				<view class="">招募伙伴</view>
-				<i class="iconfont icon-arrow-right-t"></i>
-			</view>
 			<view v-if="data.title && data.industry_name" class="confirm-btn iconfont icon-tick" @click="onConfirm">
 			</view>
 		</view>
@@ -46,12 +42,7 @@
 
 <script>
 	import {
-		store
-	} from "@/uni_modules/uni-id-pages/common/store.js";
-
-	import {
-		throttle,
-		getImgSrcs
+		throttle
 	} from "@/common/utils.js";
 
 	import {
@@ -61,9 +52,6 @@
 	} from "@/common/cloud.js";
 
 	const db = uniCloud.database();
-	const utils = uniCloud.importObject("utils", {
-		customUI: true
-	});
 
 	export default {
 		data() {
@@ -76,7 +64,7 @@
 				keyboardHeight: 0,
 				height: 0,
 				tempFile: {},
-				tempImagePaths: [],
+				images: [],
 				data: {},
 			};
 		},
@@ -84,6 +72,11 @@
 			uni.onKeyboardHeightChange(res => {
 				// console.log(res);
 				this.keyboardHeight = res.height;
+				if (this.keyboardHeight > 0) {
+					uni.pageScrollTo({
+						scrollTop: 0
+					})
+				}
 			});
 		},
 		methods: {
@@ -103,9 +96,9 @@
 					}
 				});
 
-				if (this.data.images?.length) {
+				if (this.images.length) {
 					// 图片安全检测
-					this.data.images.map(async item => {
+					this.images.map(async item => {
 						await checkMedia(item).then(res => {
 							console.log(res);
 							if (res == 1) {
@@ -134,12 +127,41 @@
 					}
 
 					setTimeout(() => {
-						uni.reLaunch({
-							url: "/pages/project/project"
+						uni.navigateTo({
+							url: "/pages-project/project-transfer/project-transfer?id=" + res.result.id
 						});
 					}, 1000);
 				});
 			},
+
+			async replaceImgSrc(html) {
+				const imgRegex = /<img [^>]*src=['"]([^'"]+)['"][^>]*>/gi;
+				const imgTags = html.match(imgRegex);
+
+				const srcRegex = /src=['"]([^'"]+)['"]/i;
+				const srcUrls = imgTags.map(tag => {
+					const match = srcRegex.exec(tag);
+					return match[1];
+				});
+
+				const cSrcs = await uploadFile({
+					tempPaths: srcUrls,
+					path: "projects/images/",
+					user_id: ""
+				});
+
+				let result = html;
+
+				cSrcs.forEach((cSrc, i) => {
+					result = result.replace(srcUrls[i], cSrc);
+				});
+
+				return {
+					result,
+					cSrcs
+				};
+			},
+
 			onConfirm: throttle(async function() {
 				this.$refs.toast.show({
 					type: "loading",
@@ -150,18 +172,14 @@
 				this.editorCtx.getContents({
 					success: async res => {
 						// console.log(res);
-						this.data.content = res.html;
-						this.tempImagePaths = getImgSrcs(res.html);
-						// console.log(this.tempImagePaths);
+						const {
+							result,
+							cSrcs
+						} = await this.replaceImgSrc(res.html);
 
-						if (this.tempImagePaths.length) {
-							let fileIds = await uploadFile({
-								tempPaths: this.tempImagePaths,
-								path: "projects/images/"
-							});
-
-							this.data.images = fileIds;
-						}
+						this.data.content = result;
+						this.images = cSrcs;
+						this.data.excerpt = res.text.slice(0, 50);
 
 						if (this.tempFile.path) {
 							let fileIds = await uploadFile({
@@ -365,11 +383,10 @@
 			}
 		}
 
-		.editor {
+		#editor {
 			height: calc(100vh - 500rpx);
-			line-height: 2em;
-			text-align: justify;
 			margin-top: 25rpx;
+			color: #333;
 		}
 
 		.toolbar {
@@ -381,7 +398,7 @@
 			background: #f5f5f5;
 			position: fixed;
 			left: 0;
-			bottom: 25rpx;
+			z-index: 999;
 
 			.iconfont {
 				font-size: 45rpx;
@@ -480,8 +497,6 @@
 			align-items: center;
 			font-size: 36rpx;
 			color: #fff;
-			line-height: 100%;
-			margin-top: 50rpx;
 		}
 	}
 </style>

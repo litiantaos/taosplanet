@@ -54,15 +54,3 @@ export const throttle = function(func, wait = 2000, type = 1) {
 		}
 	}
 }
-
-export function getImgSrcs(html) {
-	const reg = /<img[^>]+src=['"]([^'"]+)['"][^>]*>/g;
-	const imgSrcs = [];
-
-	let match;
-	while ((match = reg.exec(html))) {
-		imgSrcs.push(match[1]);
-	}
-
-	return imgSrcs;
-}
