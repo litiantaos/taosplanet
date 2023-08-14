@@ -4,8 +4,7 @@
 			<view class="header">
 				<view class="title line-clamp">{{data.title}}</view>
 				<view class="user">
-					<cloud-file class="avatar" :src="data.user_id[0]" width="40rpx" height="40rpx"
-						borderRadius="50%"></cloud-file>
+					<cloud-file :src="data.user_id[0]" width="40rpx" height="40rpx" borderRadius="50%"></cloud-file>
 					<view class="username">{{data.user_id[0].nickname}}</view>
 				</view>
 				<view class="intro line-clamp">{{data.excerpt}}</view>
@@ -16,10 +15,10 @@
 					<view class="text">5人已支持</view>
 				</view>
 			</view>
-			<view class="footer">
+			<view v-if="positionsStr" class="footer">
 				<view class="partner">
 					<view class="title">招募</view>
-					<view class="text line-clamp">合伙人、设计师合伙人、设计师合伙人、设计师合伙人、设计师合伙人、设计师合伙人、设计师合伙人、设计师</view>
+					<view class="text line-clamp">{{positionsStr}}</view>
 				</view>
 			</view>
 		</view>
@@ -27,6 +26,8 @@
 </template>
 
 <script>
+	const db = uniCloud.database();
+
 	export default {
 		name: "project-card",
 		props: {
@@ -37,10 +38,24 @@
 		},
 		data() {
 			return {
-				avatars: [1, 2, 3, 4]
+				avatars: [1, 2, 3, 4],
+				positionsStr: ""
 			};
 		},
+		mounted() {
+			this.getPositions();
+		},
 		methods: {
+			getPositions() {
+				db.collection("db-positions").where(`project_id == "${this.data._id}"`).field("_id, title").get().then(res => {
+					// console.log(res.result.data);
+					let resData = res.result.data;
+					if (resData.length != 0) {
+						let str = resData.map(item => item.title).join("、");
+						this.positionsStr = str;
+					}
+				});
+			},
 			toProjectDetail() {
 				uni.navigateTo({
 					url: "/pages-project/project-detail/project-detail?id=" + this.data._id
@@ -54,7 +69,7 @@
 	.card {
 		background: #fff;
 		padding: 25rpx;
-		margin: 25rpx;
+		margin-bottom: 25rpx;
 		border-radius: 20rpx;
 
 		.title {
@@ -67,17 +82,10 @@
 			align-items: center;
 			margin: 20rpx 0;
 
-			.avatar {
-				width: 40rpx;
-				height: 40rpx;
-				border-radius: 50%;
-				background: #eee;
-				margin-right: 15rpx;
-			}
-
 			.username {
 				font-size: 28rpx;
 				color: #666;
+				margin-left: 15rpx;
 			}
 		}
 

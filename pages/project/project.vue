@@ -2,7 +2,10 @@
 	<view>
 		<view class="header-bar">
 			<view class="iconfont icon-search header-btn"></view>
-			<view class="iconfont icon-add-circle header-btn" @click="toCreate"></view>
+			<view class="group">
+				<view class="iconfont icon-wallet header-btn" @click="toWallet"></view>
+				<view class="iconfont icon-add-circle header-btn" @click="toCreate"></view>
+			</view>
 		</view>
 
 		<view class="main">
@@ -71,6 +74,10 @@
 
 				this.projects = resData;
 				console.log(this.projects);
+
+				setTimeout(() => {
+					uni.stopPullDownRefresh();
+				}, 500);
 			},
 			toSearch() {
 				uni.navigateTo({
@@ -97,6 +104,9 @@
 				}
 			},
 		},
+		onPullDownRefresh() {
+			this.getProjects();
+		},
 		onPageScroll(e) {
 			uni.$emit("onPageScroll", e.scrollTop);
 		}
@@ -105,7 +115,7 @@
 
 <style lang="scss" scoped>
 	.main {
-		margin-top: 90rpx;
+		margin: 90rpx 25rpx 0 25rpx;
 	}
 
 	.header-bar {
@@ -116,13 +126,22 @@
 		height: 80rpx;
 		background: #f5f5f5;
 		display: flex;
-		justify-content: flex-end;
+		justify-content: space-between;
 		align-items: center;
 		padding: 0 25rpx;
 
-		.header-btn {
+		.group {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+
+			.iconfont {
+				margin-left: 35rpx;
+			}
+		}
+
+		.iconfont {
 			font-size: 42rpx;
-			margin-left: 35rpx;
 		}
 	}
 </style>

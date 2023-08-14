@@ -57,6 +57,7 @@
 		},
 		onLoad(e) {
 			this.projectId = e.id;
+			console.log(this.projectId);
 		},
 		methods: {
 			onConfirm: throttle(async function() {
@@ -80,6 +81,11 @@
 					});
 
 					setTimeout(() => {
+						let pages = getCurrentPages();
+						let prevPage = pages[pages.length - 2];
+
+						prevPage.$vm.getPositions();
+
 						uni.navigateBack();
 					}, 1000);
 				});

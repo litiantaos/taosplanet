@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3993701 */
-  src: url('iconfont.woff?t=1691594165442') format('woff');
+  src: url('iconfont.woff?t=1692015993341') format('woff');
 }
 
 .iconfont {
@@ -9,6 +9,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-wallet:before {
+  content: "\e67f";
 }
 
 .icon-doc:before {

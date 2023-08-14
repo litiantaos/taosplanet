@@ -73,8 +73,8 @@
 				</view> -->
 			</view>
 
-			<tab :tabs="['动态', '经历']" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx"
-				:background="tabBackground" @change="tabChange"></tab>
+			<tab :tabs="tabs" position="sticky" :top="`${statusBarHeight + 44}px`" padding="25rpx" :background="tabBackground"
+				@change="tabChange"></tab>
 			<view class="tab-view">
 				<view v-if="tabIndex == 0">
 					<view v-for="(item, index) in posts" :key="index">
@@ -138,6 +138,12 @@
 						<view v-else class="resume-default">暂无</view>
 					</view>
 				</view>
+
+				<view v-if="tabIndex == 2">
+					<view v-for="(item, index) in projects" :key="index">
+						<project-card :data="item"></project-card>
+					</view>
+				</view>
 			</view>
 
 			<safe-area :type="tabUser ? 'tabBar' : 'bottom'"></safe-area>
@@ -181,6 +187,7 @@
 				statusBarHeight: 0,
 				navBarBackground: "rgba(0, 0, 0, 0)",
 				navBarAvatarOpacity: 0,
+				tabs: ['动态', '经历'],
 				tabBackground: "rgba(0, 0, 0, 0)",
 				tabIndex: 0,
 				cloudUserInfo: {},
@@ -195,7 +202,8 @@
 				loadMore: "",
 				noMore: false,
 				lover_avatar_url: "",
-				view_count: 0
+				view_count: 0,
+				projects: []
 			};
 		},
 		mounted() {
@@ -396,7 +404,21 @@
 						this.updateViewCount();
 						this.getColleges();
 						this.getResumes();
+						this.getProjects();
 					});
+			},
+			async getProjects() {
+				let tempProjects = db.collection("db-projects").where(`sec_check != 1 && user_id == "${this.userId}"`)
+					.field("_id, user_id, title, excerpt").orderBy("last_modify_date desc").getTemp();
+				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
+
+				let res = await db.collection(tempProjects, tempUsers).get();
+
+				this.projects = res.result.data;
+
+				if (this.projects.length > 0) {
+					this.tabs.push('项目');
+				}
 			},
 			toUserResume(e) {
 				uni.setStorageSync("user-resume", e);

@@ -1,7 +1,8 @@
 <template>
 	<view class="container">
 		<view class="input-wrap">
-			<input class="input" type="text" placeholder="项目标题" placeholder-class="placeholder-class" @input="onInput" />
+			<input class="input" type="text" v-model="inputVal" placeholder="项目标题" placeholder-class="placeholder-class"
+				@input="onInput" />
 			<view class="fun-btn">
 				<view class="" @click="editIndustry">{{data.industry_name ? data.industry_name : "选择行业"}}</view>
 				<i class="iconfont icon-arrow-right"></i>
@@ -25,7 +26,7 @@
 			<view class="left">{{tempFile.ext}}</view>
 			<view class="right">
 				<view class="name">{{tempFile.name}}</view>
-				<view class="size">{{tempFile.size}}</view>
+				<view class="size">{{tempFile.size}} {{fileStatus}}</view>
 			</view>
 			<view class="remove iconfont icon-close-circle-fill" @click.stop="removeFile"></view>
 		</view>
@@ -42,13 +43,19 @@
 
 <script>
 	import {
+		store
+	} from "@/uni_modules/uni-id-pages/common/store.js";
+
+	import {
 		throttle
 	} from "@/common/utils.js";
 
 	import {
 		uploadFile,
 		checkContent,
-		checkMedia
+		checkMedia,
+		getTempFileURL,
+		replaceImgSrc
 	} from "@/common/cloud.js";
 
 	const db = uniCloud.database();
@@ -66,9 +73,13 @@
 				tempFile: {},
 				images: [],
 				data: {},
+				editId: "",
+				inputVal: "",
+				fileStatus: "",
+				srcMap: {}
 			};
 		},
-		onLoad() {
+		onLoad(e) {
 			uni.onKeyboardHeightChange(res => {
 				// console.log(res);
 				this.keyboardHeight = res.height;
@@ -78,8 +89,66 @@
 					})
 				}
 			});
+
+			if (e.id) {
+				this.editId = e.id;
+				this.setData();
+			}
 		},
 		methods: {
+			async setData() {
+				const res = await db.collection("db-projects").where(`_id == "${this.editId}"`).get();
+
+				const resData = res.result.data[0];
+				console.log(resData);
+
+				this.inputVal = resData.title;
+				this.data.title = resData.title;
+
+				const {
+					nHtml,
+					srcMap
+				} = await replaceImgSrc(resData.content, "getTempFileURL");
+
+				this.editorCtx.setContents({
+					html: nHtml
+				});
+				this.data.content = resData.content;
+
+				this.srcMap = srcMap;
+
+				this.data.industry_id = resData.industry_id;
+				this.data.industry_name = resData.industry_name;
+
+				if (resData.file) {
+					const url = await getTempFileURL([resData.file.path]);
+
+					this.tempFile = resData.file;
+					this.tempFile.path = url[0];
+					this.data.file = resData.file;
+				}
+			},
+			afterAddData(id) {
+				if (this.data.sec_check && this.data.sec_check == 1) {
+					this.$refs.toast.show({
+						type: "error",
+						text: "内容违规，待人工审核",
+						duration: "2000"
+					});
+				} else {
+					this.$refs.toast.show({
+						type: "success",
+						text: "提交成功",
+						duration: "2000"
+					});
+				}
+
+				setTimeout(() => {
+					uni.navigateTo({
+						url: "/pages-project/project-transfer/project-transfer?id=" + id + "&userId=" + store.userInfo._id
+					});
+				}, 1000);
+			},
 			async addData() {
 				// 文本安全检测
 				await checkContent(this.data.title).then(res => {
@@ -109,57 +178,22 @@
 					});
 				}
 
-				db.collection("db-projects").add(this.data).then(async res => {
-					console.log("addData", res);
-
-					if (this.data.sec_check && this.data.sec_check == 1) {
-						this.$refs.toast.show({
-							type: "error",
-							text: "内容违规，待人工审核",
-							duration: "2000"
-						});
-					} else {
-						this.$refs.toast.show({
-							type: "success",
-							text: "提交成功",
-							duration: "2000"
-						});
-					}
-
-					setTimeout(() => {
-						uni.navigateTo({
-							url: "/pages-project/project-transfer/project-transfer?id=" + res.result.id
-						});
-					}, 1000);
-				});
-			},
-
-			async replaceImgSrc(html) {
-				const imgRegex = /<img [^>]*src=['"]([^'"]+)['"][^>]*>/gi;
-				const imgTags = html.match(imgRegex);
-
-				const srcRegex = /src=['"]([^'"]+)['"]/i;
-				const srcUrls = imgTags.map(tag => {
-					const match = srcRegex.exec(tag);
-					return match[1];
-				});
-
-				const cSrcs = await uploadFile({
-					tempPaths: srcUrls,
-					path: "projects/images/",
-					user_id: ""
-				});
-
-				let result = html;
-
-				cSrcs.forEach((cSrc, i) => {
-					result = result.replace(srcUrls[i], cSrc);
-				});
-
-				return {
-					result,
-					cSrcs
-				};
+				if (this.editId) {
+					db.collection("db-projects").where(`_id == "${this.editId}"`).update({
+						...this.data,
+						is_modified: true,
+						last_modify_date: db.getCloudEnv("$cloudEnv_now"),
+						last_modify_ip: db.getCloudEnv("$cloudEnv_clientIP")
+					}).then(res => {
+						console.log("update", res);
+						this.afterAddData(this.editId);
+					})
+				} else {
+					db.collection("db-projects").add(this.data).then(async res => {
+						console.log("add", res);
+						this.afterAddData(res.result.id);
+					});
+				}
 			},
 
 			onConfirm: throttle(async function() {
@@ -171,24 +205,48 @@
 
 				this.editorCtx.getContents({
 					success: async res => {
-						// console.log(res);
 						const {
-							result,
-							cSrcs
-						} = await this.replaceImgSrc(res.html);
+							nHtml,
+							nSrcs
+						} = await replaceImgSrc(res.html, "uploadFile", true, "projects/images/");
 
-						this.data.content = result;
-						this.images = cSrcs;
+						let newHtml = nHtml;
+
+						if (Object.keys(this.srcMap).length != 0) {
+							// 将临时链接替换为原fileId
+							const imgRegex = /<img[^>]*>/gi;
+							const imgTags = nHtml.match(imgRegex);
+
+							imgTags.forEach(tag => {
+								const src = tag.match(/src="([^"]+)"/)[1];
+								if (src in this.srcMap) {
+									newHtml = newHtml.replace(tag, tag.replace(src, this.srcMap[src]));
+								}
+							});
+						}
+
+						this.data.content = newHtml;
+
+						if (nSrcs) {
+							this.images = nSrcs;
+						}
+
 						this.data.excerpt = res.text.slice(0, 50);
 
-						if (this.tempFile.path) {
-							let fileIds = await uploadFile({
-								tempPaths: [this.tempFile.path],
+						const pattern = /^http:\/\/tmp\//;
+						const path = this.tempFile.path;
+
+						console.log(Object.keys(this.tempFile).length != 0, pattern.test(path), path);
+
+						if (Object.keys(this.tempFile).length != 0 && pattern.test(path)) {
+							let urls = await uploadFile({
+								tempPaths: [path],
 								path: "projects/files/"
 							});
 
 							this.data.file = this.tempFile;
-							this.data.file.path = fileIds[0];
+							this.data.file.path = urls[0];
+							console.log("data", this.data);
 						}
 
 						this.addData();
@@ -226,8 +284,6 @@
 					},
 					success: (res) => {
 						console.log(res);
-						// this.data.industry_id = res[3];
-						// this.data.industry_name = res[1];
 
 						this.data.industry_id = res[1].id;
 						this.data.industry_name = res[1].name;
@@ -296,6 +352,7 @@
 						this.$refs.popup.hide();
 						uni.chooseMessageFile({
 							count: 1,
+							type: "file",
 							extension: [".pdf", ".ppt", ".doc"],
 							success: res => {
 								console.log(res);
@@ -312,8 +369,22 @@
 				});
 			},
 			openFile() {
+				let path = this.tempFile.path;
+				const pattern = /^http:\/\/tmp\//;
+
+				if (!pattern.test(path)) {
+					this.fileStatus = "下载中";
+					uni.downloadFile({
+						url: path,
+						success: res => {
+							path = res.tempFilePath;
+							this.fileStatus = "";
+						}
+					});
+				}
+
 				uni.openDocument({
-					filePath: this.tempFile.path,
+					filePath: path,
 					showMenu: true,
 					success: res => {
 						console.log(res);
@@ -333,7 +404,7 @@
 				}
 			},
 			onStatusChange(e) {
-				console.log(e);
+				// console.log(e);
 				this.checkStatus("header", "2", e.detail, "isHeader");
 				this.checkStatus("bold", "strong", e.detail, "isBold");
 				this.checkStatus("list", "bullet", e.detail, "isListBullet");

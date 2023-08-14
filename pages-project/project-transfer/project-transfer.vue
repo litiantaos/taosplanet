@@ -11,16 +11,19 @@
 	export default {
 		data() {
 			return {
-				projectId: ""
+				projectId: "",
+				userId: ""
 			};
 		},
 		onLoad(e) {
 			this.projectId = e.id;
+			this.userId = e.userId;
+			console.log(e);
 		},
 		methods: {
 			toPosition() {
 				uni.navigateTo({
-					url: "/pages-project/position/position?id=" + this.projectId
+					url: "/pages-project/position/position?id=" + this.projectId + "&userId=" + this.userId
 				});
 			},
 			toProjectDetail() {

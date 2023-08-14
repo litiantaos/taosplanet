@@ -63,16 +63,14 @@
 			getItemOffsetXList() {
 				const query = uni.createSelectorQuery().in(this);
 				query.select(".tab").boundingClientRect(data => {
-					if (data && data.left) {
-						let tabLeft = data.left;
+					let tabLeft = data.left;
 
-						query.selectAll(".tab-item-title").boundingClientRect(data => {
-							this.itemOffsetXList = data.map(item => (item.left + item.right) / 2 - tabLeft);
-							this.itemWidthList = data.map(item => (item.right - item.left));
-							this.selectedIndex += 1;
-							this.selectedIndex -= 1;
-						}).exec();
-					}
+					query.selectAll(".tab-item-title").boundingClientRect(data => {
+						this.itemOffsetXList = data.map(item => (item.left + item.right) / 2 - tabLeft);
+						this.itemWidthList = data.map(item => (item.right - item.left));
+						this.selectedIndex += 1;
+						this.selectedIndex -= 1;
+					}).exec();
 				}).exec();
 			}
 		}

@@ -175,3 +175,56 @@ export async function uploadFile(e) {
 
 	return fileIdList;
 }
+
+export async function replaceImgSrc(html, func, isTmp, path) {
+	const imgReg = /<img[^>]*>/gi;
+	const tmpImgReg = /<img [^>]*src="http:\/\/tmp\/[^"]*"[^>]*>/gi;
+
+	let imgRegex = isTmp ? tmpImgReg : imgReg;
+
+	const imgTags = html.match(imgRegex);
+	const srcRegex = /src="([^"]+)"/;
+
+	// console.log("imgTags", imgTags);
+
+	let nHtml = html;
+
+	let result = {};
+
+	if (imgTags != null) {
+		const srcs = imgTags.map(tag => {
+			const match = srcRegex.exec(tag);
+			return match[1];
+		});
+
+		// console.log("srcs", srcs);
+
+		let nSrcs;
+
+		if (func == "uploadFile") {
+			nSrcs = await uploadFile({
+				tempPaths: srcs,
+				path: path
+			});
+		} else if (func == "getTempFileURL") {
+			nSrcs = await getTempFileURL(srcs);
+		}
+
+		const srcMap = {};
+		srcs.forEach((src, index) => {
+			srcMap[nSrcs[index]] = src;
+		});
+
+		nSrcs.forEach((nSrc, i) => {
+			nHtml = nHtml.replace(srcs[i], nSrc);
+		});
+
+		result.nHtml = nHtml;
+		result.nSrcs = nSrcs;
+		result.srcMap = srcMap;
+	} else {
+		result.nHtml = nHtml;
+	}
+
+	return result;
+}

@@ -27,6 +27,9 @@
 			},
 			getColleges() {
 				this.$refs.userDetail.getColleges();
+			},
+			getProjects() {
+				this.$refs.userDetail.getProjects();
 			}
 		},
 		onReachBottom() {

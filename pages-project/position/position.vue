@@ -1,11 +1,12 @@
 <template>
 	<view>
-		<view class="init-wrap" :style="{height: positions.length ? '200rpx' : '100vh'}">
+		<view v-if="hasLogin && userInfo._id == this.userId" class="init-wrap"
+			:style="{height: positions.length ? '200rpx' : '100vh'}">
 			<view v-if="!positions.length" class="text">你可以发布多个招募职位</view>
 			<view class="btn" @click="toCreate">发布职位</view>
 		</view>
 
-		<view class="card" v-for="(item, index) in positions" key="index">
+		<view class="card" v-for="(item, index) in positions" :key="index">
 			<view class="top">
 				<view class="title">{{item.title}}</view>
 				<!-- <view class="salary">12-20k·15薪</view> -->
@@ -20,24 +21,42 @@
 </template>
 
 <script>
+	import {
+		store
+	} from "@/uni_modules/uni-id-pages/common/store.js";
+
 	const db = uniCloud.database();
 
 	export default {
 		data() {
 			return {
 				positions: [],
-				projectId: ""
+				projectId: "",
+				userId: ""
 			};
 		},
 		onLoad(e) {
 			this.projectId = e.id;
+			this.userId = e.userId;
+			console.log(e);
 			this.getPositions();
+		},
+		computed: {
+			userInfo() {
+				return store.userInfo;
+			},
+			hasLogin() {
+				return store.hasLogin;
+			}
 		},
 		methods: {
 			getPositions() {
 				db.collection("db-positions").where(`project_id == "${this.projectId}"`).get().then(res => {
-					console.log(res);
+					// console.log(res);
 					this.positions = res.result.data;
+					setTimeout(() => {
+						uni.stopPullDownRefresh();
+					}, 500);
 				});
 			},
 			toCreate() {
@@ -45,6 +64,9 @@
 					url: "/pages-project/position/position-create/position-create?id=" + this.projectId
 				})
 			}
+		},
+		onPullDownRefresh() {
+			this.getPositions();
 		}
 	}
 </script>
