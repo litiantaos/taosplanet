@@ -20,7 +20,7 @@
 								@click="toUserInfo"></cloud-file>
 							<view class="visit-wrap">
 								<view class="visit-info">
-									访问量 <text style="font-weight: bold;">{{currentUser ? view_count : userInfo.view_count}}</text>
+									访问量 <text style="font-weight: bold;">{{view_count}}</text>
 								</view>
 								<view v-if="currentUser" class="func-btn" @click="toUserInfo">编辑信息</view>
 								<!-- <view v-else class="func-btn">加微信</view> -->

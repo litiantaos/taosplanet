@@ -56,13 +56,18 @@
 				"write": false
 			}
 		},
-		"support_count": {
+		"investor_count": {
 			"bsonType": "int",
-			"title": "支持数",
+			"title": "投资人数",
 			"defaultValue": 0,
 			"permission": {
 				"write": false
 			}
+		},
+		"total_investment": {
+			"bsonType": "double",
+			"title": "金额/元",
+			"defaultValue": 0
 		},
 		"publish_date": {
 			"bsonType": "timestamp",

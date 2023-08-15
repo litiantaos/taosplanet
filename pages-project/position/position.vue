@@ -6,15 +6,17 @@
 			<view class="btn" @click="toCreate">发布职位</view>
 		</view>
 
-		<view class="card" v-for="(item, index) in positions" :key="index">
-			<view class="top">
-				<view class="title">{{item.title}}</view>
-				<!-- <view class="salary">12-20k·15薪</view> -->
-			</view>
-			<view class="bottom">
-				<view class="tag">{{item.education_name}}</view>
-				<view class="tag">{{item.experience_name}}</view>
-				<view class="tag">{{item.salary_min}}K-{{item.salary_max}}K·{{item.salary_num}}薪</view>
+		<view v-for="(item, index) in positions" :key="index">
+			<view class="card" @click="toPositionDetail(item)">
+				<view class="top">
+					<view class="title">{{item.title}}</view>
+					<!-- <view class="salary">{{item.salary_min}}K-{{item.salary_max}}K·{{item.salary_num}}薪</view> -->
+				</view>
+				<view class="bottom">
+					<view class="tag">{{item.education_name}}</view>
+					<view class="tag">{{item.experience_name}}</view>
+					<view class="tag">{{item.salary_min}}K-{{item.salary_max}}K·{{item.salary_num}}薪</view>
+				</view>
 			</view>
 		</view>
 	</view>
@@ -50,18 +52,27 @@
 			}
 		},
 		methods: {
-			getPositions() {
-				db.collection("db-positions").where(`project_id == "${this.projectId}"`).get().then(res => {
-					// console.log(res);
-					this.positions = res.result.data;
-					setTimeout(() => {
-						uni.stopPullDownRefresh();
-					}, 500);
+			toPositionDetail({
+				_id
+			}) {
+				uni.navigateTo({
+					url: "/pages-project/position-detail/position-detail?id=" + _id
 				});
+			},
+			getPositions() {
+				db.collection("db-positions").where(`project_id == "${this.projectId}"`)
+					.field("_id, title, education_name, experience_name, salary_min, salary_max, salary_num").get().then(res => {
+						this.positions = res.result.data;
+						// console.log("positions", this.positions);
+
+						setTimeout(() => {
+							uni.stopPullDownRefresh();
+						}, 500);
+					});
 			},
 			toCreate() {
 				uni.navigateTo({
-					url: "/pages-project/position/position-create/position-create?id=" + this.projectId
+					url: "/pages-project/position/position-create/position-create?projectId=" + this.projectId
 				})
 			}
 		},

@@ -1,13 +1,15 @@
 <template>
 	<view class="container">
-		<input class="input" type="text" placeholder="职位名称" @input="onInput" />
-		<textarea class="textarea" placeholder="职位描述" @input="onTextarea"></textarea>
+		<input class="input" type="text" placeholder="职位名称" v-model="titleVal" @input="onInput" />
+		<textarea class="textarea" placeholder="职位描述" maxlength="-1" v-model="descVal" @input="onTextarea"></textarea>
 		<view class="fun-btn" @click="editEducation">
-			<view class="">{{data.education_name ? data.education_name : "学历"}}</view>
+			<view class="title">学历</view>
+			<view v-if="data.education_name" class="check">{{data.education_name}}</view>
 			<i class="iconfont icon-arrow-right"></i>
 		</view>
 		<view class="fun-btn" @click="editExperience">
-			<view class="">{{data.experience_name ? data.experience_name : "经验"}}</view>
+			<view class="title">经验</view>
+			<view v-if="data.experience_name" class="check">{{data.experience_name}}</view>
 			<i class="iconfont icon-arrow-right"></i>
 		</view>
 
@@ -15,13 +17,13 @@
 			<view class="title">薪资</view>
 
 			<view class="num-input-wrap">
-				<input class="num-input" type="number" @input="onInputMin" />
+				<input class="num-input" type="number" v-model="minVal" @input="onInputMin" />
 				<view class="text">K -</view>
-				<input class="num-input" type="number" @input="onInputMax" />
+				<input class="num-input" type="number" v-model="maxVal" @input="onInputMax" />
 				<view class="text">K</view>
 			</view>
 			<view class="num-input-wrap">
-				<input class="num-input" type="number" value="12" @input="onInputNum" />
+				<input class="num-input" type="number" v-model="numVal" @input="onInputNum" />
 				<view class="text">薪</view>
 			</view>
 		</view>
@@ -52,14 +54,51 @@
 			return {
 				data: {},
 				warningText: "",
-				projectId: ""
+				projectId: "",
+				positionId: "",
+				titleVal: "",
+				descVal: "",
+				minVal: 0,
+				maxVal: 0,
+				numVal: 12,
+				type: 0 // 0创建 1编辑
 			};
 		},
 		onLoad(e) {
-			this.projectId = e.id;
-			console.log(this.projectId);
+			if (e.projectId) {
+				this.projectId = e.projectId;
+			} else if (e.positionId) {
+				this.positionId = e.positionId;
+				this.type = 1;
+				this.setData();
+			}
+			console.log(e);
 		},
 		methods: {
+			async setData() {
+				let res = await db.collection("db-positions").where(`_id == "${this.positionId}"`).get();
+				let resData = res.result.data[0];
+
+				this.titleVal = resData.title;
+				this.descVal = resData.description;
+				this.minVal = resData.salary_min;
+				this.maxVal = resData.salary_max;
+				this.numVal = resData.salary_num;
+
+				this.data.title = resData.title;
+				this.data.description = resData.description;
+				this.data.education_id = resData.education_id;
+				this.data.education_name = resData.education_name;
+				this.data.experience_id = resData.experience_id;
+				this.data.experience_name = resData.experience_name;
+				this.data.salary_min = resData.salary_min;
+				this.data.salary_max = resData.salary_max;
+				this.data.salary_num = resData.salary_num;
+
+				this.projectId = resData.projectId;
+
+				console.log(resData);
+			},
 			onConfirm: throttle(async function() {
 				console.log(this.data);
 				this.data.project_id = this.projectId;
@@ -73,22 +112,30 @@
 					this.warningText = "";
 				}
 
-				db.collection("db-positions").add(this.data).then(res => {
-					this.$refs.toast.show({
-						type: "success",
-						text: "提交成功",
-						duration: "2000"
-					});
+				if (this.type == 0) {
+					await db.collection("db-positions").add(this.data);
+				} else if (this.type == 1) {
+					await db.collection("db-positions").where(`_id == "${this.positionId}"`).update(this.data);
+				}
 
-					setTimeout(() => {
-						let pages = getCurrentPages();
-						let prevPage = pages[pages.length - 2];
-
-						prevPage.$vm.getPositions();
-
-						uni.navigateBack();
-					}, 1000);
+				this.$refs.toast.show({
+					type: "success",
+					text: "提交成功",
+					duration: "2000"
 				});
+
+				setTimeout(() => {
+					let pages = getCurrentPages();
+					let prevPage = pages[pages.length - 2];
+
+					if (this.type == 0) {
+						prevPage.$vm.getPositions();
+					} else if (this.type == 1) {
+						prevPage.$vm.getPosition();
+					}
+
+					uni.navigateBack();
+				}, 1000);
 			}),
 			onInputMin(e) {
 				let val = Number(e.detail.value);
@@ -208,16 +255,23 @@
 			height: 500rpx;
 			padding: 20rpx 0;
 			margin-top: 25rpx;
+			line-height: 1.6;
+			color: #666;
 		}
 	}
 
 	.fun-btn {
-		color: #666;
+		color: #333;
 		height: 100rpx;
 		width: fit-content;
 		display: flex;
 		align-items: center;
 		margin-top: 25rpx;
+
+		.check {
+			color: #666;
+			margin-left: 80rpx;
+		}
 
 		.iconfont {
 			margin-left: 15rpx;

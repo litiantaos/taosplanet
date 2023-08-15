@@ -30,28 +30,30 @@ export function getTempFileURL(fileIds) {
 
 // 统一查询点赞状态
 export async function checkLikes(data) {
-	if (!uniIdStore.hasLogin) return;
+	if (uniIdStore.hasLogin) {
+		let arr = [];
 
-	let arr = [];
-
-	data.forEach(item => {
-		arr.push(item._id);
-	});
-
-	let res = await db.collection("db-posts-likes").where({
-		post_id: dbCmd.in(arr),
-		user_id: uniCloud.getCurrentUserInfo().uid
-	}).get();
-
-	res.result.data.forEach(item => {
-		let index = data.findIndex(find => {
-			return item.post_id == find._id;
+		data.forEach(item => {
+			arr.push(item._id);
 		});
 
-		data[index].isLike = true;
-	});
+		let res = await db.collection("db-posts-likes").where({
+			post_id: dbCmd.in(arr),
+			user_id: uniCloud.getCurrentUserInfo().uid
+		}).get();
 
-	return data;
+		res.result.data.forEach(item => {
+			let index = data.findIndex(find => {
+				return item.post_id == find._id;
+			});
+
+			data[index].isLike = true;
+		});
+
+		return data;
+	} else {
+		return data;
+	}
 }
 
 // 统一查询评论点赞状态

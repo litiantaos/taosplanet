@@ -42,6 +42,11 @@
 			this.getProjects();
 		},
 		methods: {
+			toWallet() {
+				uni.navigateTo({
+					url: "/pages-project/wallet/wallet"
+				});
+			},
 			async getProjects(e = {}) {
 				const {
 					loadMore = false
@@ -109,6 +114,18 @@
 		},
 		onPageScroll(e) {
 			uni.$emit("onPageScroll", e.scrollTop);
+		},
+		onShareAppMessage() {
+			return {
+				title: "看看大家都在做什么项目吧，生命与理想不可辜负！",
+				path: "/pages/project/project"
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: "看看大家都在做什么项目吧，生命与理想不可辜负！",
+				query: "from=timeline"
+			}
 		}
 	}
 </script>

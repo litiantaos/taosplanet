@@ -94,6 +94,22 @@
 					"navigationBarTitleText": "",
 					"enablePullDownRefresh": false
 				}
+			}, {
+				"path": "position-detail/position-detail",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationBarBackgroundColor": "#fff",
+					"backgroundColor": "#fff",
+					"enablePullDownRefresh": false
+				}
+			}, {
+				"path": "wallet/wallet",
+				"style": {
+					"navigationBarTitleText": "钱包",
+					"navigationBarBackgroundColor": "#fff",
+					"backgroundColor": "#fff",
+					"enablePullDownRefresh": false
+				}
 			}]
 		},
 		{
@@ -223,7 +239,8 @@
 			"pages-post/post-publish/post-publish",
 			"pages-user/user-info/user-info",
 			"pages/user/user",
-			"pages-fun/chat/chat-group/chat-group"
+			"pages-fun/chat/chat-group/chat-group",
+			"pages-project/wallet/wallet"
 		],
 		"resToLogin": true
 	},

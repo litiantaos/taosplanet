@@ -116,6 +116,7 @@
 				this.data.content = resData.content;
 
 				this.srcMap = srcMap;
+				console.log(srcMap);
 
 				this.data.industry_id = resData.industry_id;
 				this.data.industry_name = resData.industry_name;
@@ -212,7 +213,7 @@
 
 						let newHtml = nHtml;
 
-						if (Object.keys(this.srcMap).length != 0) {
+						if (this.srcMap && Object.keys(this.srcMap).length != 0) {
 							// 将临时链接替换为原fileId
 							const imgRegex = /<img[^>]*>/gi;
 							const imgTags = nHtml.match(imgRegex);

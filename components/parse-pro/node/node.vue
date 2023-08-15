@@ -447,7 +447,9 @@
 	/* 图片默认效果 */
 	._img {
 		max-width: 100%;
-		margin-top: 20rpx;
+		/* margin-top: 20rpx; */
+		border-radius: 15rpx;
+		overflow: hidden;
 		-webkit-touch-callout: none;
 	}
 

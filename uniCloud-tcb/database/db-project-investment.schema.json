@@ -28,7 +28,8 @@
 		},
 		"amount": {
 			"bsonType": "double",
-			"title": "金额/元"
+			"title": "金额/元",
+			"defaultValue": 0
 		},
 		"date": {
 			"bsonType": "timestamp",

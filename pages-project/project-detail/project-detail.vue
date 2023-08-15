@@ -6,11 +6,16 @@
 				<view class="iconfont icon-more-circle" @click="clickMore"></view>
 			</view>
 			<view class="info">
-				<view v-if="data.user_id" class="user">
+				<view v-if="data.user_id" class="user" @click="toUserDetail">
 					<cloud-file :src="data.user_id[0]" width="50rpx" height="50rpx" borderRadius="50%"></cloud-file>
 					<view class="username">{{data.user_id[0].nickname}}</view>
 				</view>
 				<view class="tag">{{data.industry_name}}</view>
+			</view>
+
+			<view v-if="positions.length > 0" class="recruit-banner" @click="toPosition">
+				<view class="">项目正在招募伙伴</view>
+				<view class="iconfont icon-arrow-circle-right-t"></view>
 			</view>
 
 			<view class="parse">
@@ -28,6 +33,14 @@
 
 		</view>
 
+		<view class="footer">
+			<view class="text">
+				<text>{{data.is_modified ? "更新于 " : "发布于 "}}</text>
+				<uni-dateformat :date="data.publish_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
+				</uni-dateformat>
+			</view>
+		</view>
+
 		<view class="anchor">
 			<view style="height: 175rpx;"></view>
 			<safe-area type="bottom"></safe-area>
@@ -35,21 +48,17 @@
 
 		<view class="next-page">
 			<view class="inner">
-				<view class="group">
-					<view class="button" @click="onSupport">支持一下</view>
-					<view class="investors">
-						<view class="text">5人已支持</view>
-						<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
-					</view>
-				</view>
-				<view v-if="positions.length > 0" class="recruit" @click="toPosition">
-					<view class="">正在招募伙伴</view>
-					<view class="iconfont icon-arrow-circle-right"></view>
+				<view class="button" @click="onSupport">支持一下</view>
+				<view v-if="data.investor_count > 0" class="investors">
+					<view class="text">{{data.investor_count}}人已支持</view>
+					<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
 				</view>
 			</view>
 			<safe-area type="bottom"></safe-area>
 		</view>
 	</view>
+
+	<load-view background="#fff" :isLoading="isLoading"></load-view>
 
 	<popup ref="popup"></popup>
 	<toast ref="toast"></toast>
@@ -69,6 +78,9 @@
 	} from "@/common/cloud.js";
 
 	const db = uniCloud.database();
+	const utils = uniCloud.importObject("utils", {
+		customUI: true
+	});
 
 	export default {
 		data() {
@@ -80,9 +92,10 @@
 					p: "line-height: 1.6;"
 				},
 				fileStatus: "查看文件",
-				avatars: [1, 2, 3, 4],
+				avatars: [],
 				positions: [],
-				amount: 0
+				amount: 0,
+				isLoading: true
 			};
 		},
 		onLoad(e) {
@@ -90,13 +103,30 @@
 
 			this.getData();
 		},
+		computed: {
+			userInfo() {
+				return store.userInfo;
+			}
+		},
 		methods: {
+			toUserDetail() {
+				uni.navigateTo({
+					url: "/pages-user/user-detail/user-detail?id=" + this.data.user_id[0]._id
+				});
+			},
+			updateViewCount() {
+				utils.calc("db-projects", "view_count", this.projectId, 1).then(res => {
+					// console.log(res);
+				});
+			},
 			onPaySuccess(e) {
-				console.log(e);
+				console.log("pay success", e);
+
 				this.$refs.popup.show({
+					size: "medium",
 					type: "text",
 					title: "支付成功！",
-					text: "感谢你的投资，投资款将全额（扣除微信支付手续费2%）进入项目发起人的账户，你可以在项目详情中看到项目的全部受资情况。",
+					text: "感谢你的投资，投资款将在扣除微信手续费1%后进入项目发起人的账户，你可以在项目详情中看到项目的全部受资情况。",
 					success: () => {
 						this.$refs.popup.hide();
 					}
@@ -106,20 +136,19 @@
 					project_id: this.projectId,
 					amount: this.amount
 				}).then(res => {
-					console.log("payData");
+					// console.log("pay success");
+					utils.calc("db-projects", "investor_count", this.projectId, 1);
+					utils.calc("db-projects", "total_investment", this.projectId, this.amount);
 				});
 			},
 			onPay(fee) {
-				let order_no = `test` + Date.now(); // 模拟生成订单号
-				let out_trade_no = `${order_no}-1`; // 模拟生成插件支付单号
-				// 打开支付收银台
+				let order_no = `PROJECT_INVESTMENT_` + Date.now();
+
 				this.$refs.pay.open({
 					total_fee: fee,
 					order_no: order_no,
-					out_trade_no: out_trade_no,
-					description: "description",
 					type: "test",
-					custom: "custom"
+					description: "project investment"
 				});
 			},
 			onSupport() {
@@ -133,11 +162,14 @@
 						value: 5
 					},
 					success: res => {
-						console.log(res);
-						this.amount = res * 100;
-						this.onPay(this.amount);
+						// console.log(res);
+						this.amount = res - this.round(res * 0.01, 2); // 微信支付手续费1%
+						this.onPay(res * 100);
 					}
 				});
+			},
+			round(num, decimals) {
+				return Number(Math.round(num + 'e' + decimals) + 'e-' + decimals);
 			},
 			toPosition() {
 				uni.navigateTo({
@@ -180,6 +212,7 @@
 						} else if (index == 1) {
 							this.$refs.tooltip.show();
 						} else if (index == 2) {
+							this.$refs.popup.hide();
 							uni.navigateTo({
 								url: "/pages-project/project-create/project-create?id=" + this.data._id
 							});
@@ -187,7 +220,7 @@
 							this.deleteProject();
 						}
 					}
-				})
+				});
 			},
 			deleteProject() {
 				this.$refs.popup.show({
@@ -242,11 +275,25 @@
 				});
 			},
 
+			async getInvestors() {
+				let tempInvestors = db.collection("db-project-investment").where(`project_id == "${this.projectId}"`)
+					.orderBy("date desc").limit(5).getTemp();
+				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
+
+				let res = await db.collection(tempInvestors, tempUsers).get();
+				let resData = res.result.data.reverse();
+				console.log("investors", resData);
+
+				this.avatars = resData.map(item => {
+					return item.user_id[0].avatar_file.url;
+				});
+			},
+
 			getPositions() {
 				db.collection("db-positions").where(`project_id == "${this.projectId}"`).field("_id, title").get().then(res => {
-					console.log(res.result.data);
+					console.log("positions", res.result.data);
 					this.positions = res.result.data;
-				})
+				});
 			},
 
 			async getData() {
@@ -262,11 +309,27 @@
 					nHtml
 				} = await replaceImgSrc(resData.content, "getTempFileURL");
 				resData.content = nHtml;
-				console.log(resData);
+				console.log("data", resData);
 
 				this.data = resData;
 
 				this.getPositions();
+				this.getInvestors();
+				this.updateViewCount();
+
+				this.isLoading = false;
+			}
+		},
+		onShareAppMessage() {
+			return {
+				title: this.data.title,
+				path: "/pages-project/project-detail/project-detail?id=" + this.projectId
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: this.data.title,
+				query: "from=timeline"
 			}
 		}
 	}
@@ -293,7 +356,7 @@
 			}
 
 			.iconfont {
-				font-size: 36rpx;
+				font-size: 42rpx;
 				color: #666;
 			}
 		}
@@ -302,7 +365,7 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			margin: 30rpx 0 40rpx 0;
+			margin-top: 30rpx;
 
 			.user {
 				display: flex;
@@ -327,6 +390,7 @@
 
 		.parse {
 			color: #333;
+			margin-top: 40rpx;
 		}
 	}
 
@@ -383,10 +447,20 @@
 		}
 	}
 
+	.footer {
+		margin-top: 30rpx;
+
+		.text {
+			text-align: center;
+			color: #999;
+			font-size: 24rpx;
+		}
+	}
+
 	.next-page {
 		width: 100vw;
 		background: #fff;
-		box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
 		border-radius: 25rpx 25rpx 0 0;
 		position: fixed;
 		bottom: 0;
@@ -394,45 +468,45 @@
 
 		.inner {
 			padding: 35rpx 25rpx 0;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
 
-			.group {
+			.investors {
 				display: flex;
-				justify-content: space-between;
 				align-items: center;
 
-				.investors {
-					display: flex;
-					align-items: center;
-
-					.text {
-						font-size: 26rpx;
-						margin-right: 15rpx;
-						color: #666;
-					}
-				}
-
-				.button {
-					padding: 15rpx 25rpx;
-					background: #333;
-					border-radius: 15rpx;
-					color: #fff;
+				.text {
 					font-size: 26rpx;
+					margin-right: 15rpx;
+					color: #666;
 				}
 			}
 
-			.recruit {
-				display: flex;
-				justify-content: flex-end;
-				margin-top: 10rpx;
-				font-size: 26rpx;
-				color: #333;
-				line-height: 2;
-
-				.iconfont {
-					margin-left: 15rpx;
-					font-size: 28rpx;
-				}
+			.button {
+				padding: 15rpx 30rpx;
+				background: #333;
+				border-radius: 15rpx;
+				color: #fff;
+				font-size: 28rpx;
 			}
+		}
+	}
+
+	.recruit-banner {
+		padding: 10rpx;
+		background: #eee;
+		color: #333;
+		display: flex;
+		justify-content: center;
+		line-height: 2;
+		border-radius: 15rpx;
+		font-size: 26rpx;
+		margin-top: 40rpx;
+
+		.iconfont {
+			margin-left: 15rpx;
+			font-size: 28rpx;
 		}
 	}
 </style>
