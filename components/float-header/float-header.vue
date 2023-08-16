@@ -2,31 +2,19 @@
 	<view class="header" :style="{top: `${height}px`, transform: (offsetY ? 'translateY(-100%)' : 'translateY(0)')}">
 		<view class="search-box" @click="onSearch">
 			<view class="iconfont icon-search"></view>
-			<view class="search-text">{{searchText}}</view>
+			<view class="search-text">搜索</view>
 		</view>
-		<view class="search-btn" @click="onButton">
-			<view v-if="iconName" :class="`iconfont icon-${iconName}`"></view>
-			<view v-else class="">{{btnText}}</view>
+		<view class="group">
+			<view class="iconfont icon-speedometer search-btn" @click="onEvent"></view>
+			<view class="iconfont icon-sticker search-btn" @click="onChat"></view>
 		</view>
 	</view>
 </template>
 
 <script>
 	export default {
-		name: "float-search",
+		name: "float-header",
 		props: {
-			searchText: {
-				type: String,
-				default: "搜索"
-			},
-			btnText: {
-				type: String,
-				default: ""
-			},
-			iconName: {
-				type: String,
-				default: ""
-			},
 			custom: {
 				type: Boolean,
 				default: false
@@ -59,8 +47,11 @@
 			onSearch() {
 				this.$emit("onSearch");
 			},
-			onButton() {
-				this.$emit("onButton");
+			onEvent() {
+				this.$emit("onEvent");
+			},
+			onChat() {
+				this.$emit("onChat");
 			},
 			setOffset(e) {
 				setTimeout(() => {
@@ -84,6 +75,7 @@
 	.header {
 		padding: 25rpx;
 		display: flex;
+		justify-content: space-between;
 		position: fixed;
 		left: 0;
 		width: 100%;
@@ -92,14 +84,11 @@
 		transition: transform .5s;
 
 		.search-box {
-			flex: 1;
-			height: 70rpx;
+			width: fit-content;
+			line-height: 56rpx;
 			background: #e5e5e5;
-			border-radius: 20rpx;
+			border-radius: 28rpx;
 			display: flex;
-			align-items: center;
-			padding: 0 30rpx;
-			font-size: 28rpx;
 			color: #666;
 			transition: background .2s;
 
@@ -109,29 +98,25 @@
 
 			.search-text {
 				margin-left: 20rpx;
+				margin-right: 30rpx;
+				font-size: 24rpx;
+			}
+
+			.iconfont {
+				font-size: 28rpx;
+				margin-left: 25rpx;
 			}
 		}
 
-		.search-btn {
-			width: 120rpx;
-			height: 70rpx;
-			padding: 0 20rpx;
+		.group {
 			display: flex;
-			justify-content: center;
 			align-items: center;
-			background: #e5e5e5;
-			border-radius: 20rpx;
-			margin-left: 20rpx;
-			font-family: "Asap", sans-serif;
-			font-size: 28rpx;
-			font-weight: 700;
-			font-style: italic;
-			color: #333;
-			transition: background .2s;
+		}
 
-			&:active {
-				background: #ccc;
-			}
+		.search-btn {
+			font-size: 44rpx;
+			color: #333;
+			margin-left: 35rpx;
 		}
 	}
 </style>

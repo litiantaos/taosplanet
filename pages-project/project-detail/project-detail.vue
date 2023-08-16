@@ -36,7 +36,7 @@
 		<view class="footer">
 			<view class="text">
 				<text>{{data.is_modified ? "更新于 " : "发布于 "}}</text>
-				<uni-dateformat :date="data.publish_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
+				<uni-dateformat :date="data.last_modify_date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
 				</uni-dateformat>
 			</view>
 		</view>
@@ -50,7 +50,7 @@
 			<view class="inner">
 				<view class="button" @click="onSupport">支持一下</view>
 				<view v-if="data.investor_count > 0" class="investors">
-					<view class="text">{{data.investor_count}}人已支持</view>
+					<view class="text">{{investorCount}}人已支持</view>
 					<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
 				</view>
 			</view>
@@ -77,6 +77,8 @@
 		replaceImgSrc
 	} from "@/common/cloud.js";
 
+	import pagesJson from "@/pages.json";
+
 	const db = uniCloud.database();
 	const utils = uniCloud.importObject("utils", {
 		customUI: true
@@ -95,7 +97,8 @@
 				avatars: [],
 				positions: [],
 				amount: 0,
-				isLoading: true
+				isLoading: true,
+				investorCount: 0
 			};
 		},
 		onLoad(e) {
@@ -109,6 +112,45 @@
 			}
 		},
 		methods: {
+			shareProject() {
+				this.$refs.popup.show({
+					size: "large",
+					type: "input",
+					title: "转发到动态",
+					inputIn: {
+						placeholder: "说点什么吧～",
+						textarea: true,
+						maxlength: -1,
+						style: "gray"
+					},
+					success: res => {
+						console.log(res);
+						this.$refs.toast.show({
+							type: "loading",
+							text: "发布中",
+							duration: "none"
+						});
+
+						db.collection("db-posts").add({
+							shared_project_id: this.projectId,
+							content: res,
+							topic_id: "b0cde5b0643041670008d3de77ffaecd"
+						}).then(result => {
+							this.$refs.toast.show({
+								type: "success",
+								text: "发布成功",
+								duration: "2000"
+							});
+
+							setTimeout(() => {
+								uni.reLaunch({
+									url: "/pages/index/index"
+								});
+							}, 1000);
+						});
+					}
+				});
+			},
 			toUserDetail() {
 				uni.navigateTo({
 					url: "/pages-user/user-detail/user-detail?id=" + this.data.user_id[0]._id
@@ -121,6 +163,7 @@
 			},
 			onPaySuccess(e) {
 				console.log("pay success", e);
+				this.getInvestors();
 
 				this.$refs.popup.show({
 					size: "medium",
@@ -135,9 +178,13 @@
 				db.collection("db-project-investment").add({
 					project_id: this.projectId,
 					amount: this.amount
-				}).then(res => {
+				}).then(async res => {
 					// console.log("pay success");
-					utils.calc("db-projects", "investor_count", this.projectId, 1);
+					let count = await db.collection("db-project-investment")
+						.where(`project_id == "${this.projectId}" && user_id == $cloudEnv_uid`).count();
+					if (count.result.total == 0) {
+						utils.calc("db-projects", "investor_count", this.projectId, 1);
+					}
 					utils.calc("db-projects", "total_investment", this.projectId, this.amount);
 				});
 			},
@@ -162,14 +209,13 @@
 						value: 5
 					},
 					success: res => {
-						// console.log(res);
-						this.amount = res - this.round(res * 0.01, 2); // 微信支付手续费1%
-						this.onPay(res * 100);
+						this.amount = res - this.round(res * 0.01); // 微信支付手续费1%
+						this.onPay(Math.round(res * 100));
 					}
 				});
 			},
-			round(num, decimals) {
-				return Number(Math.round(num + 'e' + decimals) + 'e-' + decimals);
+			round(num) {
+				return Math.round(num * 100) / 100;
 			},
 			toPosition() {
 				uni.navigateTo({
@@ -205,10 +251,21 @@
 					actions: actions,
 					success: index => {
 						if (index == 0) {
-							this.$refs.popup.hide();
-							// uni.navigateTo({
-							// 	url: "/pages-fun/event/event-share/event-share"
-							// });
+							if (store.hasLogin) {
+								this.shareProject();
+							} else {
+								this.$refs.popup.show({
+									type: "text",
+									title: "提示",
+									text: "请登录后再继续吧！",
+									success: () => {
+										this.$refs.popup.hide();
+										uni.navigateTo({
+											url: "/" + pagesJson.uniIdRouter.loginPage
+										});
+									}
+								});
+							}
 						} else if (index == 1) {
 							this.$refs.tooltip.show();
 						} else if (index == 2) {
@@ -280,13 +337,17 @@
 					.orderBy("date desc").limit(5).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
-				let res = await db.collection(tempInvestors, tempUsers).get();
+				let res = await db.collection(tempInvestors, tempUsers).field("user_id").distinct().get();
 				let resData = res.result.data.reverse();
 				console.log("investors", resData);
 
 				this.avatars = resData.map(item => {
 					return item.user_id[0].avatar_file.url;
 				});
+
+				let count = await db.collection("db-project-investment").where(`project_id == "${this.projectId}"`)
+					.field("user_id").distinct().count();
+				this.investorCount = count.result.total;
 			},
 
 			getPositions() {

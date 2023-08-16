@@ -59,8 +59,12 @@
 				</view>
 			</view>
 
-			<view v-if="post.shared_event_id" class="event" @click.stop="toEventDetail(sharedEvent._id)">
+			<view v-if="post.shared_event_id" class="shared-card" @click.stop="toEventDetail()">
 				<event-card :data="sharedEvent"></event-card>
+			</view>
+
+			<view v-if="post.shared_project_id" class="shared-card" @click.stop="toProjectDetail()">
+				<project-card :data="sharedProject" :showUser="false" isShare></project-card>
 			</view>
 
 			<link-card v-if="post.link" :data="post.link" showCopy></link-card>
@@ -165,7 +169,8 @@
 				isClickLike: false,
 				voteOptions: [],
 				voteIn: {},
-				voted: ""
+				voted: "",
+				sharedProject: {}
 			};
 		},
 		mounted() {
@@ -183,22 +188,55 @@
 
 			if (this.post.shared_post_id) {
 				this.getSharedPost();
-			}
-
-			if (this.post.shared_event_id) {
+			} else if (this.post.shared_event_id) {
 				this.getSharedEvent();
-			}
-
-			if (this.post.vote_end_date) {
+			} else if (this.post.vote_end_date) {
 				this.getVotes();
+			} else if (this.post.shared_project_id) {
+				this.getSharedProject();
 			}
 		},
 		methods: {
-			toTopic(id) {
+			// 分享项目
+			toProjectDetail(id) {
 				uni.navigateTo({
-					url: "/pages/topic/topic?id=" + id
-				})
+					url: "/pages-project/project-detail/project-detail?id=" + this.sharedProject._id
+				});
 			},
+			async getSharedProject() {
+				let res = await db.collection("db-projects").where(`_id == "${this.post.shared_project_id}"`)
+					.field("_id, user_id, title, excerpt").get();
+				this.sharedProject = res.result.data[0];
+				// console.log(this.sharedProject);
+			},
+
+			// 分享活动
+			toEventDetail() {
+				uni.navigateTo({
+					url: "/pages-fun/event/event-detail/event-detail?id=" + this.sharedEvent._id
+				});
+			},
+			async getSharedEvent() {
+				let res = await db.collection("db-events").where(`_id == "${this.post.shared_event_id}"`)
+					.field("title, start_date, end_date, deadline, user_id, region, publish_date, participant_count")
+					.get();
+				this.sharedEvent = res.result.data[0];
+			},
+
+			// 分享动态
+			getSharedPost() {
+				let tempSharedPost = db.collection("db-posts").where(`_id == "${this.post.shared_post_id}"`).field(
+					"_id, user_id, content, topic_id, images").getTemp();
+				let tempTopic = db.collection("db-topics").field("_id, name").getTemp();
+				let tempUser = db.collection("uni-id-users").field("_id, avatar_file").getTemp();
+
+				db.collection(tempSharedPost, tempTopic, tempUser).get().then(res => {
+					// console.log(res);
+					this.sharedPost = res.result.data[0];
+				});
+			},
+
+			// 投票
 			voteDate() {
 				this.$emit("voteDate");
 			},
@@ -234,6 +272,12 @@
 					}
 				}
 			},
+
+			toTopic(id) {
+				uni.navigateTo({
+					url: "/pages/topic/topic?id=" + id
+				})
+			},
 			clickMore() {
 				this.$emit("more");
 			},
@@ -241,6 +285,7 @@
 				uni.setStorageSync("post-share", this.post);
 				this.$emit("share");
 			},
+
 			async handleLike() {
 				let postId = this.postId;
 
@@ -331,28 +376,6 @@
 					});
 				}
 			},
-			async getSharedEvent() {
-				let res = await db.collection("db-events").where(`_id == "${this.post.shared_event_id}"`)
-					.field("title, start_date, end_date, deadline, user_id, region, publish_date, participant_count")
-					.get();
-				this.sharedEvent = res.result.data[0];
-			},
-			toEventDetail(id) {
-				uni.navigateTo({
-					url: "/pages-fun/event/event-detail/event-detail?id=" + id
-				});
-			},
-			getSharedPost() {
-				let tempSharedPost = db.collection("db-posts").where(`_id == "${this.post.shared_post_id}"`).field(
-					"_id, user_id, content, topic_id, images").getTemp();
-				let tempTopic = db.collection("db-topics").field("_id, name").getTemp();
-				let tempUser = db.collection("uni-id-users").field("_id, avatar_file").getTemp();
-
-				db.collection(tempSharedPost, tempTopic, tempUser).get().then(res => {
-					// console.log(res);
-					this.sharedPost = res.result.data[0];
-				});
-			},
 			async setTempFileURL() {
 				if (this.post.images) {
 					this.fileUrls = await getTempFileURL(this.post.images);
@@ -374,7 +397,7 @@
 						this.isOverflow = false;
 					}
 				}).exec();
-			},
+			}
 		}
 	}
 </script>
@@ -574,6 +597,10 @@
 						border-top: 1px solid $uni-border-color;
 					}
 				}
+			}
+
+			.shared-card {
+				margin-top: 20rpx;
 			}
 
 			.body-modified {

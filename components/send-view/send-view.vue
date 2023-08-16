@@ -287,7 +287,7 @@
 					align-items: center;
 
 					.reply-name {
-						width: fit-content;
+						white-space: nowrap;
 						line-height: 40rpx;
 						background: #eee;
 						border-radius: 8rpx;

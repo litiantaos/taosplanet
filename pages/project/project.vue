@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="header-bar">
-			<view class="iconfont icon-search header-btn"></view>
+			<!-- <view class="iconfont icon-search header-btn"></view> -->
 			<view class="group">
 				<view class="iconfont icon-wallet header-btn" @click="toWallet"></view>
 				<view class="iconfont icon-add-circle header-btn" @click="toCreate"></view>
@@ -143,7 +143,8 @@
 		height: 80rpx;
 		background: #f5f5f5;
 		display: flex;
-		justify-content: space-between;
+		// justify-content: space-between;
+		justify-content: flex-end;
 		align-items: center;
 		padding: 0 25rpx;
 
@@ -158,7 +159,7 @@
 		}
 
 		.iconfont {
-			font-size: 42rpx;
+			font-size: 44rpx;
 		}
 	}
 </style>

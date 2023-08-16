@@ -7,9 +7,9 @@
 
 		<load-view :isLoading="isLoading"></load-view>
 
-		<float-search custom btnText="PARTY" @onSearch="toSearch" @onButton="toEvent"></float-search>
+		<float-header custom @onSearch="toSearch" @onEvent="toEvent" @onChat="toChat"></float-header>
 
-		<view style="margin-bottom: 95rpx;">
+		<view style="margin-bottom: 80rpx;">
 			<safe-area></safe-area>
 		</view>
 
@@ -146,6 +146,11 @@
 			toEvent() {
 				uni.navigateTo({
 					url: "/pages-fun/event/event"
+				});
+			},
+			toChat() {
+				uni.navigateTo({
+					url: "/pages-fun/chat/chat-group/chat-group"
 				});
 			},
 			toPostPublish() {

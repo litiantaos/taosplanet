@@ -17,7 +17,7 @@
 				</text>
 
 				<view v-if="data.reply_to_id" class="reply-msg">
-					<view v-if="replyMsg.from_uid">{{replyMsg.from_uid[0].nickname}}：</view>
+					<view v-if="replyMsg.from_uid" class="reply-msg-name">{{replyMsg.from_uid[0].nickname}}：</view>
 					<view v-if="replyMsg.text" class="reply-msg-text">{{replyMsg.text}}</view>
 					<view v-else-if="replyMsg.images" class="reply-msg-text">[图片]</view>
 					<view v-else-if="replyMsg.videos" class="reply-msg-text">[视频]</view>
@@ -151,7 +151,7 @@
 		display: flex;
 
 		.msg-avatar {
-			width: 75rpx;
+			flex: 0 0 75rpx;
 			height: 75rpx;
 		}
 
@@ -196,6 +196,10 @@
 					display: flex;
 					padding: 0 20rpx;
 					margin-top: 20rpx;
+
+					.reply-msg-name {
+						white-space: nowrap;
+					}
 
 					.reply-msg-text {
 						max-width: 400rpx;

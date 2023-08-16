@@ -105,7 +105,7 @@
 			}, {
 				"path": "wallet/wallet",
 				"style": {
-					"navigationBarTitleText": "钱包",
+					"navigationBarTitleText": "资金",
 					"navigationBarBackgroundColor": "#fff",
 					"backgroundColor": "#fff",
 					"enablePullDownRefresh": false
