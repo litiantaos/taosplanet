@@ -94,6 +94,7 @@
 		},
 		methods: {
 			refreshStart() {
+				// this.messages = [];
 				this.getMessages();
 			},
 			toMessageSystem() {
@@ -199,43 +200,27 @@
 					this.messages[index].is_read = true;
 				}
 			},
-			async getMessages(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.messages.length;
-				}
-
+			async getMessages() {
 				let res = await db.collection("db-messages").where(`user_id == $cloudEnv_uid`).orderBy(
-					"date desc, is_read").skip(skip).limit(20).get();
+					"date desc, is_read").skip(this.messages.length).limit(20).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.messages, ...res.result.data];
-				} else {
-					this.messages = [];
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
+
+				let resData = [...this.messages, ...newData];
 
 				this.messages = resData;
-
-				this.isLoading = false;
-
-				this.loadMore = "";
+				// console.log(this.messages);
 
 				setTimeout(() => {
+					this.isLoading = false;
 					this.$refs.refresh.success();
 				}, 300);
-
-				console.log(this.messages);
 			}
 		},
 		onPageScroll(e) {
@@ -244,14 +229,10 @@
 		onReachBottom() {
 			this.loadMore = "loading";
 			if (this.noMore) {
-				setTimeout(() => {
-					this.loadMore = "noMore";
-				}, 500);
+				this.loadMore = "noMore";
 				return;
 			};
-			this.getMessages({
-				loadMore: true
-			});
+			this.getMessages();
 		}
 	}
 </script>
@@ -306,6 +287,7 @@
 		.group {
 			border-radius: 20rpx;
 			overflow: hidden;
+			margin-bottom: 20rpx;
 
 			.message {
 				display: flex;

@@ -69,6 +69,11 @@
 			"title": "转发项目",
 			"foreignKey": "db-projects._id"
 		},
+		"shared_position_id": {
+			"bsonType": "string",
+			"title": "转发职位",
+			"foreignKey": "db-positions._id"
+		},
 		"view_count": {
 			"bsonType": "int",
 			"title": "浏览量",

@@ -36,9 +36,9 @@
 		data() {
 			return {
 				topicId: "",
+				isLoading: true,
 				loadMore: "",
 				noMore: false,
-				isLoading: true,
 				posts: [],
 				topic: {},
 				navHeight: 0
@@ -64,46 +64,32 @@
 					this.topic = res.result.data[0];
 				});
 			},
-			async getPosts(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.posts.length;
-				}
-
+			async getPosts() {
 				let tempPosts = db.collection("db-posts").where(`sec_check != 1 && topic_id == "${this.topicId}"`)
-					.orderBy("sort desc, last_modify_date desc").skip(skip).limit(20).getTemp();
+					.orderBy("sort desc, last_modify_date desc").skip(this.posts.length).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname, intro").getTemp();
 				let tempTopics = db.collection("db-topics").field("_id, name").getTemp();
 
 				let res = await db.collection(tempPosts, tempUsers, tempTopics).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.posts, ...res.result.data];
-				} else {
-					this.posts = [];
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
 
 				if (store.hasLogin) {
-					await checkLikes(resData).then(result => {
-						resData = result;
+					await checkLikes(newData).then(result => {
+						newData = result;
 					});
 				}
 
-				this.posts = resData;
-				console.log(this.posts);
+				let resData = [...this.posts, ...newData];
 
-				this.loadMore = "";
+				this.posts = resData;
+				// console.log(this.posts);
 
 				setTimeout(() => {
 					this.isLoading = false;
@@ -130,14 +116,10 @@
 		onReachBottom() {
 			this.loadMore = "loading";
 			if (this.noMore) {
-				setTimeout(() => {
-					this.loadMore = "noMore";
-				}, 500);
+				this.loadMore = "noMore";
 				return;
 			};
-			this.getPosts({
-				loadMore: true
-			});
+			this.getPosts();
 		},
 		onPullDownRefresh() {
 			this.getPosts();

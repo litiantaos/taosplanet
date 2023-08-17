@@ -48,7 +48,7 @@
 
 			<slot :replies="replies"></slot>
 
-			<view v-if="comment.replyCount > 5" class="reply-count" @click="$event => getReplies({loadMore: true})">
+			<view v-if="comment.replyCount > 5" class="reply-count" @click="$event => getReplies()">
 				<text>共{{comment.replyCount}}条回复</text>
 				<i v-if="!noMore" class="iconfont icon-arrow-right no-more"></i>
 			</view>
@@ -216,40 +216,27 @@
 			}),
 
 			// 获取回复列表
-			async getReplies(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.replies.length;
-				}
-
+			async getReplies() {
 				let tempComments = await db.collection("db-posts-comments").where(
 					`post_id == "${this.comment.post_id}" && (comment_type == 1 || comment_type == 2) && reply_comment_id == "${this.comment._id}"`
-				).orderBy("comment_date desc").skip(skip).limit(5).getTemp();
+				).orderBy("comment_date desc").skip(this.replies.length).limit(5).getTemp();
 				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempComments, tempUsers).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length < 5) {
-						this.noMore = true;
-					}
-					resData = [...this.replies, ...res.result.data];
-				} else {
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length < 5) {
+					this.noMore = true;
 				}
 
 				if (store.hasLogin) {
-					await checkCommentsLikes(resData).then(result => {
-						resData = result;
+					await checkCommentsLikes(newData).then(result => {
+						newData = result;
 					});
 				}
+
+				let resData = [...this.replies, ...newData];
 
 				this.replies = resData;
 			},

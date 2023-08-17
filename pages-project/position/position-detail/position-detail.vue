@@ -36,6 +36,8 @@
 		store
 	} from "@/uni_modules/uni-id-pages/common/store.js";
 
+	import pagesJson from "@/pages.json";
+
 	const db = uniCloud.database();
 
 	export default {
@@ -80,10 +82,21 @@
 					actions: actions,
 					success: index => {
 						if (index == 0) {
-							this.$refs.popup.hide();
-							// uni.navigateTo({
-							// 	url: "/pages-fun/event/event-share/event-share"
-							// });
+							if (store.hasLogin) {
+								this.sharePosition();
+							} else {
+								this.$refs.popup.show({
+									type: "text",
+									title: "提示",
+									text: "请登录后再继续吧！",
+									success: () => {
+										this.$refs.popup.hide();
+										uni.navigateTo({
+											url: "/" + pagesJson.uniIdRouter.loginPage
+										});
+									}
+								});
+							}
 						} else if (index == 1) {
 							this.$refs.tooltip.show();
 						} else if (index == 2) {
@@ -94,6 +107,45 @@
 						} else if (index == 3) {
 							this.deletePosition();
 						}
+					}
+				});
+			},
+			sharePosition() {
+				this.$refs.popup.show({
+					size: "large",
+					type: "input",
+					title: "转发到动态",
+					inputIn: {
+						placeholder: "说点什么吧～",
+						textarea: true,
+						maxlength: -1,
+						style: "gray"
+					},
+					success: res => {
+						// console.log(res);
+						this.$refs.toast.show({
+							type: "loading",
+							text: "发布中",
+							duration: "none"
+						});
+
+						db.collection("db-posts").add({
+							shared_position_id: this.positionId,
+							content: res,
+							topic_id: "b0cde5b0643041670008d3e52b4f37bb"
+						}).then(result => {
+							this.$refs.toast.show({
+								type: "success",
+								text: "发布成功",
+								duration: "2000"
+							});
+
+							setTimeout(() => {
+								uni.reLaunch({
+									url: "/pages/index/index"
+								});
+							}, 1000);
+						});
 					}
 				});
 			},
@@ -123,7 +175,7 @@
 								prevPage.$vm.getPositions();
 
 								uni.navigateBack();
-							}, 1000)
+							}, 1000);
 						});
 					}
 				});
@@ -141,14 +193,15 @@
 				let res = await db.collection(tempPosition, tempUser, tempProject).get();
 
 				let resData = res.result.data[0];
-				console.log(resData);
+				// console.log(resData);
+
 				this.data = resData;
 			}
 		},
 		onShareAppMessage() {
 			return {
 				title: this.data.title,
-				path: "/pages-project/position-detail/position-detail?id=" + this.data.project_id[0]._id
+				path: "/pages-project/position/position-detail/position-detail?id=" + this.data.project_id[0]._id
 			}
 		},
 		onShareTimeline() {
@@ -159,12 +212,6 @@
 		}
 	}
 </script>
-
-<style>
-	page {
-		background: #fff;
-	}
-</style>
 
 <style lang="scss" scoped>
 	.container {
@@ -189,14 +236,14 @@
 
 	.description {
 		margin-top: 40rpx;
-		background: #f5f5f5;
+		background: #fff;
 		border-radius: 20rpx;
 		padding: 35rpx 25rpx;
 
 		.subtitle {
 			font-size: 32rpx;
 			font-weight: bold;
-			border-bottom: 1rpx solid #e5e5e5;
+			border-bottom: 1rpx solid #f5f5f5;
 			padding-bottom: 25rpx;
 		}
 
@@ -218,7 +265,7 @@
 			font-size: 24rpx;
 			color: #666;
 			margin-right: 20rpx;
-			background: #f5f5f5;
+			background: #eee;
 			border-radius: 15rpx;
 			padding: 10rpx 20rpx;
 		}
@@ -228,7 +275,7 @@
 		display: flex;
 		align-items: center;
 		padding: 25rpx;
-		background: #f5f5f5;
+		background: #fff;
 		border-radius: 20rpx;
 		margin-top: 40rpx;
 

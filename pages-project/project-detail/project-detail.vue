@@ -49,7 +49,7 @@
 		<view class="next-page">
 			<view class="inner">
 				<view class="button" @click="onSupport">支持一下</view>
-				<view v-if="data.investor_count > 0" class="investors">
+				<view v-if="data.investor_count > 0" class="investors" @click="showInvestors">
 					<view class="text">{{investorCount}}人已支持</view>
 					<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
 				</view>
@@ -60,7 +60,23 @@
 
 	<load-view background="#fff" :isLoading="isLoading"></load-view>
 
-	<popup ref="popup"></popup>
+	<popup ref="popup">
+		<view class="total-bar">
+			<view class="name">总额</view>
+			<view class="num">¥ {{data.total_investment}}</view>
+		</view>
+		<scroll-view scroll-y="true" class="investorList" @scrolltolower="scrollBottom">
+			<view class="investor-item" v-for="(item, index) in investors" :key="index">
+				<view class="user">
+					<cloud-file :src="item.user_id[0]" width="60rpx" height="60rpx" borderRadius="50%"></cloud-file>
+					<view class="username">{{item.user_id[0].nickname}}</view>
+				</view>
+				<view class="amount">¥{{item.amount}}</view>
+			</view>
+			<load-more :status="loadMore"></load-more>
+		</scroll-view>
+	</popup>
+
 	<toast ref="toast"></toast>
 	<tooltip ref="tooltip"></tooltip>
 
@@ -98,7 +114,10 @@
 				positions: [],
 				amount: 0,
 				isLoading: true,
-				investorCount: 0
+				investorCount: 0,
+				investors: [],
+				loadMore: "",
+				noMore: false
 			};
 		},
 		onLoad(e) {
@@ -112,6 +131,16 @@
 			}
 		},
 		methods: {
+			showInvestors() {
+				this.getInvestors();
+				this.$refs.popup.show({
+					size: "large",
+					type: "custom",
+					title: "投资详情",
+					hideFooter: true,
+					showTitleHide: true
+				});
+			},
 			shareProject() {
 				this.$refs.popup.show({
 					size: "large",
@@ -124,7 +153,7 @@
 						style: "gray"
 					},
 					success: res => {
-						console.log(res);
+						// console.log(res);
 						this.$refs.toast.show({
 							type: "loading",
 							text: "发布中",
@@ -163,7 +192,7 @@
 			},
 			onPaySuccess(e) {
 				console.log("pay success", e);
-				this.getInvestors();
+				this.getInvestorAvatars();
 
 				this.$refs.popup.show({
 					size: "medium",
@@ -179,7 +208,6 @@
 					project_id: this.projectId,
 					amount: this.amount
 				}).then(async res => {
-					// console.log("pay success");
 					let count = await db.collection("db-project-investment")
 						.where(`project_id == "${this.projectId}" && user_id == $cloudEnv_uid`).count();
 					if (count.result.total == 0) {
@@ -305,7 +333,7 @@
 								prevPage.$vm.getProjects();
 
 								uni.navigateBack();
-							}, 1000)
+							}, 1000);
 						});
 					}
 				});
@@ -332,14 +360,43 @@
 				});
 			},
 
+			scrollBottom(e) {
+				// console.log(e);
+				this.loadMore = "loading";
+				if (this.noMore) {
+					this.loadMore = "noMore";
+					return;
+				};
+				this.getInvestors();
+			},
+
 			async getInvestors() {
+				let tempInvestors = db.collection("db-project-investment").where(`project_id == "${this.projectId}"`)
+					.orderBy("date desc").skip(this.investors.length).limit(20).getTemp();
+				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
+
+				let res = await db.collection(tempInvestors, tempUsers).get();
+
+				if (res.result.data.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
+				}
+
+				let resData = [...this.investors, ...res.result.data];
+				// console.log("investor list", resultData);
+
+				this.investors = resData;
+			},
+
+			async getInvestorAvatars() {
 				let tempInvestors = db.collection("db-project-investment").where(`project_id == "${this.projectId}"`)
 					.orderBy("date desc").limit(5).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempInvestors, tempUsers).field("user_id").distinct().get();
 				let resData = res.result.data.reverse();
-				console.log("investors", resData);
+				// console.log("investors", resData);
 
 				this.avatars = resData.map(item => {
 					return item.user_id[0].avatar_file.url;
@@ -352,7 +409,7 @@
 
 			getPositions() {
 				db.collection("db-positions").where(`project_id == "${this.projectId}"`).field("_id, title").get().then(res => {
-					console.log("positions", res.result.data);
+					// console.log("positions", res.result.data);
 					this.positions = res.result.data;
 				});
 			},
@@ -370,12 +427,12 @@
 					nHtml
 				} = await replaceImgSrc(resData.content, "getTempFileURL");
 				resData.content = nHtml;
-				console.log("data", resData);
+				// console.log("data", resData);
 
 				this.data = resData;
 
 				this.getPositions();
-				this.getInvestors();
+				this.getInvestorAvatars();
 				this.updateViewCount();
 
 				this.isLoading = false;
@@ -568,6 +625,54 @@
 		.iconfont {
 			margin-left: 15rpx;
 			font-size: 28rpx;
+		}
+	}
+
+	.total-bar {
+		width: 100%;
+		padding: 20rpx 25rpx;
+		background: #f5f5f5;
+		border-radius: 20rpx;
+		color: #333;
+		margin-bottom: 40rpx;
+		display: flex;
+		align-items: center;
+
+		.name {
+			font-size: 28rpx;
+			margin-right: 30rpx;
+		}
+
+		.num {
+			font-weight: bold;
+		}
+	}
+
+	.investorList {
+		height: 100%;
+
+		.investor-item {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 40rpx;
+
+			.user {
+				display: flex;
+				align-items: center;
+
+				.username {
+					font-size: 28rpx;
+					color: #333;
+					margin-left: 20rpx;
+				}
+			}
+
+			.amount {
+				font-size: 28rpx;
+				font-weight: bold;
+				color: #333;
+			}
 		}
 	}
 </style>

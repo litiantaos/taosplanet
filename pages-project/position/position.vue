@@ -6,17 +6,9 @@
 			<view class="btn" @click="toCreate">发布职位</view>
 		</view>
 
-		<view v-for="(item, index) in positions" :key="index">
-			<view class="card" @click="toPositionDetail(item)">
-				<view class="top">
-					<view class="title">{{item.title}}</view>
-					<!-- <view class="salary">{{item.salary_min}}K-{{item.salary_max}}K·{{item.salary_num}}薪</view> -->
-				</view>
-				<view class="bottom">
-					<view class="tag">{{item.education_name}}</view>
-					<view class="tag">{{item.experience_name}}</view>
-					<view class="tag">{{item.salary_min}}K-{{item.salary_max}}K·{{item.salary_num}}薪</view>
-				</view>
+		<view class="container">
+			<view v-for="(item, index) in positions" :key="index">
+				<position-card :data="item"></position-card>
 			</view>
 		</view>
 	</view>
@@ -40,7 +32,6 @@
 		onLoad(e) {
 			this.projectId = e.id;
 			this.userId = e.userId;
-			console.log(e);
 			this.getPositions();
 		},
 		computed: {
@@ -52,13 +43,6 @@
 			}
 		},
 		methods: {
-			toPositionDetail({
-				_id
-			}) {
-				uni.navigateTo({
-					url: "/pages-project/position-detail/position-detail?id=" + _id
-				});
-			},
 			getPositions() {
 				db.collection("db-positions").where(`project_id == "${this.projectId}"`)
 					.field("_id, title, education_name, experience_name, salary_min, salary_max, salary_num").get().then(res => {
@@ -105,41 +89,7 @@
 		}
 	}
 
-	.card {
+	.container {
 		padding: 25rpx;
-		margin: 25rpx;
-		background: #fff;
-		border-radius: 20rpx;
-
-		.top {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 25rpx;
-
-			.title {
-				font-weight: bold;
-				color: #333;
-			}
-
-			.salary {
-				font-weight: bold;
-				color: #666;
-			}
-		}
-
-		.bottom {
-			display: flex;
-			align-items: center;
-
-			.tag {
-				width: fit-content;
-				padding: 10rpx 15rpx;
-				font-size: 24rpx;
-				background: #eee;
-				border-radius: 10rpx;
-				margin-right: 15rpx;
-			}
-		}
 	}
 </style>

@@ -392,6 +392,10 @@
 						padding: 0 50rpx;
 					}
 
+					.container {
+						height: 100%;
+					}
+
 					.location {
 						margin-bottom: 35rpx;
 					}

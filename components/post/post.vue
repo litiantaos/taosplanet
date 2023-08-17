@@ -59,12 +59,16 @@
 				</view>
 			</view>
 
-			<view v-if="post.shared_event_id" class="shared-card" @click.stop="toEventDetail()">
+			<view v-if="post.shared_event_id" class="shared-card" @click.stop="toEventDetail">
 				<event-card :data="sharedEvent"></event-card>
 			</view>
 
-			<view v-if="post.shared_project_id" class="shared-card" @click.stop="toProjectDetail()">
+			<view v-if="post.shared_project_id" class="shared-card" @click.stop="toProjectDetail">
 				<project-card :data="sharedProject" :showUser="false" isShare></project-card>
+			</view>
+
+			<view v-if="post.shared_position_id" class="shared-card" @click.stop="toPositionDetail">
+				<position-card :data="sharedPosition" isShare></position-card>
 			</view>
 
 			<link-card v-if="post.link" :data="post.link" showCopy></link-card>
@@ -170,7 +174,8 @@
 				voteOptions: [],
 				voteIn: {},
 				voted: "",
-				sharedProject: {}
+				sharedProject: {},
+				sharedPosition: {}
 			};
 		},
 		mounted() {
@@ -194,9 +199,24 @@
 				this.getVotes();
 			} else if (this.post.shared_project_id) {
 				this.getSharedProject();
+			} else if (this.post.shared_position_id) {
+				this.getSharedPosition();
 			}
 		},
 		methods: {
+			// 分享职位
+			toPositionDetail(id) {
+				uni.navigateTo({
+					url: "/pages-project/position/position-detail/position-detail?id=" + this.sharedPosition._id
+				});
+			},
+			async getSharedPosition() {
+				let res = await db.collection("db-positions").where(`_id == "${this.post.shared_position_id}"`)
+					.field("_id, title, education_name, experience_name, salary_min, salary_max, salary_num").get();
+				this.sharedPosition = res.result.data[0];
+				// console.log(this.sharedPosition);
+			},
+
 			// 分享项目
 			toProjectDetail(id) {
 				uni.navigateTo({

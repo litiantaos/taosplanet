@@ -9,9 +9,10 @@
 		</view>
 
 		<view class="main">
-			<view class="" v-for="(item, index) in projects" :key="index">
+			<view v-for="(item, index) in projects" :key="index">
 				<project-card :data="item"></project-card>
 			</view>
+			<load-more v-if="projects.length >= 10" :status="loadMore"></load-more>
 		</view>
 
 		<safe-area type="tabBar"></safe-area>
@@ -35,6 +36,7 @@
 		data() {
 			return {
 				projects: [],
+				loadMore: "",
 				noMore: false
 			};
 		},
@@ -47,38 +49,26 @@
 					url: "/pages-project/wallet/wallet"
 				});
 			},
-			async getProjects(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.projects.length;
-				}
-
+			async getProjects() {
 				let tempProjects = db.collection("db-projects").where(`sec_check != 1`)
 					.field("_id, user_id, title, excerpt").orderBy("last_modify_date desc")
-					.skip(skip).limit(20).getTemp();
+					.skip(this.projects.length).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempProjects, tempUsers).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.projects, ...res.result.data];
-				} else {
-					this.projects = [];
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
 
+				let resData = [...this.projects, ...newData];
+
 				this.projects = resData;
-				console.log(this.projects);
+				// console.log(this.projects);
 
 				setTimeout(() => {
 					uni.stopPullDownRefresh();
@@ -110,6 +100,14 @@
 			},
 		},
 		onPullDownRefresh() {
+			this.getProjects();
+		},
+		onReachBottom() {
+			this.loadMore = "loading";
+			if (this.noMore) {
+				this.loadMore = "noMore";
+				return;
+			};
 			this.getProjects();
 		},
 		onPageScroll(e) {

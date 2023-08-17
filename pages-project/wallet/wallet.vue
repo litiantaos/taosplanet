@@ -49,41 +49,28 @@
 			this.getAmount();
 		},
 		methods: {
-			async getAmountDetail(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.detailList.length;
-				}
-
+			async getAmountDetail() {
 				let tempInvestment = await db.collection("db-project-investment").where({
 					project_id: dbCmd.in(this.projectIds)
-				}).orderBy("date desc").skip(skip).limit(20).getTemp();
+				}).orderBy("date desc").skip(this.detailList.length).limit(20).getTemp();
 
 				let tempUser = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 				let tempProject = await db.collection("db-projects").field("_id, title").getTemp();
 
 				let res = await db.collection(tempInvestment, tempUser, tempProject).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.detailList, ...res.result.data];
-				} else {
-					this.detailList = [];
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
 
+				let resData = [...this.detailList, ...newData];
+
 				this.detailList = resData;
-				console.log(resData);
-				this.loadMore = "";
+				// console.log(resData);
 			},
 			async getAmount() {
 				let res = await db.collection("db-projects").where(`user_id == "${store.userInfo._id}"`)
@@ -109,14 +96,10 @@
 		onReachBottom() {
 			this.loadMore = "loading";
 			if (this.noMore) {
-				setTimeout(() => {
-					this.loadMore = "noMore";
-				}, 500);
+				this.loadMore = "noMore";
 				return;
 			};
-			this.getAmountDetail({
-				loadMore: true
-			});
+			this.getAmountDetail();
 		}
 	}
 </script>

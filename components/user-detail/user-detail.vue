@@ -266,14 +266,10 @@
 					if (this.tabIndex == 0) {
 						this.loadMore = "loading";
 						if (this.noMore) {
-							setTimeout(() => {
-								this.loadMore = "noMore";
-							}, 500);
+							this.loadMore = "noMore";
 							return;
 						};
-						this.getPosts({
-							loadMore: true
-						});
+						this.getPosts();
 					}
 				});
 			},
@@ -343,46 +339,33 @@
 					.groupBy("user_id").groupField("sum(like_count) as total").get();
 				this.count.likeMeCount = likeMeCount.result.data[0].total;
 			},
-			getPosts(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.posts.length;
-				}
-
+			async getPosts() {
 				let tempPosts = db.collection("db-posts").where(`user_id == "${this.userId}" && sec_check != 1`).orderBy(
-					"last_modify_date desc").skip(skip).limit(10).getTemp();
+					"last_modify_date desc").skip(this.posts.length).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname, intro").getTemp();
 				let tempTopics = db.collection("db-topics").getTemp();
 
-				db.collection(tempPosts, tempUsers, tempTopics).get().then(async res => {
-					let resData = [];
+				let res = await db.collection(tempPosts, tempUsers, tempTopics).get();
 
-					if (loadMore) {
-						if (res.result.data.length == 0) {
-							this.noMore = true;
-						}
-						resData = [...this.posts, ...res.result.data];
-					} else {
-						this.posts = [];
-						resData = res.result.data;
-						this.noMore = false;
-					}
+				let newData = res.result.data;
 
-					await checkLikes(resData).then(result => {
-						resData = result;
-					});
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
+				}
 
-					this.posts = resData;
+				await checkLikes(newData).then(result => {
+					newData = result;
+				});
 
-					this.loadMore = "";
-					setTimeout(() => {
-						this.$refs.refresh.success();
-					}, 300);
-				})
+				let resData = [...this.posts, ...newData];
+
+				this.posts = resData;
+
+				setTimeout(() => {
+					this.$refs.refresh.success();
+				}, 300);
 			},
 			getUserInfo() {
 				db.collection("uni-id-users").where(`_id == "${this.userId}"`)

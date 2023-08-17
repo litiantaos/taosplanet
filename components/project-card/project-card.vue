@@ -1,24 +1,22 @@
 <template>
-	<view>
-		<view class="card" :style="{background: isShare ? '#f5f5f5' : '#fff' }" @click="toProjectDetail">
-			<view class="header">
-				<view class="title line-clamp">{{data.title}}</view>
-				<view v-if="showUser" class="user">
-					<cloud-file :src="data.user_id[0]" width="40rpx" height="40rpx" borderRadius="50%"></cloud-file>
-					<view class="username">{{data.user_id[0].nickname}}</view>
-				</view>
-				<view class="intro line-clamp">{{data.excerpt}}</view>
+	<view class="card" :style="{background: isShare ? '#f5f5f5' : '#fff' }" @click="toProjectDetail">
+		<view class="header">
+			<view class="title line-clamp">{{data.title}}</view>
+			<view v-if="showUser" class="user">
+				<cloud-file :src="data.user_id[0]" width="40rpx" height="40rpx" borderRadius="50%"></cloud-file>
+				<view class="username">{{data.user_id[0].nickname}}</view>
 			</view>
-			<view class="body">
-				<view v-if="!isShare && avatars.length > 0" class="investors">
-					<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
-					<view class="text">{{investorCount}}人已支持</view>
-				</view>
+			<view class="intro line-clamp">{{data.excerpt}}</view>
+		</view>
+		<view class="body">
+			<view v-if="!isShare && avatars.length > 0" class="investors">
+				<avatar-group :avatars="avatars" radius="50rpx"></avatar-group>
+				<view class="text">{{investorCount}}人已支持</view>
 			</view>
-			<view v-if="positionsStr" :class="isShare ? 'footer-share' : 'footer'">
-				<view class="title">招募</view>
-				<view class="text line-clamp">{{positionsStr}}</view>
-			</view>
+		</view>
+		<view v-if="positionsStr" :class="isShare ? 'footer-share' : 'footer'">
+			<view class="title">招募</view>
+			<view class="text line-clamp">{{positionsStr}}</view>
 		</view>
 	</view>
 </template>

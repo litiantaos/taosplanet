@@ -95,11 +95,9 @@
 					"enablePullDownRefresh": false
 				}
 			}, {
-				"path": "position-detail/position-detail",
+				"path": "position/position-detail/position-detail",
 				"style": {
 					"navigationBarTitleText": "",
-					"navigationBarBackgroundColor": "#fff",
-					"backgroundColor": "#fff",
 					"enablePullDownRefresh": false
 				}
 			}, {

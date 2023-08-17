@@ -89,6 +89,7 @@
 				isLoading: true,
 				fileUrls: [],
 				loadMore: "",
+				noMore: false,
 				postData: {},
 				replyUserName: ""
 			};
@@ -219,21 +220,8 @@
 			},
 			afterSend(id) {
 				if (this.sendData.comment_type == 0) {
-					let data = {
-						_id: id,
-						comment_date: Date.now(),
-						user_id: [{
-							avatar_file: {
-								url: store.userInfo.avatar_file.url
-							},
-							nickname: store.userInfo.nickname,
-							_id: store.userInfo._id
-						}],
-						like_count: 0,
-						...this.sendData
-					};
-
-					this.comments.unshift(data);
+					this.comments = [];
+					this.getComments();
 				} else {
 					let ref = "comment" + this.commentIndex;
 					this.$refs[ref][0].addSend(this.sendData, id, this.replyUserName);
@@ -382,40 +370,29 @@
 			},
 
 			// 获取评论列表
-			async getComments(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.comments.length;
-				}
-
+			async getComments() {
 				let tempComments = db.collection("db-posts-comments")
 					.where(`post_id == "${this.postId}" && comment_type == 0`)
-					.orderBy("comment_date desc").skip(skip).limit(10).getTemp();
+					.orderBy("comment_date desc").skip(this.comments.length).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempComments, tempUsers).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.comments, ...res.result.data];
-				} else {
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
 
 				if (store.hasLogin) {
-					await checkCommentsLikes(resData).then(result => {
-						resData = result;
+					await checkCommentsLikes(newData).then(result => {
+						newData = result;
 					});
 				}
+
+				let resData = [...this.comments, ...newData];
 
 				// 回复计数
 				let arr = resData.map(item => {
@@ -439,7 +416,6 @@
 
 				this.comments = resData;
 				this.isLoading = false;
-				this.loadMore = "";
 
 				setTimeout(() => {
 					uni.stopPullDownRefresh();
@@ -611,8 +587,9 @@
 				resData.isLike = isLike;
 
 				this.post = resData;
+				// console.log(this.post);
 
-				console.log(this.post);
+				this.isLoading = false;
 
 				// 判断当前用户是否为动态作者
 				let uid = uniCloud.getCurrentUserInfo().uid;
@@ -644,19 +621,20 @@
 			},
 		},
 		onPullDownRefresh() {
-			this.getPost();
+			this.isLoading = true;
+			setTimeout(() => {
+				this.post = {};
+				this.comments = [];
+				this.getPost();
+			}, 300);
 		},
 		onReachBottom() {
 			this.loadMore = "loading";
 			if (this.noMore) {
-				setTimeout(() => {
-					this.loadMore = "noMore";
-				}, 500);
+				this.loadMore = "noMore";
 				return;
 			};
-			this.getComments({
-				loadMore: true
-			});
+			this.getComments();
 		},
 		onShareAppMessage() {
 			return {

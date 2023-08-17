@@ -131,6 +131,8 @@
 					});
 				} else {
 					this.$refs.refresh.show();
+					this.posts = [];
+					this.noMore = false;
 					this.getPosts();
 				}
 			},
@@ -185,71 +187,50 @@
 			refreshShow() {
 				this.navBarInnerOpacity = 0;
 			},
-			async getPosts(e = {}) {
-				const {
-					loadMore = false
-				} = e;
-
-				let skip = 0;
-				if (loadMore) {
-					skip = this.posts.length;
-				}
-
+			async getPosts() {
 				let tempPosts = db.collection("db-posts").where(`sec_check != 1`).orderBy("sort desc, last_modify_date desc")
-					.skip(skip).limit(20).getTemp();
+					.skip(this.posts.length).limit(10).getTemp();
 				let tempUsers = db.collection("uni-id-users").field("_id, avatar_file, nickname, intro").getTemp();
 				let tempTopics = db.collection("db-topics").field("_id, name").getTemp();
 
 				let res = await db.collection(tempPosts, tempUsers, tempTopics).get();
 
-				let resData = [];
+				let newData = res.result.data;
 
-				if (loadMore) {
-					if (res.result.data.length == 0) {
-						this.noMore = true;
-					}
-					resData = [...this.posts, ...res.result.data];
-				} else {
-					this.posts = [];
-					resData = res.result.data;
-					this.noMore = false;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
 
 				if (store.hasLogin) {
-					await checkLikes(resData).then(result => {
-						resData = result;
+					await checkLikes(newData).then(result => {
+						newData = result;
 					});
 				}
 
+				let resData = [...this.posts, ...newData];
+
 				this.posts = resData;
-				console.log(this.posts);
+				// console.log(this.posts);
 
 				setTimeout(() => {
+					this.isLoading = false;
 					this.navBarInnerOpacity = 0;
 					this.$refs.refresh.success();
 					setTimeout(() => {
 						this.navBarInnerOpacity = 1;
 					}, 1300);
 				}, 300);
-
-				this.loadMore = "";
-
-				setTimeout(() => {
-					this.isLoading = false;
-				}, 500);
 			}
 		},
 		onReachBottom() {
 			this.loadMore = "loading";
 			if (this.noMore) {
-				setTimeout(() => {
-					this.loadMore = "noMore";
-				}, 500);
+				this.loadMore = "noMore";
 				return;
 			};
-			this.getPosts({
-				loadMore: true
-			});
+			this.getPosts();
 		},
 		onPageScroll(e) {
 			this.scrollTop = e.scrollTop;

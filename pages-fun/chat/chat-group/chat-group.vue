@@ -62,7 +62,7 @@
 				tempHeight: 0,
 				navHeight: 0,
 				loadMore: "loading",
-				noMore: true,
+				noMore: false,
 				replyMsg: {},
 				autoFocus: false
 			};
@@ -122,35 +122,24 @@
 					this.joinCount = res.result.total;
 				});
 			},
-			async getMsgs(e = {}) {
-				const {
-					loadMore
-				} = e;
-
-				let limit = 10;
-				let skip = 0;
-
-				if (loadMore) {
-					skip = this.msgs.length;
-				}
-
+			async getMsgs() {
 				let tempMsgs = await msgDb.where(`sec_check != 1`).orderBy("create_time desc")
-					.skip(skip).limit(limit).getTemp();
+					.skip(this.msgs.length).limit(10).getTemp();
 				let tempUsers = await db.collection("uni-id-users").field("_id, avatar_file, nickname").getTemp();
 
 				let res = await db.collection(tempMsgs, tempUsers).get();
 
-				let resData = res.result.data.reverse();
+				let newData = res.result.data.reverse();
 
-				if (loadMore) {
-					this.msgs.unshift(...resData);
-
-					if (!resData.length) {
-						this.noMore = true;
-					}
-				} else {
-					this.msgs = resData;
+				if (newData.length == 0) {
+					this.noMore = true;
+					this.loadMore = "noMore";
+					return;
 				}
+
+				let resData = [...newData, ...this.msgs];
+
+				this.msgs = resData;
 			},
 			leaveGroup() {
 				joinDb.where(`user_id == $cloudEnv_uid`).remove();
@@ -282,11 +271,12 @@
 				this.footerHeight = e;
 			},
 			onScrollMore: throttle(function() {
-				this.noMore = false;
 				this.loadMore = "loading";
-				this.getMsgs({
-					loadMore: true
-				});
+				if (this.noMore) {
+					this.loadMore = "noMore";
+					return;
+				};
+				this.getMsgs();
 			})
 		}
 	}
