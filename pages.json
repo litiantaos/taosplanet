@@ -9,6 +9,7 @@
 		"path": "pages/message/message",
 		"style": {
 			"navigationBarTitleText": "消息",
+			"enablePullDownRefresh": true,
 			"navigationStyle": "custom"
 		}
 	}, {
@@ -67,7 +68,7 @@
 					"navigationBarTitleText": "",
 					"navigationBarBackgroundColor": "#fff",
 					"backgroundColor": "#fff",
-					"enablePullDownRefresh": true
+					"enablePullDownRefresh": false
 				}
 			}, {
 				"path": "project-create/project-create",

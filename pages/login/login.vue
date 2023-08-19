@@ -31,19 +31,6 @@
 			return {};
 		},
 		methods: {
-			getTempRegion() {
-				let sto = uni.getStorageSync("temp-region");
-
-				if (sto && !store.userInfo.region.longitude) {
-					mutations.updateUserInfo({
-						region: sto
-					});
-
-					setTimeout(() => {
-						uni.removeStorageSync("temp-region");
-					}, 200);
-				}
-			},
 			login() {
 				this.$refs.toast.show({
 					type: "loading",
@@ -70,13 +57,11 @@
 								text: "登录成功",
 								duration: "2000"
 							});
-
-							this.getTempRegion();
 						}).catch(err => {
 							console.log(err);
-						})
+						});
 					}
-				})
+				});
 			}
 		}
 	}

@@ -43,10 +43,6 @@
 
 <script>
 	import {
-		store
-	} from "@/uni_modules/uni-id-pages/common/store.js";
-
-	import {
 		throttle
 	} from "@/common/utils.js";
 
@@ -146,7 +142,7 @@
 
 				setTimeout(() => {
 					uni.navigateTo({
-						url: "/pages-project/project-transfer/project-transfer?id=" + id + "&userId=" + store.userInfo._id
+						url: "/pages-project/project-transfer/project-transfer?id=" + id
 					});
 				}, 1000);
 			},

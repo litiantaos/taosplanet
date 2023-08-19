@@ -4,6 +4,8 @@
 		<view class="button" @click="toProjectDetail">查看项目</view>
 		<view class="text">或</view>
 		<view class="button" @click="toPosition">招募伙伴</view>
+		<view class="text">或</view>
+		<view class="button gray" @click="toProject">返回项目首页</view>
 	</view>
 </template>
 
@@ -11,19 +13,21 @@
 	export default {
 		data() {
 			return {
-				projectId: "",
-				userId: ""
+				projectId: ""
 			};
 		},
 		onLoad(e) {
 			this.projectId = e.id;
-			this.userId = e.userId;
-			console.log(e);
 		},
 		methods: {
+			toProject() {
+				uni.reLaunch({
+					url: "/pages/project/project"
+				});
+			},
 			toPosition() {
 				uni.navigateTo({
-					url: "/pages-project/position/position?id=" + this.projectId + "&userId=" + this.userId
+					url: "/pages-project/position/position?id=" + this.projectId
 				});
 			},
 			toProjectDetail() {
@@ -50,6 +54,11 @@
 			font-size: 24rpx;
 			border-radius: 20rpx;
 			margin-bottom: 25rpx;
+		}
+
+		.gray {
+			background: #e5e5e5;
+			color: #333;
 		}
 
 		.title {

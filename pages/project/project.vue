@@ -45,9 +45,13 @@
 		},
 		methods: {
 			toWallet() {
-				uni.navigateTo({
-					url: "/pages-project/wallet/wallet"
-				});
+				if (store.hasLogin) {
+					uni.navigateTo({
+						url: "/pages-project/wallet/wallet"
+					});
+				} else {
+					this.needLogin();
+				}
 			},
 			async getProjects() {
 				let tempProjects = db.collection("db-projects").where(`sec_check != 1`)
@@ -62,7 +66,7 @@
 				if (newData.length == 0) {
 					this.noMore = true;
 					this.loadMore = "noMore";
-					return;
+					// return;
 				}
 
 				let resData = [...this.projects, ...newData];
@@ -85,21 +89,25 @@
 						url: "/pages-project/project-create/project-create"
 					});
 				} else {
-					this.$refs.popup.show({
-						type: "text",
-						title: "提示",
-						text: "请登录后再继续吧！",
-						success: () => {
-							this.$refs.popup.hide();
-							uni.navigateTo({
-								url: "/" + pagesJson.uniIdRouter.loginPage
-							});
-						}
-					});
+					this.needLogin();
 				}
 			},
+			needLogin() {
+				this.$refs.popup.show({
+					type: "text",
+					title: "提示",
+					text: "请登录后再继续吧！",
+					success: () => {
+						this.$refs.popup.hide();
+						uni.navigateTo({
+							url: "/" + pagesJson.uniIdRouter.loginPage
+						});
+					}
+				});
+			}
 		},
 		onPullDownRefresh() {
+			this.projects = [];
 			this.getProjects();
 		},
 		onReachBottom() {

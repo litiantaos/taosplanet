@@ -15,31 +15,33 @@
 
 		<default-view v-if="!isLoading && !messages.length" text="暂无消息"></default-view>
 
-		<pull-down v-else @start="refreshStart" ref="refresh">
-			<view class="group">
-				<view class="message" v-for="(item, index) in messages" :key="index" @click="toDetail(item, index)">
-					<view class="avatar">
-						<cloud-file :src="item.from_user_avatar" width="80rpx" height="80rpx" borderRadius="50%"></cloud-file>
-						<view v-if="!item.is_read" class="dot"></view>
-					</view>
-
-					<view class="content">
-						<view class="title-wrap">
-							<text class="title">{{item.from_user_name || "有人"}} {{item.content}}</text>
-
-							<view class="date">
-								<uni-dateformat :date="item.date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
-								</uni-dateformat>
-							</view>
+		<view v-else>
+			<view class="list">
+				<view v-for="(item, index) in messages" :key="index">
+					<view class="message" @click="toDetail(item, index)">
+						<view class="avatar">
+							<cloud-file :src="item.from_user_avatar" width="80rpx" height="80rpx" borderRadius="50%"></cloud-file>
+							<view v-if="!item.is_read" class="dot"></view>
 						</view>
 
-						<view class="excerpt">{{item.excerpt}}</view>
+						<view class="content">
+							<view class="title-wrap">
+								<text class="title">{{item.from_user_name || "有人"}} {{item.content}}</text>
+
+								<view class="date">
+									<uni-dateformat :date="item.date" format="M/d h:mm" :threshold="[60000, 3600000*24*30]">
+									</uni-dateformat>
+								</view>
+							</view>
+
+							<view class="excerpt">{{item.excerpt}}</view>
+						</view>
 					</view>
 				</view>
 			</view>
 
 			<load-more v-if="!isLoading" :status="loadMore"></load-more>
-		</pull-down>
+		</view>
 	</view>
 
 	<safe-area type="tabBar"></safe-area>
@@ -93,10 +95,6 @@
 			});
 		},
 		methods: {
-			refreshStart() {
-				// this.messages = [];
-				this.getMessages();
-			},
 			toMessageSystem() {
 				uni.navigateTo({
 					url: "/pages/message/message-system/message-system"
@@ -202,7 +200,7 @@
 			},
 			async getMessages() {
 				let res = await db.collection("db-messages").where(`user_id == $cloudEnv_uid`).orderBy(
-					"date desc, is_read").skip(this.messages.length).limit(20).get();
+					"date desc, is_read").skip(this.messages.length).limit(15).get();
 
 				let newData = res.result.data;
 
@@ -218,13 +216,21 @@
 				// console.log(this.messages);
 
 				setTimeout(() => {
+					uni.stopPullDownRefresh();
 					this.isLoading = false;
-					this.$refs.refresh.success();
+					this.$refs.toast.show({
+						type: "success",
+						text: "加载成功",
+						duration: "1000"
+					});
 				}, 300);
 			}
 		},
 		onPageScroll(e) {
 			uni.$emit("onPageScroll", e.scrollTop);
+		},
+		onPullDownRefresh() {
+			this.getMessages();
 		},
 		onReachBottom() {
 			this.loadMore = "loading";
@@ -284,7 +290,7 @@
 			}
 		}
 
-		.group {
+		.list {
 			border-radius: 20rpx;
 			overflow: hidden;
 			margin-bottom: 20rpx;

@@ -227,23 +227,40 @@
 				});
 			},
 			onSupport() {
-				this.$refs.popup.show({
-					size: "medium",
-					type: "input",
-					title: "支持金额",
-					inputIn: {
-						placeholder: "输入金额",
-						type: "digit",
-						value: 5
-					},
-					success: res => {
-						this.amount = res - this.round(res * 0.01); // 微信支付手续费1%
-						this.onPay(Math.round(res * 100));
-					}
-				});
+				if (store.hasLogin) {
+					this.$refs.popup.show({
+						size: "medium",
+						type: "input",
+						title: "支持金额",
+						inputIn: {
+							placeholder: "输入金额",
+							type: "digit",
+							value: 5
+						},
+						success: res => {
+							this.amount = res - this.round(res * 0.01); // 微信支付手续费1%
+							this.onPay(Math.round(res * 100));
+						}
+					});
+				} else {
+					this.needLogin();
+				}
 			},
 			round(num) {
 				return Math.round(num * 100) / 100;
+			},
+			needLogin() {
+				this.$refs.popup.show({
+					type: "text",
+					title: "提示",
+					text: "请登录后再继续吧！",
+					success: () => {
+						this.$refs.popup.hide();
+						uni.navigateTo({
+							url: "/" + pagesJson.uniIdRouter.loginPage
+						});
+					}
+				});
 			},
 			toPosition() {
 				uni.navigateTo({
@@ -282,17 +299,7 @@
 							if (store.hasLogin) {
 								this.shareProject();
 							} else {
-								this.$refs.popup.show({
-									type: "text",
-									title: "提示",
-									text: "请登录后再继续吧！",
-									success: () => {
-										this.$refs.popup.hide();
-										uni.navigateTo({
-											url: "/" + pagesJson.uniIdRouter.loginPage
-										});
-									}
-								});
+								this.needLogin();
 							}
 						} else if (index == 1) {
 							this.$refs.tooltip.show();
@@ -327,12 +334,9 @@
 							});
 
 							setTimeout(() => {
-								let pages = getCurrentPages();
-								let prevPage = pages[pages.length - 2];
-
-								prevPage.$vm.getProjects();
-
-								uni.navigateBack();
+								uni.reLaunch({
+									url: "/pages/project/project"
+								});
 							}, 1000);
 						});
 					}

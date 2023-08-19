@@ -31,7 +31,8 @@
 		},
 		onLoad(e) {
 			this.projectId = e.id;
-			this.userId = e.userId;
+
+			this.getUserId();
 			this.getPositions();
 		},
 		computed: {
@@ -43,6 +44,11 @@
 			}
 		},
 		methods: {
+			getUserId() {
+				db.collection("db-projects").where(`_id == "${this.projectId}"`).field("_id, user_id").get().then(res => {
+					this.userId = res.result.data[0].user_id;
+				});
+			},
 			getPositions() {
 				db.collection("db-positions").where(`project_id == "${this.projectId}"`)
 					.field("_id, title, education_name, experience_name, salary_min, salary_max, salary_num").get().then(res => {
@@ -57,7 +63,7 @@
 			toCreate() {
 				uni.navigateTo({
 					url: "/pages-project/position/position-create/position-create?projectId=" + this.projectId
-				})
+				});
 			}
 		},
 		onPullDownRefresh() {

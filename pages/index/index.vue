@@ -46,7 +46,7 @@
 				</image>
 				<view class="start-title">在这里，你可以</view>
 				<view class="start-text">
-					展示自己的经历与状态<br>分享自己的观点与生活<br>自由的交流与互动<br>发现志同道合的朋友<br>······
+					展示自己的经历与状态<br>分享自己的观点与生活<br>发现志同道合的朋友<br>公开自己的项目并获得支持<br>······
 				</view>
 			</view>
 		</popup>

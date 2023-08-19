@@ -171,9 +171,7 @@
 							setTimeout(() => {
 								let pages = getCurrentPages();
 								let prevPage = pages[pages.length - 2];
-
 								prevPage.$vm.getPositions();
-
 								uni.navigateBack();
 							}, 1000);
 						});
