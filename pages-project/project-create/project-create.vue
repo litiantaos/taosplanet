@@ -9,11 +9,7 @@
 			</view>
 		</view>
 
-		<editor id="editor" placeholder="项目介绍" @ready="onEditorReady" @focus="onFocus" @blur="onBlur"
-			@statuschange="onStatusChange" show-img-toolbar>
-		</editor>
-
-		<view v-if="isToolShow" class="toolbar" :style="{bottom: `${height}px`}">
+		<view class="toolbar" :class="{'active': isToolShow}">
 			<view class="iconfont icon-header" :class="{'active': isHeader}" @click="onHeader"></view>
 			<view class="iconfont icon-bold" :class="{'active': isBold}" @click="onBold"></view>
 			<view class="iconfont icon-list-u" :class="{'active': isListBullet}" @click="onListBullet"></view>
@@ -21,6 +17,10 @@
 			<view class="iconfont icon-gallery" @click="onImage"></view>
 			<view class="iconfont icon-doc" @click="onFile"></view>
 		</view>
+
+		<editor id="editor" placeholder="项目介绍" @ready="onEditorReady" @focus="onFocus" @blur="onBlur"
+			@statuschange="onStatusChange" show-img-toolbar>
+		</editor>
 
 		<view v-if="Object.keys(tempFile).length != 0" class="file-card" @click="openFile">
 			<view class="left">{{tempFile.ext}}</view>
@@ -64,8 +64,6 @@
 				isBold: false,
 				isListBullet: false,
 				isListOrdered: false,
-				keyboardHeight: 0,
-				height: 0,
 				tempFile: {},
 				images: [],
 				data: {},
@@ -76,16 +74,6 @@
 			};
 		},
 		onLoad(e) {
-			uni.onKeyboardHeightChange(res => {
-				// console.log(res);
-				this.keyboardHeight = res.height;
-				if (this.keyboardHeight > 0) {
-					uni.pageScrollTo({
-						scrollTop: 0
-					})
-				}
-			});
-
 			if (e.id) {
 				this.editId = e.id;
 				this.setData();
@@ -112,7 +100,6 @@
 				this.data.content = resData.content;
 
 				this.srcMap = srcMap;
-				console.log(srcMap);
 
 				this.data.industry_id = resData.industry_id;
 				this.data.industry_name = resData.industry_name;
@@ -202,6 +189,7 @@
 
 				this.editorCtx.getContents({
 					success: async res => {
+						console.log("res.html", res.html);
 						const {
 							nHtml,
 							nSrcs
@@ -209,13 +197,12 @@
 
 						let newHtml = nHtml;
 
-						if (this.srcMap && Object.keys(this.srcMap).length != 0) {
+						if (Object.keys(this.srcMap).length != 0) {
 							// 将临时链接替换为原fileId
-							const imgRegex = /<img[^>]*>/gi;
-							const imgTags = nHtml.match(imgRegex);
+							const imgTags = nHtml.match(/<img[^>]*>/g);
 
 							imgTags.forEach(tag => {
-								const src = tag.match(/src="([^"]+)"/)[1];
+								const src = tag.match(/src="([^"]*)"/)[1];
 								if (src in this.srcMap) {
 									newHtml = newHtml.replace(tag, tag.replace(src, this.srcMap[src]));
 								}
@@ -409,11 +396,12 @@
 			},
 			onFocus() {
 				this.isToolShow = true;
-				this.height = this.keyboardHeight;
+				uni.pageScrollTo({
+					scrollTop: 0
+				});
 			},
 			onBlur() {
 				this.isToolShow = false;
-				this.height = 0;
 			}
 		}
 	}
@@ -459,14 +447,22 @@
 
 		.toolbar {
 			display: flex;
-			justify-content: space-around;
+			justify-content: space-between;
 			align-items: center;
 			width: 100%;
-			height: 90rpx;
-			background: #f5f5f5;
+			height: 125rpx;
+			background: #fff;
 			position: fixed;
+			top: 0;
 			left: 0;
 			z-index: 999;
+			padding: 0 25rpx;
+			transform: translateY(-100%);
+			transition: transform .3s;
+
+			&.active {
+				transform: translateY(0);
+			}
 
 			.iconfont {
 				font-size: 45rpx;

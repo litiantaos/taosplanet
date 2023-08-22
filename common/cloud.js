@@ -179,34 +179,36 @@ export async function uploadFile(e) {
 }
 
 export async function replaceImgSrc(html, func, isTmp, path) {
-	const imgReg = /<img[^>]*>/gi;
-	const tmpImgReg = /<img [^>]*src="http:\/\/tmp\/[^"]*"[^>]*>/gi;
+	const imgReg = /<img[^>]*>/g;
+	// const tmpImgReg = /<img[^>]*src="http:\/\/tmp[^"]*"[^>]*>/g;
+	const tmpImgReg = /<img[^>]*data-local="wxfile:[^"]*"[^>]*>/g;
 
-	let imgRegex = isTmp ? tmpImgReg : imgReg;
+	const imgRegex = isTmp ? tmpImgReg : imgReg;
 
 	const imgTags = html.match(imgRegex);
-	const srcRegex = /src="([^"]+)"/;
-
-	// console.log("imgTags", imgTags);
+	console.log("imgTags", imgTags);
 
 	let nHtml = html;
-
 	let result = {};
 
 	if (imgTags != null) {
 		const srcs = imgTags.map(tag => {
+			const srcReg = /src="([^"]*)"/;
+			const tmpSrcReg = /data-local="([^"]*)"/;
+			const srcRegex = isTmp ? tmpSrcReg : srcReg;
 			const match = srcRegex.exec(tag);
+
 			return match[1];
 		});
-
-		// console.log("srcs", srcs);
+		console.log("srcs", srcs);
 
 		let nSrcs;
 
 		if (func == "uploadFile") {
 			nSrcs = await uploadFile({
 				tempPaths: srcs,
-				path: path
+				path: path,
+				user_id: "user"
 			});
 		} else if (func == "getTempFileURL") {
 			nSrcs = await getTempFileURL(srcs);
@@ -216,10 +218,13 @@ export async function replaceImgSrc(html, func, isTmp, path) {
 		srcs.forEach((src, index) => {
 			srcMap[nSrcs[index]] = src;
 		});
+		console.log("srcMap", srcMap);
 
-		nSrcs.forEach((nSrc, i) => {
-			nHtml = nHtml.replace(srcs[i], nSrc);
-		});
+		for (let i = 0; i < imgTags.length; i++) {
+			const imgTag = imgTags[i];
+			const newImgTag = imgTag.replace(/src="[^"]*"/, `src="${nSrcs[i]}"`);
+			nHtml = nHtml.replace(imgTag, newImgTag);
+		}
 
 		result.nHtml = nHtml;
 		result.nSrcs = nSrcs;

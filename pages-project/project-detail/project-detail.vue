@@ -281,6 +281,9 @@
 
 				if (store.hasLogin && store.userInfo._id == this.data.user_id[0]._id) {
 					actions.push({
+						text: "招募伙伴",
+						icon: "icon-bubble",
+					}, {
 						text: "编辑",
 						icon: "icon-edit",
 					}, {
@@ -305,10 +308,13 @@
 							this.$refs.tooltip.show();
 						} else if (index == 2) {
 							this.$refs.popup.hide();
+							this.toPosition();
+						} else if (index == 3) {
+							this.$refs.popup.hide();
 							uni.navigateTo({
 								url: "/pages-project/project-create/project-create?id=" + this.data._id
 							});
-						} else if (index == 3) {
+						} else if (index == 4) {
 							this.deleteProject();
 						}
 					}
@@ -431,7 +437,7 @@
 					nHtml
 				} = await replaceImgSrc(resData.content, "getTempFileURL");
 				resData.content = nHtml;
-				// console.log("data", resData);
+				console.log("data", resData);
 
 				this.data = resData;
 
