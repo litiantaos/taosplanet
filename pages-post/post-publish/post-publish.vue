@@ -268,17 +268,6 @@
 
 			createVote() {
 				this.showVote = !this.showVote;
-				// this.$refs.vote.show({
-				// 	size: "large",
-				// 	type: "custom",
-				// 	title: "投票",
-				// 	success: res => {
-
-				// 		setTimeout(() => {
-				// 			this.$refs.popup.hide();
-				// 		}, 200);
-				// 	}
-				// });
 			},
 			getVoteValue(e) {
 				console.log(e);
@@ -317,23 +306,28 @@
 						maxlength: -1
 					},
 					showHandle: true,
-					text: "小程序不支持打开外链，需复制链接到浏览器打开",
+					text: "小程序不支持打开外链，需复制链接到浏览器打开\n\n如果需要跳转至其他小程序，请填写目标小程序的AppID\n格式为：appid:wxb598dce943cae5da:陶客星球\n注意英文小写无空格，末尾是小程序名称",
 					success: res => {
 						// console.log(res);
-						if (isValidUrl(res)) {
-							let isHttp = res.startsWith("http://");
-							let isHttps = res.startsWith("https://");
-							if (!isHttp && !isHttps) {
-								res = "http://" + res;
-							}
+						if (res.startsWith("appid:")) {
 							this.data.link = res;
 							this.$refs.popup.hide();
 						} else {
-							this.$refs.toast.show({
-								type: "error",
-								text: "请输入有效的链接",
-								duration: "2000"
-							});
+							if (isValidUrl(res)) {
+								let isHttp = res.startsWith("http://");
+								let isHttps = res.startsWith("https://");
+								if (!isHttp && !isHttps) {
+									res = "http://" + res;
+								}
+								this.data.link = res;
+								this.$refs.popup.hide();
+							} else {
+								this.$refs.toast.show({
+									type: "error",
+									text: "请输入有效的链接",
+									duration: "2000"
+								});
+							}
 						}
 					}
 				});

@@ -1,4 +1,5 @@
-import message from "./modules/message.js";
+import posts from "./modules/posts.js";
+import messages from "./modules/messages.js";
 
 import {
 	createStore
@@ -6,7 +7,8 @@ import {
 
 const store = createStore({
 	modules: {
-		message
+		posts,
+		messages
 	}
 });
 

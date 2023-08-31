@@ -61,7 +61,7 @@
 		},
 		computed: {
 			...mapState({
-				unread: state => state.message.unread
+				unread: state => state.messages.unread
 			})
 		},
 		methods: {

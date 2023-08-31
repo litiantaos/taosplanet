@@ -1,15 +1,18 @@
 <template>
-	<view class="link" @click="onClick">
+	<view class="link" @click.stop="onClick">
 		<view class="link-image iconfont icon-link"></view>
 		<view class="wrap">
 			<view class="link-url">
-				<view class="url">{{tempData}}</view>
+				<view class="url">{{isMiniApp ? miniAppName : tempData}}</view>
 				<view v-if="showCopy && !copySuccess" class="iconfont icon-copy copy" @click.stop="copy"></view>
 				<view v-if="showCopy && copySuccess" class="iconfont icon-copy-success copy-success"></view>
 			</view>
-			<view class="tip">小程序不支持外链，请复制到浏览器打开</view>
+			<view class="tip">
+				{{isMiniApp ? '可直接跳转至AppID所对应的小程序' : '小程序不支持外链，请复制到浏览器打开'}}
+			</view>
 		</view>
-		<view v-if="showRemove" class="iconfont icon-close-circle-fill delete-btn" @click.stop="handle"></view>
+		<view v-if="showRemove" class="iconfont icon-close-circle-fill delete-btn" @click.stop="handle">
+		</view>
 	</view>
 </template>
 
@@ -32,8 +35,25 @@
 		data() {
 			return {
 				tempData: this.data,
-				copySuccess: false
+				copySuccess: false,
+				isMiniApp: false,
+				miniAppId: '',
+				miniAppName: ''
 			};
+		},
+		mounted() {
+			if (this.tempData.startsWith("appid:")) {
+				this.isMiniApp = true;
+				const matches = this.tempData.match(/appid:(.*):(.*)/);
+				this.miniAppId = matches[1];
+				this.miniAppName = matches[2];
+			}
+		},
+		watch: {
+			data(newVal) {
+				// console.log(newVal);
+				this.tempData = newVal;
+			}
 		},
 		methods: {
 			copy() {
@@ -49,9 +69,15 @@
 				});
 			},
 			onClick() {
-				uni.navigateTo({
-					url: "/pages/webview/webview?url=" + this.tempData
-				});
+				if (this.isMiniApp) {
+					uni.navigateToMiniProgram({
+						appId: this.miniAppId
+					});
+				} else {
+					uni.navigateTo({
+						url: "/pages/webview/webview?url=" + this.tempData
+					});
+				}
 				this.$emit("click");
 			},
 			handle() {

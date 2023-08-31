@@ -477,13 +477,17 @@
 							});
 
 							setTimeout(() => {
-								let pages = getCurrentPages();
-								let prevPage = pages[pages.length - 2];
+								// let pages = getCurrentPages();
+								// let prevPage = pages[pages.length - 2];
 
-								prevPage.$vm.getPosts();
+								// prevPage.$vm.getPosts();
 
-								uni.navigateBack();
-							}, 1000)
+								// uni.navigateBack();
+
+								uni.reLaunch({
+									url: '/pages/index/index'
+								});
+							}, 1000);
 						}).catch(err => {
 							console.log(err);
 							this.$refs.toast.show({

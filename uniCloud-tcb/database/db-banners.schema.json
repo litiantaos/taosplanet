@@ -1,8 +1,6 @@
 {
 	"bsonType": "object",
-	"required": [
-		"bannerfile"
-	],
+	"required": [],
 	"permission": {
 		"read": true
 	},
@@ -10,29 +8,36 @@
 		"_id": {
 			"description": "ID，系统自动生成"
 		},
-		"banner_file": {
-			"bsonType": "file",
-			"fileMediaType": "image",
-			"title": "图片"
-		},
-		"open_url": {
-			"bsonType": "string",
-			"description": "点击跳转目标地址。如果是web地址则使用内置web-view打开；如果是本地页面则跳转本地页面；如果是schema地址则打开本地的app",
-			"title": "点击目标地址",
-			"format": "url",
-			"pattern": "^(http://|https://|/|./|@/)\\S",
-			"trim": "both"
-		},
 		"title": {
 			"bsonType": "string",
-			"description": "注意标题文字颜色和背景图靠色导致看不清的问题",
-			"maxLength": 20,
 			"title": "标题",
+			"trim": "both"
+		},
+		"poster_url": {
+			"bsonType": "string",
+			"title": "图片链接",
+			"format": "url",
+			"trim": "both"
+		},
+		"image_url": {
+			"bsonType": "string",
+			"title": "图片链接",
+			"format": "url",
+			"trim": "both"
+		},
+		"post_id": {
+			"bsonType": "string",
+			"foreignKey": "db-posts._id"
+		},
+		"web_url": {
+			"bsonType": "string",
+			"title": "外链",
+			"format": "url",
 			"trim": "both"
 		},
 		"sort": {
 			"bsonType": "int",
-			"description": "数字越小，排序越前",
+			"description": "数字越大，排序越前",
 			"title": "排序"
 		},
 		"status": {
@@ -42,7 +47,6 @@
 		},
 		"description": {
 			"bsonType": "string",
-			"description": "维护者自用描述",
 			"title": "备注",
 			"trim": "both"
 		}

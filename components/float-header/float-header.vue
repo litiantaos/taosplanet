@@ -1,8 +1,14 @@
 <template>
 	<view class="header" :style="{top: `${height}px`, transform: (offsetY ? 'translateY(-100%)' : 'translateY(0)')}">
-		<view class="search-box" @click="onSearch">
-			<view class="iconfont icon-search"></view>
-			<view class="search-text">搜索</view>
+		<view class="wrapper">
+			<view class="search-box" @click="onSearch">
+				<view class="iconfont icon-search"></view>
+				<view class="search-text">搜索</view>
+			</view>
+
+			<view v-if="banners.length" class="broadcast">
+				<broadcast :items="banners"></broadcast>
+			</view>
 		</view>
 		<view class="group">
 			<view class="iconfont icon-speedometer search-btn" @click="onEvent"></view>
@@ -12,6 +18,8 @@
 </template>
 
 <script>
+	const db = uniCloud.database();
+
 	export default {
 		name: "float-header",
 		props: {
@@ -25,7 +33,8 @@
 				height: 0,
 				offsetY: false,
 				startScrollTop: 0,
-				endScrollTop: 0
+				endScrollTop: 0,
+				banners: [],
 			};
 		},
 		mounted() {
@@ -39,11 +48,18 @@
 				this.height = 0;
 			}
 
+			this.getBanners();
+
 			uni.$on("onPageScroll", e => {
 				this.setOffset(e);
 			});
 		},
 		methods: {
+			getBanners() {
+				db.collection("db-banners").where(`status == true`).orderBy('sort desc').get().then(res => {
+					this.banners = res.result.data;
+				});
+			},
 			onSearch() {
 				this.$emit("onSearch");
 			},
@@ -82,6 +98,15 @@
 		background: #f5f5f5;
 		z-index: 99;
 		transition: transform .5s;
+
+		.wrapper {
+			display: flex;
+			align-items: center;
+
+			.broadcast {
+				margin-left: 20rpx;
+			}
+		}
 
 		.search-box {
 			width: fit-content;

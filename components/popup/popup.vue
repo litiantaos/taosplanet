@@ -33,7 +33,9 @@
 					<!-- 输入框 -->
 					<view v-if="config.type == 'input'" class="input">
 						<input-pro :inputIn="config.inputIn" @input="onInput"></input-pro>
-						<view v-if="config.showHandle" class="handle-text" @click="trigger">{{config.text}}</view>
+						<view v-if="config.showHandle" class="handle-text" @click="trigger">
+							<text>{{config.text}}</text>
+						</view>
 					</view>
 
 					<!-- 日期时间选择器 -->

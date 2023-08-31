@@ -9,20 +9,11 @@
 
 		<float-header custom @onSearch="toSearch" @onEvent="toEvent" @onChat="toChat"></float-header>
 
-		<view style="margin-bottom: 80rpx;">
+		<view style="margin-bottom: 105rpx;">
 			<safe-area></safe-area>
 		</view>
 
 		<pull-down @show="refreshShow" @start="refreshStart" mode="full" ref="refresh">
-			<swiper v-if="banners.length" class="banner">
-				<swiper-item v-for="(item, index) in banners" :key="index">
-					<view class="banner-item" @click="toBannerPage(item.open_url)">
-						<cloud-file :src="item.open_url" width="100%" height="100%"></cloud-file>
-						<view v-if="item.title" class="banner-title">{{item.title}}</view>
-					</view>
-				</swiper-item>
-			</swiper>
-
 			<view class="main">
 				<view v-for="(item, index) in posts" :key="index">
 					<post :data="item" :postId="item._id" @likeLogin="needLogin" @share="clickShare" @voteLogin="needLogin"
@@ -30,6 +21,8 @@
 				</view>
 
 				<load-more v-if="!isLoading" :status="loadMore"></load-more>
+
+				<safe-area type="tabBar"></safe-area>
 			</view>
 		</pull-down>
 
@@ -79,26 +72,14 @@
 				isLoading: true,
 				loadMore: "",
 				noMore: false,
-				banners: [],
 				navBarInnerOpacity: 1
 			}
 		},
 		onLoad() {
 			this.getPosts();
 			this.showStart();
-			this.getBanners();
 		},
 		methods: {
-			toBannerPage(url) {
-				uni.navigateTo({
-					url: "/pages/webview/webview?url=" + url
-				});
-			},
-			getBanners() {
-				db.collection("db-banners").where(`status == true`).get().then(res => {
-					this.banners = res.result.data;
-				});
-			},
 			showStart() {
 				let sto = uni.getStorageSync("start-init");
 				if (!sto) {
@@ -182,7 +163,6 @@
 			},
 			refreshStart() {
 				this.getPosts();
-				this.getBanners();
 			},
 			refreshShow() {
 				this.navBarInnerOpacity = 0;
@@ -289,31 +269,8 @@
 		}
 	}
 
-	.banner {
-		height: 120rpx;
-		margin-top: 10rpx;
-
-		.banner-item {
-			height: 100%;
-			background: #fff;
-			border-radius: 20rpx;
-			overflow: hidden;
-			margin: 0 25rpx;
-			position: relative;
-
-			.banner-title {
-				font-size: 32rpx;
-				font-weight: bold;
-				color: #333;
-				position: absolute;
-				bottom: 20rpx;
-				left: 25rpx;
-			}
-		}
-	}
-
 	.main {
 		width: 100vw;
-		padding: 25rpx 25rpx calc(env(safe-area-inset-bottom) + 48px + 25rpx) 25rpx;
+		padding: 0 25rpx 25rpx;
 	}
 </style>
