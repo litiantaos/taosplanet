@@ -186,7 +186,7 @@ export async function replaceImgSrc(html, func, isTmp, path) {
 	const imgRegex = isTmp ? tmpImgReg : imgReg;
 
 	const imgTags = html.match(imgRegex);
-	console.log("imgTags", imgTags);
+	// console.log("imgTags", imgTags);
 
 	let nHtml = html;
 	let result = {};
@@ -200,7 +200,7 @@ export async function replaceImgSrc(html, func, isTmp, path) {
 
 			return match[1];
 		});
-		console.log("srcs", srcs);
+		// console.log("srcs", srcs);
 
 		let nSrcs;
 
@@ -218,7 +218,7 @@ export async function replaceImgSrc(html, func, isTmp, path) {
 		srcs.forEach((src, index) => {
 			srcMap[nSrcs[index]] = src;
 		});
-		console.log("srcMap", srcMap);
+		// console.log("srcMap", srcMap);
 
 		for (let i = 0; i < imgTags.length; i++) {
 			const imgTag = imgTags[i];

@@ -1,10 +1,5 @@
 <template>
-	<cover-view v-if="isCover" class="cloud-file" :style="{width, height, borderRadius, border}" @click="onClick">
-		<cover-image v-if="cSrc" :src="cSrc" class="image cover" :mode="mode"></cover-image>
-		<cover-view></cover-view>
-	</cover-view>
-
-	<view v-else class="cloud-file" :style="{width, height, background, borderRadius, border}" @click="onClick">
+	<view class="cloud-file" :style="{width, height, background, borderRadius, border}" @click="onClick">
 		<image v-if="cSrc" :src="cSrc" class="image" :mode="mode"></image>
 	</view>
 </template>
@@ -39,10 +34,6 @@
 			mode: {
 				type: String,
 				default: "aspectFill"
-			},
-			isCover: {
-				type: Boolean,
-				default: false
 			}
 		},
 		data() {

@@ -9,7 +9,9 @@
 		<view class="list">
 			<view class="item" v-for="(item, index) in detailList" :key="index">
 				<view class="top">
-					<view class="name">{{item.user_id[0].nickname}}</view>
+					<view class="name">
+						<name-init :data="item.user_id[0]"></name-init>
+					</view>
 					<view class="num">¥{{item.amount}}</view>
 				</view>
 				<view class="bottom">

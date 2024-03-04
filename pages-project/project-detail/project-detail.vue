@@ -68,8 +68,10 @@
 		<scroll-view scroll-y="true" class="investorList" @scrolltolower="scrollBottom">
 			<view class="investor-item" v-for="(item, index) in investors" :key="index">
 				<view class="user">
-					<cloud-file :src="item.user_id[0]" width="60rpx" height="60rpx" borderRadius="50%"></cloud-file>
-					<view class="username">{{item.user_id[0].nickname}}</view>
+					<cloud-file :src="item" width="60rpx" height="60rpx" borderRadius="50%"></cloud-file>
+					<view class="username">
+						<name-init :data="item.user_id[0]"></name-init>
+					</view>
 				</view>
 				<view class="amount">¥{{item.amount}}</view>
 			</view>
@@ -408,9 +410,7 @@
 				let resData = res.result.data.reverse();
 				// console.log("investors", resData);
 
-				this.avatars = resData.map(item => {
-					return item.user_id[0].avatar_file.url;
-				});
+				this.avatars = resData;
 
 				let count = await db.collection("db-project-investment").where(`project_id == "${this.projectId}"`)
 					.field("user_id").distinct().count();

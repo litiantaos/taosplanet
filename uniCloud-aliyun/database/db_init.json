@@ -1,0 +1,2203 @@
+{
+    "db-banners": {
+        "data": [
+            {
+                "background_color": "#F2E7D5",
+                "image_url": "https://7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658.tcb.qcloud.la/banners/hb_min.png",
+                "post_id": "ea0672b164f0671d001549d57673804f",
+                "poster_url": "",
+                "sort": 1,
+                "status": true,
+                "title": "领外卖红包券",
+                "title_color": "#E47470"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-banners_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [],
+            "permission": {
+                "read": true
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "title": {
+                    "bsonType": "string",
+                    "title": "标题",
+                    "trim": "both"
+                },
+                "poster_url": {
+                    "bsonType": "string",
+                    "title": "图片链接",
+                    "format": "url",
+                    "trim": "both"
+                },
+                "image_url": {
+                    "bsonType": "string",
+                    "title": "图片链接",
+                    "format": "url",
+                    "trim": "both"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "web_url": {
+                    "bsonType": "string",
+                    "title": "外链",
+                    "format": "url",
+                    "trim": "both"
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "description": "数字越大，排序越前",
+                    "title": "排序"
+                },
+                "status": {
+                    "bsonType": "bool",
+                    "defaultValue": true,
+                    "title": "生效状态"
+                },
+                "description": {
+                    "bsonType": "string",
+                    "title": "备注",
+                    "trim": "both"
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-chat-group-join": {
+        "data": [
+            {
+                "creat_time": 1681915468344,
+                "update_ip": "183.209.158.93",
+                "update_time": 1681973354691,
+                "user_id": "0122a5876431374b07c5590557b4bd21"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-chat-group-join_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": true,
+                "update": true,
+                "delete": true
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "creat_time": {
+                    "bsonType": "timestamp",
+                    "description": "首次加入时间",
+                    "forceDefaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "update_time": {
+                    "bsonType": "timestamp",
+                    "description": "最后加入时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "update_ip": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                }
+            }
+        }
+    },
+    "db-chat-msg": {
+        "data": [
+            {
+                "create_time": 1681911645625,
+                "from_uid": "2cc84e266430478807baff8e5a1cf944",
+                "is_read": false,
+                "text": "你好，陶星人！"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-chat-msg_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "from_uid"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "from_uid": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "to_uid": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id"
+                },
+                "text": {
+                    "bsonType": "string",
+                    "title": "文本",
+                    "trim": "both"
+                },
+                "images": {
+                    "bsonType": "array",
+                    "title": "图片"
+                },
+                "videos": {
+                    "bsonType": "array",
+                    "title": "视频"
+                },
+                "location": {
+                    "bsonType": "object",
+                    "title": "位置"
+                },
+                "file": {
+                    "bsonType": "array",
+                    "title": "文件"
+                },
+                "reply_to_id": {
+                    "bsonType": "string",
+                    "foreignKey": "_id"
+                },
+                "sec_check": {
+                    "bsonType": "int",
+                    "defaultValue": 0,
+                    "description": "0 通过 1 违规 2 错误"
+                },
+                "create_time": {
+                    "bsonType": "timestamp",
+                    "forceDefaultValue": {
+                        "$env": "now"
+                    }
+                }
+            }
+        }
+    },
+    "db-colleges": {
+        "data": [
+            {
+                "city": "北京市",
+                "code": 4111010001,
+                "department": "教育部",
+                "level": "本科",
+                "name": "北京大学",
+                "note": "",
+                "peeli": "",
+                "peeli_date": "",
+                "province": "北京市",
+                "sn": 1,
+                "sort": ""
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-colleges_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "name"
+            ],
+            "permission": {
+                "read": true,
+                "create": false,
+                "update": false,
+                "delete": false
+            },
+            "properties": {
+                "_id": {
+                    "description": "存储文档 ID（文章 ID），系统自动生成"
+                },
+                "sn": {
+                    "bsonType": "int",
+                    "title": "序号"
+                },
+                "name": {
+                    "bsonType": "string",
+                    "title": "名称"
+                },
+                "code": {
+                    "bsonType": "string",
+                    "title": "标识码"
+                },
+                "department": {
+                    "bsonType": "string",
+                    "title": "主管部门"
+                },
+                "province": {
+                    "bsonType": "string",
+                    "title": "省"
+                },
+                "city": {
+                    "bsonType": "string",
+                    "title": "市"
+                },
+                "level": {
+                    "bsonType": "string",
+                    "title": "层次"
+                },
+                "note": {
+                    "bsonType": "string",
+                    "title": "备注",
+                    "trim": "both"
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "title": "排序"
+                },
+                "peeli": {
+                    "bsonType": "int"
+                },
+                "peeli_date": {
+                    "bsonType": "string",
+                    "title": "社团成立日期"
+                },
+                "student_count": {
+                    "bsonType": "int",
+                    "title": "学生数量"
+                },
+                "icon": {
+                    "bsonType": "string",
+                    "title": "图标",
+                    "pattern": "^(http://|https://|/|./|@/)\\S",
+                    "trim": "both"
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-events": {
+        "data": [
+            {
+                "deadline": 1682006340000,
+                "end_date": 1683972000000,
+                "images": [
+                    "cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/events/images/2cc84e266430478807baff8e5a1cf944_1681377066251_0.jpg"
+                ],
+                "intro": "迎接未来，讨论人工智能对社会的影响，并发现其中的机会。",
+                "is_modified": false,
+                "last_modify_date": 1681377068967,
+                "last_modify_ip": "112.2.243.190",
+                "location": {
+                    "coordinates": [
+                        118.783058,
+                        32.042568
+                    ],
+                    "type": "Point"
+                },
+                "location_name": "金陵饭店",
+                "publish_date": 1681377068967,
+                "publish_ip": "112.2.243.190",
+                "region": {
+                    "adcode": "320111",
+                    "city": "南京市",
+                    "district": "浦口区",
+                    "latitude": 32.059,
+                    "longitude": 118.62841,
+                    "province": "江苏省"
+                },
+                "sec_check": 0,
+                "start_date": 1683869400000,
+                "title": "人工智能圆桌讨论会",
+                "user_id": "2cc84e266430478807baff8e5a1cf944",
+                "view_count": 102
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-events_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "title": {
+                    "bsonType": "string",
+                    "title": "主题",
+                    "trim": "both"
+                },
+                "intro": {
+                    "bsonType": "string",
+                    "title": "说明",
+                    "trim": "right"
+                },
+                "start_date": {
+                    "bsonType": "timestamp",
+                    "title": "活动开始时间"
+                },
+                "end_date": {
+                    "bsonType": "timestamp",
+                    "title": "活动结束时间"
+                },
+                "deadline": {
+                    "bsonType": "timestamp",
+                    "title": "报名截止时间"
+                },
+                "limited_participant_count": {
+                    "bsonType": "int",
+                    "title": "限定参与人数"
+                },
+                "region": {
+                    "bsonType": "object",
+                    "title": "地区"
+                },
+                "location": {
+                    "bsonType": "object",
+                    "title": "位置"
+                },
+                "location_name": {
+                    "bsonType": "string",
+                    "title": "位置名称"
+                },
+                "images": {
+                    "bsonType": "array",
+                    "title": "图片"
+                },
+                "view_count": {
+                    "bsonType": "int",
+                    "title": "浏览量",
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "participant_count": {
+                    "bsonType": "int",
+                    "title": "参与人数",
+                    "defaultValue": 1
+                },
+                "publish_date": {
+                    "bsonType": "timestamp",
+                    "title": "发布时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "publish_ip": {
+                    "bsonType": "string",
+                    "title": "发布 IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                },
+                "is_modified": {
+                    "bsonType": "bool",
+                    "description": "true is modified, false is unmodified",
+                    "defaultValue": false
+                },
+                "last_modify_date": {
+                    "bsonType": "timestamp",
+                    "title": "最后修改时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "last_modify_ip": {
+                    "bsonType": "string",
+                    "title": "最后修改 IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                },
+                "is_sticky": {
+                    "bsonType": "bool",
+                    "title": "置顶",
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "title": "排序"
+                },
+                "sec_check": {
+                    "bsonType": "int",
+                    "defaultValue": 0,
+                    "description": "0 通过 1 违规 2 错误"
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-events-participants": {
+        "data": [
+            {
+                "date": 1681457067149,
+                "event_id": "7201b8556438ffab000fce9974d9cc1b",
+                "is_creator": true,
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-events-participants_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "event_id",
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "存储文档 ID（文章 ID），系统自动生成"
+                },
+                "event_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-events._id"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    },
+                    "foreignKey": "uni-id-users._id"
+                },
+                "comment": {
+                    "bsonType": "string",
+                    "trim": "both"
+                },
+                "is_creator": {
+                    "bsonType": "bool"
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-industries": {
+        "data": [
+            {
+                "code": "0100",
+                "name": "互联网/信息技术/电子/通信",
+                "parent_code": "",
+                "type": 0
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-industries_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "code",
+                "name"
+            ],
+            "permission": {
+                "read": true,
+                "create": false,
+                "update": false,
+                "delete": false
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "code": {
+                    "bsonType": "string",
+                    "description": "编码"
+                },
+                "parent_code": {
+                    "bsonType": "string",
+                    "description": "父级编码",
+                    "parentKey": "code"
+                },
+                "name": {
+                    "bsonType": "string",
+                    "title": "名称"
+                },
+                "type": {
+                    "bsonType": "int",
+                    "description": "层级"
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "title": "排序"
+                },
+                "user_count": {
+                    "bsonType": "int",
+                    "title": "人数"
+                }
+            }
+        }
+    },
+    "db-messages": {
+        "data": [
+            {
+                "content": "回复了你的评论",
+                "date": 1680954854406,
+                "is_read": true,
+                "type": "reply"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-messages_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": true,
+                "delete": false
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id"
+                },
+                "is_read": {
+                    "bsonType": "bool",
+                    "defaultValue": false
+                },
+                "content": {
+                    "bsonType": "string"
+                },
+                "excerpt": {
+                    "bsonType": "string",
+                    "trim": "both"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "post_user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id"
+                },
+                "from_user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id"
+                },
+                "from_user_name": {
+                    "bsonType": "string"
+                },
+                "type": {
+                    "bsonType": "string"
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-positions": {
+        "data": [
+            {
+                "description": "- 设计花样百出的推广计划，让我们的产品服务更多人，提供更多价值\n\n- 和用户畅快互动，听取各种创意点子\n\n- 追踪社交效果数据，不断优化策略，让用户数直线上升\n\n- 收集用户反馈，共同讨论产品迭代方向，每月都有惊喜更新\n\n- 分析社交趋势和用户喜好，确保产品永远贴近用户",
+                "education_id": 2,
+                "education_name": "本科及以上",
+                "experience_id": 2,
+                "experience_name": "1-3年",
+                "project_id": "97c427db64daedcf01116b6759347319",
+                "salary_max": 999,
+                "salary_min": 99,
+                "salary_num": 12,
+                "title": "产品运营",
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-positions_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id",
+                "title"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "project_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-projects._id"
+                },
+                "title": {
+                    "bsonType": "string",
+                    "title": "标题",
+                    "trim": "both"
+                },
+                "description": {
+                    "bsonType": "string",
+                    "title": "内容"
+                },
+                "education_id": {
+                    "bsonType": "int",
+                    "title": "学历 ID"
+                },
+                "education_name": {
+                    "bsonType": "string",
+                    "title": "学历"
+                },
+                "experience_id": {
+                    "bsonType": "int",
+                    "title": "经验 ID"
+                },
+                "experience_name": {
+                    "bsonType": "string",
+                    "title": "经验"
+                },
+                "salary_min": {
+                    "bsonType": "int",
+                    "title": "薪资低"
+                },
+                "salary_max": {
+                    "bsonType": "int",
+                    "title": "薪资高"
+                },
+                "salary_num": {
+                    "bsonType": "int",
+                    "title": "薪数"
+                }
+            }
+        }
+    },
+    "db-posts": {
+        "data": [
+            {
+                "comment_count": 64,
+                "content": "去年和朋友一起，\n在海南。",
+                "images": [
+                    "cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/posts/images/2cc84e266430478807baff8e5a1cf944_1680931852937_0.jpg",
+                    "cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/posts/images/2cc84e266430478807baff8e5a1cf944_1680931852937_1.jpg",
+                    "cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/posts/images/2cc84e266430478807baff8e5a1cf944_1680931852938_2.jpg"
+                ],
+                "is_modified": false,
+                "last_modify_date": 1680931855381,
+                "last_modify_ip": "127.0.0.1",
+                "like_count": 2,
+                "location": {
+                    "coordinates": [
+                        109.183211,
+                        19.667693
+                    ],
+                    "type": "Point"
+                },
+                "location_name": "中国海南海花岛",
+                "publish_date": 1680931855381,
+                "publish_ip": "127.0.0.1",
+                "sec_check": 0,
+                "status": 0,
+                "topic_id": "b0cde5b0643041670008d3f2669731f4",
+                "user_id": "2cc84e266430478807baff8e5a1cf944",
+                "view_count": 323
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-posts_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "topic_id": {
+                    "bsonType": "string",
+                    "title": "话题",
+                    "foreignKey": "db-topics._id",
+                    "enum": {
+                        "collection": "db-topics",
+                        "field": "name as text, _id as value"
+                    }
+                },
+                "content": {
+                    "bsonType": "string",
+                    "title": "内容",
+                    "trim": "right"
+                },
+                "images": {
+                    "bsonType": "array",
+                    "title": "图片"
+                },
+                "videos": {
+                    "bsonType": "array",
+                    "title": "视频"
+                },
+                "location": {
+                    "bsonType": "object",
+                    "title": "位置"
+                },
+                "location_name": {
+                    "bsonType": "string",
+                    "title": "位置名称"
+                },
+                "link": {
+                    "bsonType": "string",
+                    "title": "链接"
+                },
+                "shared_post_id": {
+                    "bsonType": "string",
+                    "title": "转发动态",
+                    "foreignKey": "_id"
+                },
+                "shared_event_id": {
+                    "bsonType": "string",
+                    "title": "转发活动",
+                    "foreignKey": "db-events._id"
+                },
+                "shared_project_id": {
+                    "bsonType": "string",
+                    "title": "转发项目",
+                    "foreignKey": "db-projects._id"
+                },
+                "shared_position_id": {
+                    "bsonType": "string",
+                    "title": "转发职位",
+                    "foreignKey": "db-positions._id"
+                },
+                "view_count": {
+                    "bsonType": "int",
+                    "title": "浏览量",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "like_count": {
+                    "bsonType": "int",
+                    "title": "喜欢数",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "comment_count": {
+                    "bsonType": "int",
+                    "title": "评论数",
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "publish_date": {
+                    "bsonType": "timestamp",
+                    "title": "发布时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "publish_ip": {
+                    "bsonType": "string",
+                    "title": "发布 IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                },
+                "is_modified": {
+                    "bsonType": "bool",
+                    "description": "true is modified, false is unmodified",
+                    "defaultValue": false
+                },
+                "last_modify_date": {
+                    "bsonType": "timestamp",
+                    "title": "最后修改时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "last_modify_ip": {
+                    "bsonType": "string",
+                    "title": "最后修改 IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                },
+                "status": {
+                    "bsonType": "int",
+                    "title": "状态",
+                    "description": "0 草稿箱 1 已发布",
+                    "defaultValue": 0,
+                    "enum": [
+                        {
+                            "value": 0,
+                            "text": "草稿箱"
+                        },
+                        {
+                            "value": 1,
+                            "text": "已发布"
+                        }
+                    ]
+                },
+                "is_sticky": {
+                    "bsonType": "bool",
+                    "title": "置顶",
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "title": "排序"
+                },
+                "vote_end_date": {
+                    "bsonType": "timestamp",
+                    "title": "投票结束时间"
+                },
+                "vote_count": {
+                    "bsonType": "int",
+                    "title": "票数",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "sec_check": {
+                    "bsonType": "int",
+                    "defaultValue": 0,
+                    "description": "0 通过 1 违规 2 错误"
+                },
+                "comment_status": {
+                    "bsonType": "int",
+                    "title": "评论状态",
+                    "description": "0 关闭  1 开放",
+                    "enum": [
+                        {
+                            "value": 0,
+                            "text": "关闭"
+                        },
+                        {
+                            "value": 1,
+                            "text": "开放"
+                        }
+                    ]
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-posts-comments": {
+        "data": [
+            {
+                "comment_content": "真好，羡慕",
+                "comment_date": 1680951770908,
+                "comment_ip": "112.2.243.190",
+                "comment_type": 0,
+                "post_id": "b851fc496430fc0f000308db6d8295b3",
+                "user_id": "0122a5876431374b07c5590557b4bd21"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-posts-comments_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "post_id",
+                "user_id",
+                "comment_content",
+                "comment_type"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    },
+                    "foreignKey": "uni-id-users._id"
+                },
+                "comment_content": {
+                    "bsonType": "string",
+                    "title": "评论内容",
+                    "trim": "both"
+                },
+                "comment_type": {
+                    "bsonType": "int",
+                    "description": "0 针对动态的回复  1 针对评论的回复"
+                },
+                "reply_comment_id": {
+                    "bsonType": "string",
+                    "description": "被回复的评论ID，comment_type为1时有效",
+                    "parentKey": "_id"
+                },
+                "reply_user_id": {
+                    "bsonType": "string",
+                    "description": "被回复的评论用户ID，comment_type为1时有效",
+                    "foreignKey": "uni-id-users._id"
+                },
+                "like_count": {
+                    "bsonType": "int",
+                    "description": "评论点赞数",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "comment_images": {
+                    "bsonType": "array",
+                    "title": "图片"
+                },
+                "sec_check": {
+                    "bsonType": "int",
+                    "defaultValue": 0,
+                    "description": "0 通过 1 违规 2 错误"
+                },
+                "comment_date": {
+                    "bsonType": "timestamp",
+                    "forceDefaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "comment_ip": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-posts-comments-likes": {
+        "data": [
+            {
+                "comment_id": "93e4b6a064396f3a08a9706f112eb36b",
+                "date": 1681539437937,
+                "post_id": "b851fc496430fc0f000308db6d8295b3",
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-posts-comments-likes_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "post_id",
+                "comment_id",
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "comment_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts-comments._id"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    },
+                    "foreignKey": "uni-id-users._id"
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-posts-likes": {
+        "data": [
+            {
+                "date": 1680947072080,
+                "post_id": "b851fc496430fc0f000308db6d8295b3",
+                "user_id": "0122a5876431374b07c5590557b4bd21"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-posts-likes_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "post_id",
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    },
+                    "foreignKey": "uni-id-users._id"
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-project-investment": {
+        "data": [
+            {
+                "amount": 0.1,
+                "date": 1692070278646,
+                "ip": "183.209.158.167",
+                "project_id": "97c427db64daedcf01116b6759347319",
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-project-investment_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id",
+                "project_id",
+                "amount"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "project_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-projects._id"
+                },
+                "amount": {
+                    "bsonType": "double",
+                    "title": "金额/元",
+                    "defaultValue": 0
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "title": "时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "ip": {
+                    "bsonType": "string",
+                    "title": "IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                }
+            }
+        }
+    },
+    "db-projects": {
+        "data": [
+            {
+                "content": "<p><img src=\"cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/projects/images/undefined_1692069943237_0.png\"></p><p><br></p><h2>项目简介</h2><p>陶客星球是专门为陶学子所建立的网络社区，这里是陶学子专属的精神领地，希望能让大家聚在一起共同交流、讨论、发现、创造！</p><p><br></p><ul><li>展示自己的经历与状态</li><li>分享自己的观点与生活</li><li>自由的交流与互动</li><li>发现志同道合的朋友</li><li>展示自己的项目并获得朋友们的投资</li><li>为项目招募合适的伙伴</li><li>……</li></ul><p><br></p><p><img src=\"cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/projects/images/undefined_1692069943237_1.jpg\"></p><p><br></p><h2>产品开发</h2><p>产品形式暂时是微信小程序，但开发选型用的是跨端框架，如后续需要也可以相对容易的构建为&nbsp;iOS&nbsp;或&nbsp;Android&nbsp;的&nbsp;App。</p><p><br></p><p><img src=\"cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/projects/images/undefined_1692069943237_2.png\"><img src=\"cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/projects/images/undefined_1692069943237_3.png\"><img src=\"cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/projects/images/undefined_1692069943237_4.png\"></p><p><br></p><h2>产品故事</h2><p>陶学子是很重要很独特的资源，现在分散各处又缺少联系（尤其是毕业陶学子），建设这个小产品的初衷就是希望能作为一个纽带将陶学子最大化的链接起来，尝试发挥更大的价值。</p><p><br></p><p>现在关联陶学子的途径主要是微信群，但其存在几个显著的问题：</p><p><br></p><ol><li>碎片化严重，群比较多，消息较乱；</li><li>互动率较低，交流仍存在压力；</li><li>内容糅杂，很少产生深度讨论，内容难以积累与沉淀。</li></ol><p><br></p><p>基金会一直也在致力于提升陶校友之间的沟通交流，在做一些茶话会、知识饭局、交流会之类的活动，但毕竟这种形式开展起来成本也高，参与度和交流机会都很受限，所以陶客星球这样的专属社区就很有必要了，整体上的氛围会增强，内容也会沉淀下来，也会在一定程度上降低交流压力。</p><p><br></p><p>当然，这都建立在产品用户数量和使用率达到一个基本水准区间之上，我认为3-5千用户数能够保持社区氛围的相对良好，而陶学子群体正好在这个数量级。</p><p><br></p><p>在大学时我就曾经考虑过做类似的产品，同时能提供一个创业陶学子与投资人对接的平台，能够帮助好的项目与投资人联姻。但当时的想法主要还是针对专业投资人或投资团队，其实这并不是一个理想的产品思路，有很多现实问题，也难以运营与商业化，所以也一直没有找到一个好的切入点，后来因工作关系也并未在此多去筹谋。</p><p><br></p><p>去年年底开始，我陆陆续续思考和学习产品开发相关知识，在前段时间我辞职后便立即着手开发这个产品，功能主要立足社区与社交，一个月时间第一个版本就上线了，在各群里发了一下，反响不大，我也没专门去宣传推广，只是觉得实现了自己的一个目标。</p><p><br></p><p>最近对产品进行了迭代，加入了之前设想过的创业者与投资者的对接，但思路虽起源于此却大不一样，这个功能版块叫「项目」。「项目」的目的就是让每个人都能创建一个或多个项目，无论是个人还是创业者，只要是愿意做的事情，都可以发布出来，获得大家的讨论与见解，集思广益，也能获得资金上的支持。在这里，资金并不是十万百万的投资，而是每个认同项目或项目创建人的用户进行的小额支持，可以是几块十几块，也可以成千上万，相当于每个人同样也是梦想投资人，我坚信积少成多，相信小钱也能做大事，相信小思考也能引发大爆炸。这有点像众筹，但商品的众筹是提前付款的购买行为，医疗的众筹是单纯的捐赠行为，也还是不一样的，在这里你是作为投资人，后续项目发展的好也许会有分红，可能也是个很不错的模式。</p><p><br></p><p>这个思路也有点类似现在的&nbsp;Build&nbsp;in&nbsp;Public，也并不是个高大上的理念，说白了就是企业高管、团队创始人在&nbsp;Twitter&nbsp;等社交媒体上发布自己公司的最新情况、产品进度等等内容，从而吸引并积累兴趣客户与投资人，获得高质量关注者，获得一线用户的实时反馈并及时进行优化，获得公众对企业与产品发展的思考与见解，也就是公众共建。</p><p><br></p><p>由此延伸，未来灵活从业可能成为趋势，销售与购买个人技能会变得普遍，个人或小团队在业务运行中只要按需购买，无需配置长期岗位，能够降低办公与人员成本。当前这类产品在国内也有不少，但很碎片且生态不足，大多数都聚焦在零工，高阶一点的需求仍然是空白，短期内企业对此也不会产生过多需求，中小团队需要的话找淘宝比其他平台更便捷，但仍不失为一个可行的方向。</p><p><br></p><p><br></p><h2>小程序码</h2><p><img src=\"cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/projects/images/undefined_1692069943237_5.jpg\"></p>",
+                "excerpt": "项目简介\n陶客星球是专门为陶学子所建立的网络社区，这里是陶学子专属的精神领地，希望能让大家聚在一",
+                "industry_id": "f777abbe6432b58c002076517041545a",
+                "industry_name": "社交网络",
+                "investor_count": 2,
+                "is_modified": true,
+                "last_modify_date": 1693632131361,
+                "last_modify_ip": "223.104.150.34",
+                "publish_date": 1692069327667,
+                "publish_ip": "183.209.158.167",
+                "sec_check": 0,
+                "title": "陶客星球-陶学子社区",
+                "total_investment": 9.49,
+                "user_id": "2cc84e266430478807baff8e5a1cf944",
+                "view_count": 229
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-projects_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id",
+                "title"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "title": {
+                    "bsonType": "string",
+                    "title": "标题",
+                    "trim": "both"
+                },
+                "industry_id": {
+                    "bsonType": "string",
+                    "title": "行业 ID",
+                    "foreignKey": "db-industries._id"
+                },
+                "industry_name": {
+                    "bsonType": "string",
+                    "title": "行业"
+                },
+                "content": {
+                    "bsonType": "string",
+                    "title": "内容"
+                },
+                "excerpt": {
+                    "bsonType": "string",
+                    "title": "摘要",
+                    "trim": "both"
+                },
+                "file": {
+                    "bsonType": "object",
+                    "title": "文件"
+                },
+                "view_count": {
+                    "bsonType": "int",
+                    "title": "浏览量",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "investor_count": {
+                    "bsonType": "int",
+                    "title": "投资人数",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "total_investment": {
+                    "bsonType": "double",
+                    "title": "金额/元",
+                    "defaultValue": 0
+                },
+                "publish_date": {
+                    "bsonType": "timestamp",
+                    "title": "发布时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "publish_ip": {
+                    "bsonType": "string",
+                    "title": "发布 IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                },
+                "is_modified": {
+                    "bsonType": "bool",
+                    "description": "true is modified, false is unmodified",
+                    "defaultValue": false
+                },
+                "last_modify_date": {
+                    "bsonType": "timestamp",
+                    "title": "最后修改时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                },
+                "last_modify_ip": {
+                    "bsonType": "string",
+                    "title": "最后修改 IP",
+                    "forceDefaultValue": {
+                        "$env": "clientIP"
+                    }
+                },
+                "sec_check": {
+                    "bsonType": "int",
+                    "defaultValue": 0,
+                    "description": "0 通过 1 违规 2 错误"
+                }
+            }
+        }
+    },
+    "db-topics": {
+        "data": [
+            {
+                "name": "创业者的日常",
+                "post_count": 4,
+                "sort": 999
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-topics_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "name"
+            ],
+            "permission": {
+                "read": true,
+                "create": false,
+                "update": false,
+                "delete": false
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "name": {
+                    "bsonType": "string",
+                    "label": "名称",
+                    "trim": "both"
+                },
+                "description": {
+                    "bsonType": "string",
+                    "label": "描述",
+                    "trim": "both"
+                },
+                "wallpaper": {
+                    "bsonType": "string",
+                    "label": "封面图片",
+                    "pattern": "^(http://|https://|/|./|@/)\\S",
+                    "trim": "both"
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "label": "排序"
+                },
+                "post_count": {
+                    "bsonType": "int",
+                    "label": "动态数量"
+                },
+                "create_date": {
+                    "bsonType": "timestamp",
+                    "label": "创建时间",
+                    "forceDefaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-users-colleges": {
+        "data": [
+            {
+                "college_id": "b0cde5b0643041160008cb83199c1381",
+                "college_name": "江苏科技大学",
+                "date": 1681045259683,
+                "end_date": 2020,
+                "major": "工业设计",
+                "start_date": 2016,
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-users-colleges_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id",
+                "college_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    },
+                    "foreignKey": "uni-id-users._id"
+                },
+                "college_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-colleges._id"
+                },
+                "college_name": {
+                    "bsonType": "string",
+                    "title": "学校"
+                },
+                "major": {
+                    "bsonType": "string",
+                    "title": "专业",
+                    "trim": "both"
+                },
+                "start_date": {
+                    "bsonType": "int",
+                    "title": "起始时间"
+                },
+                "end_date": {
+                    "bsonType": "int",
+                    "title": "结束时间"
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "title": "排序"
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "title": "时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-users-resumes": {
+        "data": [
+            {
+                "company": "某互联网电商公司",
+                "date": 1681044964978,
+                "duties": "企业级软件界面交互设计",
+                "end_date": 1601510400000,
+                "industry_id": "f777abbe6432b58c002076452ae8ee73",
+                "industry_name": "电子商务",
+                "position": "用户界面设计师",
+                "start_date": 1593561600000,
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-users-resumes_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "forceDefaultValue": {
+                        "$env": "uid"
+                    },
+                    "foreignKey": "uni-id-users._id"
+                },
+                "start_date": {
+                    "bsonType": "timestamp",
+                    "title": "起始时间"
+                },
+                "end_date": {
+                    "bsonType": "timestamp",
+                    "title": "结束时间"
+                },
+                "company": {
+                    "bsonType": "string",
+                    "title": "公司",
+                    "trim": "both"
+                },
+                "industry_id": {
+                    "bsonType": "string",
+                    "title": "行业 ID",
+                    "foreignKey": "db-industries._id"
+                },
+                "industry_name": {
+                    "bsonType": "string",
+                    "title": "行业"
+                },
+                "position": {
+                    "bsonType": "string",
+                    "title": "职务",
+                    "trim": "both"
+                },
+                "duties": {
+                    "bsonType": "string",
+                    "title": "职责",
+                    "trim": "both"
+                },
+                "sort": {
+                    "bsonType": "int",
+                    "title": "排序"
+                },
+                "date": {
+                    "bsonType": "timestamp",
+                    "title": "时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            },
+            "version": "0.0.1"
+        }
+    },
+    "db-votes": {
+        "data": [
+            {
+                "create_date": 1681645704320,
+                "option_id": "636083fb643bd0f00009d8eb682524b9",
+                "post_id": "5c3e8afd643bd0f000085fe93867ec55",
+                "user_id": "0122a5876431374b07c5590557b4bd21"
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-votes_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "post_id",
+                "option_id",
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "option_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-votes-options._id"
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "create_date": {
+                    "bsonType": "timestamp",
+                    "title": "创建时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            }
+        }
+    },
+    "db-votes-options": {
+        "data": [
+            {
+                "create_date": 1681641712254,
+                "option_content": "Google Bard",
+                "post_id": "5c3e8afd643bd0f000085fe93867ec55",
+                "user_id": "2cc84e266430478807baff8e5a1cf944",
+                "vote_count": 1
+            }
+        ],
+        "index": [
+            {
+                "IndexName": "db-votes-options_openid_index_",
+                "MgoKeySchema": {
+                    "MgoIndexKeys": [
+                        {
+                            "Name": "_openid",
+                            "Direction": "1"
+                        }
+                    ],
+                    "MgoIsUnique": false
+                }
+            }
+        ],
+        "schema": {
+            "bsonType": "object",
+            "required": [
+                "post_id",
+                "user_id"
+            ],
+            "permission": {
+                "read": true,
+                "create": "auth.uid != null",
+                "update": "doc.user_id == auth.uid",
+                "delete": "doc.user_id == auth.uid"
+            },
+            "properties": {
+                "_id": {
+                    "description": "ID，系统自动生成"
+                },
+                "post_id": {
+                    "bsonType": "string",
+                    "foreignKey": "db-posts._id"
+                },
+                "option_content": {
+                    "bsonType": "string",
+                    "title": "选项内容",
+                    "trim": "both"
+                },
+                "vote_count": {
+                    "bsonType": "int",
+                    "title": "票数",
+                    "defaultValue": 0,
+                    "permission": {
+                        "write": false
+                    }
+                },
+                "user_id": {
+                    "bsonType": "string",
+                    "foreignKey": "uni-id-users._id",
+                    "defaultValue": {
+                        "$env": "uid"
+                    }
+                },
+                "create_date": {
+                    "bsonType": "timestamp",
+                    "title": "创建时间",
+                    "defaultValue": {
+                        "$env": "now"
+                    }
+                }
+            }
+        }
+    },
+    "opendb-city-china": {
+        "data": [
+            {
+                "code": "110000",
+                "first_letter": "B",
+                "name": "北京市",
+                "pinyin": "beijingshi",
+                "type": 0,
+                "zip_code": "100000"
+            }
+        ]
+    },
+    "opendb-device": {
+        "data": [
+            {
+                "appid": "__UNI__E179C2C",
+                "create_date": 1680885641175,
+                "device_id": "16801659156726947360",
+                "last_update_date": 1680885641175,
+                "model": "iPhone 12/13 (Pro)",
+                "os_name": "ios",
+                "os_version": "10.0.1",
+                "pixel_ratio": 3,
+                "push_clientid": "8e0401a6f3ab742f2869d5bcfe133ecd",
+                "screen_height": 844,
+                "screen_width": 390,
+                "uni_platform": "mp-weixin",
+                "vendor": "devtools",
+                "window_height": 762,
+                "window_width": 390
+            }
+        ]
+    },
+    "opendb-frv-logs": [],
+    "opendb-open-data": {
+        "data": [
+            {
+                "expired": 1706588316371,
+                "value": "{\"session_key\":\"Lt0qevtuNIVJT/Cw4E284w==\"}"
+            }
+        ]
+    },
+    "opendb-tempdata": {
+        "data": [
+            {
+                "expired": 1697970518989,
+                "value": "35320467936b8a5cac7ca07d0ce6dd16228c08587306545a1bc42a39c6bc37f7"
+            }
+        ]
+    },
+    "opendb-verify-codes": [],
+    "uni-id-device": {
+        "data": [
+            {
+                "appid": "__UNI__E179C2C",
+                "device_id": "16801659156726947360",
+                "push_clientid": "8e0401a6f3ab742f2869d5bcfe133ecd",
+                "token_expired": 1683477640000,
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ]
+    },
+    "uni-id-log": {
+        "data": [
+            {
+                "appid": "__UNI__E179C2C",
+                "create_date": 1680885640776,
+                "device_id": "16801659156726947360",
+                "ip": "127.0.0.1",
+                "state": 1,
+                "type": "register",
+                "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1 wechatdevtools/1.06.2303220 MicroMessenger/8.0.5 webview/",
+                "user_id": "2cc84e266430478807baff8e5a1cf944"
+            }
+        ]
+    },
+    "uni-id-permissions": [],
+    "uni-id-roles": {
+        "data": [
+            {
+                "comment": "超级管理员拥有所有权限",
+                "create_date": 0,
+                "permission": [],
+                "role_id": "admin",
+                "role_name": "超级管理员"
+            }
+        ]
+    },
+    "uni-id-users": {
+        "data": [
+            {
+                "avatar_file": {
+                    "extname": "jpg",
+                    "name": "users/avatars/2cc84e266430478807baff8e5a1cf944_1700129777658.jpg",
+                    "url": "cloud://tcb-bzyinf8h635kbb2-1cbbca13db4b.7463-tcb-bzyinf8h635kbb2-1cbbca13db4b-1316905658/users/avatars/2cc84e266430478807baff8e5a1cf944_1700129777658.jpg"
+                },
+                "birth_date": 891129600000,
+                "city": "南京市",
+                "city_lat": 32.059344,
+                "city_lng": 118.796624,
+                "dcloud_appid": [
+                    "__UNI__E179C2C"
+                ],
+                "district": "浦口区",
+                "district_lat": 32.059796,
+                "district_lng": 118.627165,
+                "emotion_id": 6,
+                "emotion_name": "恋爱中",
+                "gender": 1,
+                "hometown": {
+                    "adcode": "620702",
+                    "city": "张掖市",
+                    "district": "甘州区",
+                    "province": "甘肃省"
+                },
+                "intro": "人生如逆旅\n应当从容与期待",
+                "last_login_date": 1703996316521,
+                "last_login_ip": "183.209.159.32",
+                "lover_id": "fc8e6465643593ee082754ff216ec1ee",
+                "nickname": "TAOVIA",
+                "region": {
+                    "adcode": "320111",
+                    "city": "南京市",
+                    "district": "浦口区",
+                    "latitude": 32.059,
+                    "longitude": 118.62841,
+                    "province": "江苏省"
+                },
+                "register_date": 1680885640372,
+                "register_env": {
+                    "app_name": "taosplanet",
+                    "app_version": "1.0.0",
+                    "app_version_code": "100",
+                    "appid": "__UNI__E179C2C",
+                    "channel": "1001",
+                    "client_ip": "127.0.0.1",
+                    "os_name": "ios",
+                    "uni_platform": "mp-weixin"
+                },
+                "status_id": 7,
+                "status_name": "创业中",
+                "third_party": {
+                    "mp_weixin": {
+                        "session_key": "Lt0qevtuNIVJT/Cw4E284w=="
+                    }
+                },
+                "token": [
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIyY2M4NGUyNjY0MzA0Nzg4MDdiYWZmOGU1YTFjZjk0NCIsInJvbGUiOltdLCJwZXJtaXNzaW9uIjpbXSwidW5pSWRWZXJzaW9uIjoiMS4wLjE2IiwiaWF0IjoxNzAzOTk2MzE2LCJleHAiOjE3MDY1ODgzMTZ9.h5emli6jHy0X0_71hLtyK3t9L3CAZWNEM_aoaQp_MbI"
+                ],
+                "view_count": 414,
+                "wx_openid": {
+                    "mp": "ogKa54pvO23JBwzctwt2NGmv814Y",
+                    "mp___UNI__E179C2C": "ogKa54pvO23JBwzctwt2NGmv814Y"
+                }
+            }
+        ]
+    },
+    "uni-pay-orders": {
+        "data": [
+            {
+                "appid": "__UNI__E179C2C",
+                "client_ip": "183.209.158.167",
+                "create_date": 1692025737901,
+                "custom": "custom",
+                "description": "description",
+                "device_id": "16920048189249456142",
+                "nickname": "李天涛",
+                "notify_date": 1692025760599,
+                "openid": "ogKa54pvO23JBwzctwt2NGmv814Y",
+                "order_no": "test1692025737162",
+                "original_data": {
+                    "body": "{\"id\":\"933fa9c2-348f-506f-875f-86aa8a801734\",\"create_time\":\"2023-08-14T23:09:19+08:00\",\"resource_type\":\"encrypt-resource\",\"event_type\":\"TRANSACTION.SUCCESS\",\"summary\":\"支付成功\",\"resource\":{\"original_type\":\"transaction\",\"algorithm\":\"AEAD_AES_256_GCM\",\"ciphertext\":\"7qAq3pSZizBumUCOmSwRR2LZVOLvlcnyQPb2ue+bSuTU6LaRjTrYyr3KZb7QcJdTmNE/DCXre0FxIvMkDGCDbi8Njb6+cNUamQA2382Gx1gSJprxm3TXIcOmqoeUvERJNtkJGzhvMCUf8969O8rep5rTj/Fu1q7EbW4pen3EA3275MRwjCY+5iCFR7Ncox0kdkbIVSfEh8U5yBrnJKcpijxAwknFAKP3O0+1xeLi2ACzV2hqNBTdaDPCkTsra0LhHC5CgIZESO+su0C16LIs0Mwft/7uQvv9X6DOWnfbTffox39LpLMr9DggCrO+GZaOjy1GknB3UcHNunPS+eM5rgluDd5T2exrEzEONjbCvmgKb5dNbGZ1slFLmwCMNgjvN3tP5P6uwXn4FM3DyvYvpUolqpzeex6skmqXzJN9fiByzczzGsOvwOGs2BkjelTLzeCPczkgcauxRNh6fQmjCDJ8LlAmc58qpYorW3KoxZenrJnHOqyWP4B9xZw+xGprasWD4rhMmMMJ8zHPIQgxXr1qZOrlCxVB9gyfZ96LA2MGmhonCBDUS6ewGpBn0VWrTkaymQ==\",\"associated_data\":\"transaction\",\"nonce\":\"XCs8BwZFKEsF\"}}",
+                    "headers": {
+                        "accept": "*/*",
+                        "connection": "keep-alive",
+                        "content-length": "911",
+                        "content-type": "application/json",
+                        "host": "tcb-bzyinf8h635kbb2-1cbbca13db4b.service.tcloudbase.com",
+                        "pragma": "no-cache",
+                        "user-agent": "Mozilla/4.0",
+                        "wechatpay-nonce": "l5CDQ1FrXftdSFSBrtCXXTb0tKZM1J0u",
+                        "wechatpay-serial": "63DAB56F74954490FABEAE1D8086A837310C52B0",
+                        "wechatpay-signature": "meTdzqMcix3Y18Jcnx5Pwfv3y6Zgdx2bdphjUkUsyg89xdEhSIno29oz5vlKVjEfaX0Jy0KOUQnEbIZOzMuWaHyEtiUV4btulWRUhHVoqh948I8ciAKrQOv1Pz8JnXPjs9U57MJiEv+0Ucd+gDVvdHbUzM0KBRB8of+uWywohVD93bW6fe9ZrAXRxQVivFJ5nKR44XF/xtbdrBAPJLaj+1l/qicnmnUlA3ACyJcMwjN1Ttgdr4TUgYMLANCxvS3IuXO6hQPvEL4guq3myNzaSlLTAacslosTHtCYkrcE7i4HmetOvVF49AQo5Utt3wV1YNheju5bdAVM30pygqoHkg==",
+                        "wechatpay-signature-type": "WECHATPAY2-SHA256-RSA2048",
+                        "wechatpay-timestamp": "1692025760",
+                        "x-client-proto": "https",
+                        "x-client-proto-ver": "HTTP/1.1",
+                        "x-forwarded-for": "121.51.58.175",
+                        "x-forwarded-proto": "https",
+                        "x-real-ip": "121.51.58.175",
+                        "x-stgw-time": "1692025760.254"
+                    },
+                    "httpMethod": "POST",
+                    "isBase64Encoded": false,
+                    "multiValueHeaders": {
+                        "accept": [
+                            "*/*"
+                        ],
+                        "connection": [
+                            "keep-alive"
+                        ],
+                        "content-length": [
+                            "911"
+                        ],
+                        "content-type": [
+                            "application/json"
+                        ],
+                        "host": [
+                            "tcb-bzyinf8h635kbb2-1cbbca13db4b.service.tcloudbase.com"
+                        ],
+                        "pragma": [
+                            "no-cache"
+                        ],
+                        "user-agent": [
+                            "Mozilla/4.0"
+                        ],
+                        "wechatpay-nonce": [
+                            "l5CDQ1FrXftdSFSBrtCXXTb0tKZM1J0u"
+                        ],
+                        "wechatpay-serial": [
+                            "63DAB56F74954490FABEAE1D8086A837310C52B0"
+                        ],
+                        "wechatpay-signature": [
+                            "meTdzqMcix3Y18Jcnx5Pwfv3y6Zgdx2bdphjUkUsyg89xdEhSIno29oz5vlKVjEfaX0Jy0KOUQnEbIZOzMuWaHyEtiUV4btulWRUhHVoqh948I8ciAKrQOv1Pz8JnXPjs9U57MJiEv+0Ucd+gDVvdHbUzM0KBRB8of+uWywohVD93bW6fe9ZrAXRxQVivFJ5nKR44XF/xtbdrBAPJLaj+1l/qicnmnUlA3ACyJcMwjN1Ttgdr4TUgYMLANCxvS3IuXO6hQPvEL4guq3myNzaSlLTAacslosTHtCYkrcE7i4HmetOvVF49AQo5Utt3wV1YNheju5bdAVM30pygqoHkg=="
+                        ],
+                        "wechatpay-signature-type": [
+                            "WECHATPAY2-SHA256-RSA2048"
+                        ],
+                        "wechatpay-timestamp": [
+                            "1692025760"
+                        ],
+                        "x-client-proto": [
+                            "https"
+                        ],
+                        "x-client-proto-ver": [
+                            "HTTP/1.1"
+                        ],
+                        "x-forwarded-for": [
+                            "121.51.58.175"
+                        ],
+                        "x-forwarded-proto": [
+                            "https"
+                        ],
+                        "x-real-ip": [
+                            "121.51.58.175"
+                        ],
+                        "x-stgw-time": [
+                            "1692025760.254"
+                        ]
+                    },
+                    "path": "/payNotify/wxpay-mp",
+                    "requestContext": {
+                        "appId": "1316905658",
+                        "envId": "tcb-bzyinf8h635kbb2-1cbbca13db4b",
+                        "requestId": "653a3df02bdb57a852f7aafd2419b2c0",
+                        "uin": "100029652371"
+                    }
+                },
+                "out_trade_no": "test1692025737162-1",
+                "pay_date": 1692025760599,
+                "provider": "wxpay",
+                "provider_appid": "wxb598dce943cae5da",
+                "provider_pay_type": "mp",
+                "refund_count": 0,
+                "refund_fee": 0,
+                "stat_data": {
+                    "app_version": "1.0.0",
+                    "app_version_code": "100",
+                    "channel": "1001",
+                    "os": "ios",
+                    "platform": "mp-weixin",
+                    "scene": 1001
+                },
+                "status": 1,
+                "total_fee": 50,
+                "transaction_id": "4200001892202308143256774072",
+                "type": "test",
+                "uni_platform": "mp-weixin",
+                "user_id": "2cc84e266430478807baff8e5a1cf944",
+                "user_order_success": {
+                    "status": 1,
+                    "total_fee": 50
+                }
+            }
+        ]
+    }
+}

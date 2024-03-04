@@ -220,10 +220,10 @@
 
 				if (this.userId == uid) {
 					this.currentUser = true;
-					this.getViewCount();
 				}
 
 				this.getUserInfo();
+				this.getViewCount();
 			}
 
 			this.onReachBottom();

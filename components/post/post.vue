@@ -400,7 +400,7 @@
 				if (this.post.images) {
 					this.fileUrls = await getTempFileURL(this.post.images);
 					this.thumbnails = this.fileUrls.map(item => {
-						return item + "?imageMogr2/thumbnail/320x"
+						return item + "?x-oss-process=image/resize,w_300,m_lfit"
 					});
 				} else if (this.post.videos) {
 					this.fileUrls = await getTempFileURL(this.post.videos);
